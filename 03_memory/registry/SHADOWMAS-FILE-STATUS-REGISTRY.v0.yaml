@@ -1,0 +1,175 @@
+schema_version: v0
+registry_name: SHADOWMAS-FILE-STATUS-REGISTRY
+purpose: >
+  Minimal file-status registry for shadowMAS v0.
+  Tracks file role, authority, status, and promotion meaning.
+
+status_definitions:
+  handoff_only:
+    meaning: Single-session or transfer artifact used for handoff, not mainline truth.
+    truth_level: non_authoritative
+
+  working_draft:
+    meaning: Active draft under integration or refinement.
+    truth_level: non_authoritative
+
+  truth_candidate:
+    meaning: Candidate artifact that may later be promoted into approved truth.
+    truth_level: pending_review
+
+  approved_truth:
+    meaning: Approved canonical or governed truth artifact.
+    truth_level: authoritative
+
+  shared_memory_candidate:
+    meaning: Candidate reusable memory not yet approved as shared memory.
+    truth_level: pending_review
+
+  approved_shared_memory:
+    meaning: Approved reusable shared memory below canonical truth.
+    truth_level: reusable_non_canonical
+
+  superseded:
+    meaning: Replaced by a newer artifact and not active.
+    truth_level: historical_only
+
+  archived:
+    meaning: Retained only for historical reference.
+    truth_level: historical_only
+
+authority_definitions:
+  canonical:
+    meaning: Formal source of truth.
+
+  governed_support:
+    meaning: Important support artifact under governance, but not top canonical truth.
+
+  human_navigation:
+    meaning: Human-facing explanation or navigation artifact.
+
+  machine_registry:
+    meaning: Machine-facing status or schema artifact.
+
+  working_only:
+    meaning: Temporary or in-progress artifact.
+
+default_rules:
+  english_formal_truth_default_status: approved_truth
+  zh_tw_single_source_default_status: governed_support
+  packet_yaml_default_status: truth_candidate
+  registry_yaml_default_status: machine_registry
+  working_folder_default_status: working_draft
+
+tracked_files:
+  - path: README.md
+    artifact_type: repo_entry
+    status: governed_support
+    authority: governed_support
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Entry file only, not canonical truth.
+
+  - path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+    artifact_type: formal_truth
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Current minimum truth baseline.
+
+  - path: 01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
+    artifact_type: formal_truth
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Layering contract for prompt/rule governance.
+
+  - path: 01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
+    artifact_type: formal_truth
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Active governance matrix.
+
+  - path: 01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md
+    artifact_type: formal_truth
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Change-impact mapping baseline.
+
+  - path: 01_truth/SHADOWMAS-TRANSLATION-POLICY.v0.en.md
+    artifact_type: formal_truth
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Canonical bilingual policy.
+
+  - path: 03_memory/MEMORY-PLANE-HARNESS.v0.en.md
+    artifact_type: formal_truth
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Minimum memory-plane harness.
+
+  - path: 03_memory/registry/SHADOWMAS-FILE-STATUS-REGISTRY.v0.yaml
+    artifact_type: registry
+    status: approved_truth
+    authority: machine_registry
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Registry seed for v0.
+
+  - path: 04_runtime/LOCAL-MODEL-BASELINE.v0.en.md
+    artifact_type: runtime_baseline
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Current local model baseline.
+
+  - path: 06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md
+    artifact_type: human_navigation
+    status: approved_truth
+    authority: human_navigation
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Human navigation brain, not canonical execution truth.
+
+folder_defaults:
+  "07_working/incoming_handoffs/":
+    status: handoff_only
+    authority: working_only
+
+  "07_working/merged/":
+    status: working_draft
+    authority: working_only
+
+  "07_working/drafts/":
+    status: working_draft
+    authority: working_only
+
+  "07_working/archive/":
+    status: archived
+    authority: historical_only
+
+review_rules:
+  - rule: approved_truth must not be overwritten by working_draft without explicit human review.
+  - rule: zh-TW human_navigation docs do not override English canonical truth.
+  - rule: packet schema truth_candidates must be reviewed before first git push for v0-min-landing-skeleton.
+  - rule: handoff_only artifacts must not silently become canonical truth.

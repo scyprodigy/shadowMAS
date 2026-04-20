@@ -1,0 +1,75 @@
+schema_version: v0
+packet_type: task_packet
+extends: packet_common_shell.v0.yaml
+
+required_fields:
+  goal:
+    type: string
+    required: true
+    meaning: intended outcome of the task
+
+  scope:
+    type: list[string]
+    required: true
+    meaning: what is inside the task boundary
+
+  acceptance_criteria:
+    type: list[string]
+    required: true
+    meaning: completion conditions
+
+  stop_conditions:
+    type: list[string]
+    required: true
+    meaning: when autonomous work must stop
+
+required_shared_fields:
+  - packet_uid
+  - packet_type
+  - schema_version
+  - created_at
+  - created_by
+  - owner
+  - supervision_mode
+  - risk
+  - status
+
+optional_fields:
+  out_of_scope:
+    type: list[string]
+    meaning: explicitly excluded work
+
+  truth_touchpoints:
+    type: list[string]
+    meaning: truth files or truth layers this task may affect
+
+  worker_plan:
+    type: list[string]
+    meaning: minimal execution plan
+
+  constraints:
+    type: list[string]
+    meaning: execution limits or prohibited actions
+
+  expected_outputs:
+    type: list[string]
+    meaning: expected artifacts or outcomes
+
+allowed_status_values:
+  - draft
+  - ready
+  - assigned
+  - in_progress
+  - blocked
+  - awaiting_review
+  - approved
+  - rejected
+  - done
+  - cancelled
+  - superseded
+
+rules:
+  - goal must be explicit
+  - scope must be bounded
+  - acceptance_criteria must be concrete
+  - stop_conditions must exist for non-trivial work
