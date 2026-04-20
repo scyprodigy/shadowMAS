@@ -1,0 +1,124 @@
+schema_version: v0
+artifact_type: packet_common_shell
+canonical_language: en
+timestamp_format: RFC3339_UTC
+required_shared_fields:
+  packet_uid:
+    type: string
+    required: true
+    meaning: globally unique packet identifier
+
+  packet_type:
+    type: enum
+    required: true
+    allowed:
+      - task_packet
+      - memory_packet
+      - review_packet
+
+  schema_version:
+    type: string
+    required: true
+    fixed_value: v0
+
+  created_at:
+    type: string
+    required: true
+    format: RFC3339_UTC
+    example: "2026-04-20T16:40:00Z"
+
+  created_by:
+    type: string
+    required: true
+    meaning: creator identity or role
+
+  owner:
+    type: string
+    required: true
+    meaning: stable responsibility holder
+
+  supervision_mode:
+    type: enum
+    required: true
+    allowed:
+      - human_live_pair
+      - human_available_delegate
+      - human_away_autonomous
+
+  risk:
+    type: enum
+    required: true
+    allowed:
+      - r0_trivial
+      - r1_routine
+      - r2_guarded
+      - r3_sensitive
+      - r4_human_only
+
+  status:
+    type: string
+    required: true
+    meaning: lifecycle state, family-specific allowed values apply
+
+optional_shared_fields:
+  packet_id:
+    type: string
+    meaning: human-readable packet identifier
+
+  task_id:
+    type: string
+
+  run_id:
+    type: string
+
+  session_id:
+    type: string
+
+  writable_by:
+    type: list[string]
+
+  source_refs:
+    type: list[object]
+
+  artifact_refs:
+    type: list[object]
+
+  related_packets:
+    type: list[string]
+
+  tags:
+    type: list[string]
+
+  handoff:
+    type: object
+
+source_ref_shape:
+  source_type: string
+  source_id: string
+  source_path: string
+  source_hash: string
+  source_version: string
+  section: string
+  relation: string
+
+artifact_ref_shape:
+  artifact_type: string
+  artifact_path: string
+  exists: boolean
+  change_kind: string
+  produced_by: string
+  task_role: string
+
+handoff_shape:
+  from_packet_ref: string
+  to_role: string
+  needed_action: string
+  reason: string
+  blockers: list[string]
+
+rules:
+  - shared field meaning must remain stable across packet families
+  - created_at must use RFC3339 UTC
+  - source_refs do not imply authority
+  - artifact_refs do not imply promotion
+  - owner and writable_by must not be conflated

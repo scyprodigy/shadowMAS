@@ -1,0 +1,50 @@
+version: v0
+purpose: >-
+  Working-only intake queue for high-cost lessons that should be reviewed by a human
+  before any promotion, patch-downshift, or formalization decision.
+status: working_only
+rules:
+  not_canonical_truth: true
+  not_approved_shared_memory: true
+  human_review_required_before_promotion: true
+  queue_only_not_final_law: true
+trigger_types:
+  - repeated_same_failure
+  - rework_or_wrong_edit_risk
+  - needs_patch_downshift
+suggested_sink_values:
+  - execution_patch
+  - project_patch
+  - governance_candidate
+  - no_action
+entries: []
+entry_schema:
+  lesson_id: "string"
+  date: "YYYY-MM-DD"
+  trigger_type: "repeated_same_failure | rework_or_wrong_edit_risk | needs_patch_downshift"
+  short_summary: "string"
+  impact: "low | medium | high | critical"
+  repeat_count: "integer"
+  suggested_sink: "execution_patch | project_patch | governance_candidate | no_action"
+  source_refs:
+    - source_type: "file | session_handoff | packet | repo_doc | external_reference"
+      source_path: "string"
+      relation: "read_from | derived_from | supports | conflicts_with"
+  human_decision:
+    status: "pending | accepted | rejected | deferred"
+    note: "string"
+example_entry:
+  lesson_id: "lesson_0001"
+  date: "2026-04-20"
+  trigger_type: "rework_or_wrong_edit_risk"
+  short_summary: "Runtime state path was nearly treated as canonical source."
+  impact: "high"
+  repeat_count: 1
+  suggested_sink: "execution_patch"
+  source_refs:
+    - source_type: "file"
+      source_path: "06_human_docs/zh-TW/onboarding/SHADOWMAS-OPERATOR-GUIDE.v0.zh-TW.md"
+      relation: "supports"
+  human_decision:
+    status: "pending"
+    note: ""

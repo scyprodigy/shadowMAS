@@ -1,0 +1,78 @@
+schema_version: v0
+packet_type: memory_packet
+extends: packet_common_shell.v0.yaml
+
+required_fields:
+  memory_kind:
+    type: string
+    required: true
+    meaning: category of memory captured
+
+  memory_scope:
+    type: string
+    required: true
+    meaning: validity scope of the memory
+
+  summary:
+    type: string
+    required: true
+    meaning: short human-readable summary
+
+  structured_payload:
+    type: object
+    required: true
+    meaning: machine-usable payload
+
+  source_refs:
+    type: list[object]
+    required: true
+    meaning: supporting sources for the memory
+
+  invalidation_triggers:
+    type: list[string]
+    required: true
+    meaning: conditions that make the memory stale or unsafe
+
+  confidence:
+    type: number
+    required: true
+    range: [0.0, 1.0]
+    meaning: confidence in reuse, not truth authority
+
+  promotion_candidate:
+    type: enum
+    required: true
+    allowed:
+      - yes
+      - no
+
+required_shared_fields:
+  - packet_uid
+  - packet_type
+  - schema_version
+  - created_at
+  - created_by
+  - owner
+  - status
+
+optional_fields:
+  promotion_notes:
+    type: string
+    meaning: explanation for promotion suitability
+
+allowed_status_values:
+  - captured
+  - draft
+  - candidate
+  - approved_shared
+  - stale
+  - broken_reference
+  - rejected
+  - superseded
+  - archived
+
+rules:
+  - source_refs are mandatory
+  - invalidation_triggers are mandatory
+  - confidence must not be used as truth authority
+  - promotion_candidate does not imply approval

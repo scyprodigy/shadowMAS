@@ -1,0 +1,71 @@
+schema_version: v0
+packet_type: review_packet
+extends: packet_common_shell.v0.yaml
+
+required_fields:
+  decision_needed:
+    type: string
+    required: true
+    meaning: explicit decision required from reviewer
+
+  why_you_are_seeing_this:
+    type: string
+    required: true
+    meaning: short explanation for why review is required
+
+  change_summary:
+    type: string
+    required: true
+    meaning: short summary of the proposed or observed change
+
+  risk_summary:
+    type: string
+    required: true
+    meaning: short summary of the key risk shape
+
+  recommendation:
+    type: enum
+    required: true
+    allowed:
+      - approve
+      - reject
+      - revise
+      - defer
+      - escalate
+
+required_shared_fields:
+  - packet_uid
+  - packet_type
+  - schema_version
+  - created_at
+  - created_by
+  - owner
+  - status
+
+optional_fields:
+  minimal_checks:
+    type: object
+    shape:
+      must_read: list[string]
+
+  must_compare:
+    type: list[string]
+    meaning: artifacts or concepts that must be compared
+
+  do_not_need_to_read:
+    type: list[string]
+    meaning: things the reviewer may safely skip
+
+allowed_status_values:
+  - draft
+  - ready_for_human
+  - under_review
+  - approved
+  - rejected
+  - needs_revision
+  - closed
+
+rules:
+  - review packets must minimize reader overload
+  - must_read should stay curated and small
+  - recommendation is advisory, not final human authority
