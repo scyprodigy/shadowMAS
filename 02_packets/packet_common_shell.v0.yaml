@@ -114,6 +114,7 @@ handoff_shape:
   to_role: string
   needed_action: string
   reason: string
+  resume_from: list[string]
   blockers: list[string]
 
 rules:
@@ -122,3 +123,9 @@ rules:
   - source_refs do not imply authority
   - artifact_refs do not imply promotion
   - owner and writable_by must not be conflated
+  - packet shell and packet schemas define machine-stable packet contract, not runtime implementation
+  - provider-specific adapter logic does not belong in packet shell
+  - session-only temporary notes do not belong in packet shell
+  - handoff.to_role carries next responsible role semantics
+  - handoff.reason carries handoff reason semantics
+  - handoff.resume_from carries minimal resume points for zero-memory continuation

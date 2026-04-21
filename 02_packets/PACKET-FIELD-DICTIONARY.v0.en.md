@@ -31,6 +31,18 @@ A shared field should exist only if:
 
 If a field is family-specific, keep it family-specific.
 
+## Packet Layer Boundary
+The packet layer is for:
+- packet schema
+- packet states
+- source and artifact reference formats
+- handoff fields
+
+The packet layer is not for:
+- full runtime implementation
+- provider-specific adapter logic
+- session-only temporary notes
+
 ---
 
 ## 1. Shared Core Fields
@@ -202,6 +214,7 @@ Structured handoff block for passing responsibility or action.
 Rule:
 - should remain minimal
 - should not turn into a giant unstructured note dump
+- should carry only machine-stable resume information, not session-only scratch notes
 
 ---
 
@@ -334,6 +347,11 @@ Packet reference that this handoff originated from.
 Meaning:
 Target role expected to take the next action.
 
+Rule:
+- carries the "next responsible role" semantics
+- is the canonical field for what older drafts called `next_owner`
+- do not introduce `next_owner` as a parallel canonical field
+
 Examples:
 - `L1`
 - `L2`
@@ -356,9 +374,28 @@ Examples:
 Meaning:
 Short explanation for why the handoff exists.
 
+Rule:
+- carries the handoff-reason semantics
+- is the canonical field for what older drafts called `handoff_reason`
+- do not introduce `handoff_reason` as a parallel canonical field
+
 ### `handoff.blockers`
 Meaning:
 List of blockers preventing normal completion.
+
+### `handoff.resume_from`
+Meaning:
+Minimal resume points that let a zero-memory agent or new session continue without rereading the full prior context.
+
+Rule:
+- should be a short ordered list of concrete restart anchors
+- should prefer machine-stable or human-inspectable pointers
+- should not become a long narrative summary
+
+Examples:
+- `read task scope and acceptance criteria`
+- `re-open changed files listed in artifact_refs`
+- `start from unresolved blocker 2`
 
 ---
 
@@ -398,11 +435,46 @@ Rule:
 
 ### `worker_plan`
 Meaning:
-Minimal execution plan for the worker/executor.
+Minimal execution plan for task execution control.
 
 Rule:
 - should remain actionable
 - not a giant essay
+
+Preferred subfields:
+- `worker_plan.preferred_worker`
+- `worker_plan.fallback_worker`
+- `worker_plan.allow_fanout`
+- `worker_plan.fanout_limit`
+- `worker_plan.retry_limit`
+
+### `why_now`
+Meaning:
+Why this task should be acted on now instead of later.
+
+Rule:
+- optional execution-scoping context
+- not governance authority by itself
+
+### `inputs`
+Meaning:
+Minimal task input block describing what context is needed.
+
+Rule:
+- use for execution-scoping context only
+- not a replacement for full packet references
+
+Preferred subfields:
+- `inputs.required_context`
+- `inputs.optional_context`
+
+### `inputs.required_context`
+Meaning:
+Context that should be read or loaded before normal execution.
+
+### `inputs.optional_context`
+Meaning:
+Useful but non-blocking context that may improve execution quality.
 
 ### `acceptance_criteria`
 Meaning:
@@ -434,6 +506,34 @@ Examples:
 ### `expected_outputs`
 Meaning:
 Artifacts or outcomes expected from this task.
+
+### `on_blocked`
+Meaning:
+Minimal blocked-state instructions for what to do next if normal progress stops.
+
+Rule:
+- should constrain next-step behavior
+- not a free-form escape hatch
+
+Preferred subfields:
+- `on_blocked.action`
+- `on_blocked.next_allowed_work`
+
+### `on_blocked.action`
+Meaning:
+Preferred next action when the task becomes blocked.
+
+### `on_blocked.next_allowed_work`
+Meaning:
+Work that is still allowed even while the main path is blocked.
+
+### `deliverables`
+Meaning:
+Expected outputs to hand back when execution is complete or handed off.
+
+Rule:
+- defines expected output surface
+- does not imply automatic approval or acceptance
 
 ---
 
@@ -505,6 +605,73 @@ Allowed direction:
 ### `promotion_notes`
 Meaning:
 Why promotion may or may not be appropriate.
+
+### `validity`
+Meaning:
+Minimal structured basis for where and when a memory may still be reused.
+
+Rule:
+- validity is reuse-safety metadata, not truth authority
+- does not replace `source_refs`
+- does not replace promotion review
+- exists to make reuse assumptions inspectable
+
+### `validity.applies_to`
+Meaning:
+Where the memory is intended to be valid.
+
+Preferred subfields:
+- `validity.applies_to.modules`
+- `validity.applies_to.task_types`
+
+### `validity.applies_to.modules`
+Meaning:
+Modules or code areas where this memory is expected to apply.
+
+### `validity.applies_to.task_types`
+Meaning:
+Task categories where this memory is expected to apply.
+
+### `validity.stale_on`
+Meaning:
+Explicit conditions that should cause the memory to become stale or require revalidation.
+
+Rule:
+- should list reuse-relevant change conditions
+- should not duplicate all packet lifecycle states
+
+### `validity.review_after`
+Meaning:
+Optional date, time, or review checkpoint after which reuse should trigger review again.
+
+Rule:
+- re-review hint only
+- not automatic invalidation by itself
+
+### `invalidation`
+Meaning:
+Machine-readable invalidation snapshot for the memory's current source condition.
+
+Rule:
+- should stay narrower than packet lifecycle status
+- should not replace packet `status`
+
+### `invalidation.current_state`
+Meaning:
+Machine-readable current invalidation state for the memory.
+
+Rule:
+- should align with current invalidation semantics such as `valid`, `stale`, `broken_reference`, or `rejected`
+- must not conflict with packet status semantics
+
+### `invalidation.source_hashes`
+Meaning:
+Optional recorded source hashes used to compare whether the cited basis changed.
+
+Rule:
+- comparison aid only
+- not approval proof
+- not truth authority
 
 ### `memory_status`
 Meaning:
@@ -615,6 +782,9 @@ Do not confuse:
 - `artifact_ref` with promotion
 - `summary` with structured payload
 - `status` with governance tier
+- `status` with `invalidation.current_state`
+- `validity` with authority
+- `source_hashes` with approval proof
 - retrieval hit with approved memory
 - approved shared memory with canonical truth
 

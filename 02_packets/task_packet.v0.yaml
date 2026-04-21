@@ -35,6 +35,17 @@ required_shared_fields:
   - status
 
 optional_fields:
+  why_now:
+    type: string
+    meaning: optional reason this task should be acted on now
+
+  inputs:
+    type: object
+    meaning: minimal execution-scoping input context
+    shape:
+      required_context: list[string]
+      optional_context: list[string]
+
   out_of_scope:
     type: list[string]
     meaning: explicitly excluded work
@@ -44,8 +55,25 @@ optional_fields:
     meaning: truth files or truth layers this task may affect
 
   worker_plan:
+    type: object
+    meaning: minimal execution plan and worker selection hints
+    shape:
+      preferred_worker: string
+      fallback_worker: string
+      allow_fanout: boolean
+      fanout_limit: integer
+      retry_limit: integer
+
+  on_blocked:
+    type: object
+    meaning: constrained next-step instructions when progress is blocked
+    shape:
+      action: string
+      next_allowed_work: list[string]
+
+  deliverables:
     type: list[string]
-    meaning: minimal execution plan
+    meaning: expected outputs to return or hand off
 
   constraints:
     type: list[string]
@@ -73,3 +101,8 @@ rules:
   - scope must be bounded
   - acceptance_criteria must be concrete
   - stop_conditions must exist for non-trivial work
+  - why_now, inputs, worker_plan, on_blocked, and deliverables are execution control aids, not governance authority replacement
+  - inputs.required_context identifies blocking context; inputs.optional_context identifies useful but non-blocking context
+  - worker_plan must stay minimal and actionable, not a giant essay
+  - on_blocked must define constrained next-step behavior, not free-form improvisation
+  - deliverables define expected output surface and do not imply automatic approval
