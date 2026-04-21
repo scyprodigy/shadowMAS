@@ -26,12 +26,12 @@ required_fields:
   source_refs:
     type: list[object]
     required: true
-    meaning: supporting sources for the memory
+    meaning: supporting sources for the memory; reusable memory must not omit its source basis
 
   invalidation_triggers:
     type: list[string]
     required: true
-    meaning: conditions that make the memory stale or unsafe
+    meaning: conditions that make the memory stale, broken, superseded, or otherwise unsafe for active reuse
 
   confidence:
     type: number
@@ -60,6 +60,23 @@ optional_fields:
     type: string
     meaning: explanation for promotion suitability
 
+  validity:
+    type: object
+    meaning: structured reuse-safety scope and review hints
+    shape:
+      applies_to:
+        modules: list[string]
+        task_types: list[string]
+      stale_on: list[string]
+      review_after: string
+
+  invalidation:
+    type: object
+    meaning: machine-readable invalidation state and source comparison hints
+    shape:
+      current_state: string
+      source_hashes: list[string]
+
 allowed_status_values:
   - captured
   - draft
@@ -71,8 +88,30 @@ allowed_status_values:
   - superseded
   - archived
 
+status_meanings:
+  captured: captured but not yet shaped into reusable memory
+  draft: actively refined memory draft, not approved for shared reuse
+  candidate: structured candidate for review or promotion consideration
+  approved_shared: approved reusable memory below canonical truth
+  stale: source or prerequisite changed and revalidation is required before reuse
+  broken_reference: cited source no longer exists or cannot be resolved reliably
+  rejected: not approved for active shared reuse
+  superseded: replaced by a newer approved memory and no longer the active default
+  archived: retained only for history or audit and not for active reuse
+
 rules:
   - source_refs are mandatory
   - invalidation_triggers are mandatory
   - confidence must not be used as truth authority
   - promotion_candidate does not imply approval
+  - validity does not replace source_refs or promotion review
+  - validity.review_after is a re-review hint, not automatic invalidation by itself
+  - invalidation.current_state should align to valid, stale, broken_reference, or rejected semantics
+  - invalidation.current_state is a current invalidation snapshot and is not identical to packet status
+  - source_hashes are comparison aids for source drift and do not imply truth authority or approval
+  - stale and broken_reference are different; stale means source basis changed, broken_reference means source basis cannot be resolved
+  - superseded and archived are different; superseded has a newer active replacement, archived is historical retention without active use
+  - packet status describes lifecycle and reuse standing; invalidation.current_state describes current source-condition snapshot
+  - a packet may remain status approved_shared while invalidation.current_state is stale, which means reuse must pause pending revalidation
+  - reusable memory must not remain approved_shared after source deletion, unresolved move or rename, or equivalent broken reference
+  - reusable memory should move to stale when cited truth changes or when its source basis is superseded and revalidation has not yet happened

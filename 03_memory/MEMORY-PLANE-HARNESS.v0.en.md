@@ -138,14 +138,22 @@ Memory may not:
 ## Promotion Paths
 
 ### Allowed direction
+- `T5 -> T4` through runtime assembly only
 - `T4 -> T3` through approval gate
 - `T3 -> T2` through stronger promotion gate
 
+Meaning:
+- `T5` may become `T4` when ephemeral material is assembled into task-serving evidence
+- `T4` may become `T3` only after review confirms reusable value and acceptable source discipline
+- `T3` may become `T2` only through stronger approval because reusable memory is still below canonical truth
+
 ### Forbidden shortcuts
 - `T5 -> T2`
-- `T5 -> T3` without validation
+- `T5 -> T3`
 - `T4 -> T2` without formal promotion
 - retrieval result -> canonical truth
+
+`T5` must not jump directly to `T3` or `T2`.
 
 ## Invalidation Rule
 Every reusable memory should have explicit invalidation logic.
@@ -163,6 +171,100 @@ If invalidation occurs:
 - mark memory as stale or broken_reference
 - do not keep presenting it as active reusable memory
 - review before re-promotion
+
+## Status Semantics
+
+### stale
+Meaning:
+The source or prerequisite changed, so the memory may still be interpretable but must not remain trusted by default.
+
+Use when:
+- a cited source changed
+- a truth file was superseded
+- an assumption behind the memory no longer matches current repo state
+
+### broken_reference
+Meaning:
+The cited target no longer resolves, exists, or can be reliably linked.
+
+Use when:
+- a referenced file was deleted
+- a reference points to a path or artifact that no longer resolves
+- a move or rename left the memory without a valid updated target
+
+### superseded
+Meaning:
+The memory still exists historically, but a newer approved memory has replaced it for active use.
+
+### archived
+Meaning:
+The memory is retained for history or audit only and should not be used as active reusable guidance.
+
+Difference summary:
+- `stale` means re-check is required because the source basis changed
+- `broken_reference` means the source basis cannot currently be resolved
+- `superseded` means a newer active replacement exists
+- `archived` means historical retention without active use
+
+## Ghost Dependency Rule
+Deleted, moved, renamed, or superseded sources must not remain silently usable through old memory, old index entries, retrieval cache, or old summaries.
+
+A shared-memory artifact is not safe merely because a cached retrieval still returns it.
+If the cited source is gone, moved without resolution, or replaced by newer truth, the old memory must not continue to behave as active reusable memory.
+
+This rule exists to prevent ghost dependencies:
+- old summary pretending a deleted file still exists
+- cached retrieval pretending a renamed source is still valid without re-resolution
+- reusable memory pretending superseded truth is still the active basis
+
+## Shared Memory Impact Rules
+Shared memory and other reusable memory must absorb invalidation from the sources they cite.
+
+Required effects:
+- source changed -> mark `stale` until rechecked
+- source deleted -> mark `broken_reference`
+- source moved or renamed -> mark `broken_reference` unless references are explicitly repaired and revalidated
+- truth superseded -> mark `stale` at minimum, and move to `superseded` if a newer approved memory replaces it
+- manual reject or discard -> remove from active reusable use and treat as rejected or archived according to review outcome
+
+Retrieval output, cache output, and old summaries may help investigation, but after source invalidation they must not be presented as approved shared memory or active reusable memory until revalidated.
+
+## Reuse-Safety Metadata
+Reusable memory may carry structured reuse-safety metadata in addition to `source_refs`.
+
+This metadata may include:
+- `validity.applies_to` to express intended reuse boundary
+- `validity.stale_on` to express which changes should make the memory stale
+- `validity.review_after` to express when reuse should trigger re-review
+- `invalidation.current_state` to express current invalidation condition
+- `invalidation.source_hashes` to help compare whether cited sources changed
+
+These fields help make reuse inspectable, especially for shared memory and other reusable memory below canonical truth.
+They are support metadata only:
+- not promotion proof
+- not authority source
+- not a shortcut from memory to truth
+
+`validity.applies_to` is about intended scope, such as modules or task types.
+`validity.stale_on` is about which changes should force revalidation.
+`review_after` is a re-review hint, not automatic invalidation by itself.
+`source_hashes` are comparison aids, not proof that a memory is approved or currently correct.
+
+## Status and Invalidation Boundary
+Reusable memory may have both lifecycle status and invalidation snapshot metadata.
+
+Use this boundary:
+- packet `status` describes lifecycle and reuse standing
+- `invalidation.current_state` describes current source-condition snapshot
+
+This means a memory may still carry `status: approved_shared` while also carrying `invalidation.current_state: stale`.
+That combination means the memory was once approved for reuse, but current reuse should pause until revalidation occurs.
+
+Local or agent-specific memory may also carry this metadata.
+That can improve execution quality and reduce repeated rereading, but local memory still does not become final truth.
+
+Invalidation and revalidation exist to support safer memory reuse.
+They do not elevate memory into canonical authority.
 
 ## Minimum Data Model Direction
 
@@ -186,8 +288,10 @@ Should prefer:
 Should prefer:
 - explicit scope
 - source_refs
+- validity metadata where reuse boundary matters
 - summary + structured payload
 - invalidation triggers
+- invalidation snapshot where current source condition matters
 - confidence
 - promotion candidate handling
 - approval metadata later

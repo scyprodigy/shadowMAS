@@ -29,12 +29,20 @@ status_definitions:
     meaning: Approved reusable shared memory below canonical truth.
     truth_level: reusable_non_canonical
 
+  stale:
+    meaning: Source or prerequisite changed; revalidation is required before trusted reuse.
+    truth_level: suspended_until_rechecked
+
+  broken_reference:
+    meaning: A cited target no longer exists or cannot be resolved reliably.
+    truth_level: unusable_until_repaired
+
   superseded:
-    meaning: Replaced by a newer artifact and not active.
+    meaning: Replaced by a newer approved artifact and not active for current use.
     truth_level: historical_only
 
   archived:
-    meaning: Retained only for historical reference.
+    meaning: Retained only for history, audit, or traceability and not for active use.
     truth_level: historical_only
 
 authority_definitions:
@@ -52,6 +60,9 @@ authority_definitions:
 
   working_only:
     meaning: Temporary or in-progress artifact.
+
+  historical_only:
+    meaning: Historical retention only; not for active operational use.
 
 default_rules:
   english_formal_truth_default_status: approved_truth
@@ -173,3 +184,12 @@ review_rules:
   - rule: zh-TW human_navigation docs do not override English canonical truth.
   - rule: packet schema truth_candidates must be reviewed before first git push for v0-min-landing-skeleton.
   - rule: handoff_only artifacts must not silently become canonical truth.
+  - rule: source changed events must mark dependent shared memory or reusable artifacts as stale until revalidated.
+  - rule: source deleted events must mark dependent shared memory or reusable artifacts as broken_reference.
+  - rule: source moved or renamed events must mark dependent shared memory or reusable artifacts as broken_reference unless references are explicitly repaired and revalidated.
+  - rule: truth superseded events must prevent dependent shared memory from remaining silently active without re-check.
+  - rule: manual reject or discard events must remove affected artifacts from active reusable use.
+  - rule: stale artifacts must not be treated as implicitly trusted until reviewed again.
+  - rule: broken_reference artifacts must not be treated as active reusable material.
+  - rule: superseded artifacts must not be treated as the active default when a newer approved replacement exists.
+  - rule: archived artifacts are retained for history only and must not be routed as active reusable material.
