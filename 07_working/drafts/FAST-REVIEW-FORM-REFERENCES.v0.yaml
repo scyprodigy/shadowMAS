@@ -1,0 +1,251 @@
+# FAST-REVIEW-FORM-REFERENCES.v0.yaml
+# Status: working draft / minimal reference record for fast-review-form research.
+# Scope: durable principle clusters only. Not a literature warehouse.
+# Companion to: FAST-REVIEW-FORM-RESEARCH-MEMO.v0.zh-TW.md
+
+version: v0
+language: en
+record_kind: external_research_references
+not_canonical_truth: true
+
+clusters:
+
+  - principle_cluster: recognition_over_recall
+    references:
+      - reference_id: standing_1973
+        claim_supported: >
+          Recognition memory has near-unlimited capacity (~83% accuracy on 10,000
+          single-exposure pictures), and recognition substantially outperforms
+          recall for the same material.
+        source_type: peer_reviewed_journal
+        source_citation: >
+          Standing, L. (1973). Learning 10,000 pictures.
+          Quarterly Journal of Experimental Psychology, 25(2), 207-222.
+          https://doi.org/10.1080/14640747308400340
+        why_it_matters_here: >
+          Justifies designing review forms so that judgments are framed as
+          "recognize the right answer" rather than "recall the original state".
+        evidence_strength: high
+
+      - reference_id: nielsen_1994_h6
+        claim_supported: >
+          Interfaces should make objects, actions and options visible so users
+          recognize rather than recall information from one part of the dialogue
+          to another.
+        source_type: practitioner_heuristic
+        source_citation: >
+          Nielsen, J. (1994). 10 Usability Heuristics for User Interface Design,
+          Heuristic #6: Recognition rather than Recall. Nielsen Norman Group.
+          https://www.nngroup.com/articles/ten-usability-heuristics/
+        why_it_matters_here: >
+          Directly translates the recognition-vs-recall finding into an
+          interface-level design rule that maps onto review-form fields.
+        evidence_strength: medium
+        notes: >
+          Heuristic, not a single experiment. Resting on stronger empirical
+          base (Standing 1973, Miller 1956).
+
+  - principle_cluster: chunking_and_working_memory
+    references:
+      - reference_id: miller_1956
+        claim_supported: >
+          Immediate memory holds about 7 +/- 2 chunks; chunk size can be
+          increased by recoding, but the slot count is bounded.
+        source_type: peer_reviewed_journal
+        source_citation: >
+          Miller, G. A. (1956). The magical number seven, plus or minus two:
+          Some limits on our capacity for processing information.
+          Psychological Review, 63(2), 81-97.
+        why_it_matters_here: >
+          Sets an upper bound on how many ungrouped, parallel review items
+          a person can hold while making a single judgment.
+        evidence_strength: high
+
+      - reference_id: cowan_2001
+        claim_supported: >
+          When rehearsal and long-term memory support are blocked, the true
+          working memory capacity in young adults is closer to 3-5 chunks.
+        source_type: peer_reviewed_journal
+        source_citation: >
+          Cowan, N. (2001). The magical number 4 in short-term memory:
+          A reconsideration of mental storage capacity.
+          Behavioral and Brain Sciences, 24(1), 87-185.
+          https://doi.org/10.1017/S0140525X01003922
+        why_it_matters_here: >
+          Under fast, high-pressure review the realistic ceiling for the
+          "must-see" tier is closer to 4 than to 7.
+        evidence_strength: high
+
+      - reference_id: sweller_van_merrienboer_paas_1998
+        claim_supported: >
+          Total cognitive load = intrinsic + extraneous (+ germane).
+          Intrinsic load comes from the material itself; extraneous load comes
+          from how the material is presented and can be reduced by design.
+        source_type: peer_reviewed_journal
+        source_citation: >
+          Sweller, J., van Merrienboer, J. J. G., & Paas, F. G. W. C. (1998).
+          Cognitive architecture and instructional design.
+          Educational Psychology Review, 10(3), 251-296.
+          (See also: Sweller, van Merrienboer & Paas, 2019, 20-years-later update.)
+        why_it_matters_here: >
+          For complex review work, intrinsic load is fixed by the work itself,
+          so the only design lever is removing extraneous load from presentation.
+        evidence_strength: high
+
+  - principle_cluster: progressive_disclosure
+    references:
+      - reference_id: shneiderman_1996_mantra
+        claim_supported: >
+          A useful framing for information-seeking interfaces is
+          "overview first, zoom and filter, then details on demand".
+        source_type: conference_paper_descriptive
+        source_citation: >
+          Shneiderman, B. (1996). The Eyes Have It: A Task by Data Type
+          Taxonomy for Information Visualizations.
+          Proceedings of the IEEE Symposium on Visual Languages, 336-343.
+        why_it_matters_here: >
+          Provides a high-level structure for layering review information
+          (must-see -> secondary -> expandable). Aligns directionally with
+          working-memory and cognitive-load evidence.
+        evidence_strength: medium
+        notes: >
+          Shneiderman has acknowledged this as a descriptive/explanatory
+          framework, not an experimentally validated law. Useful as a
+          framing, weak as proof.
+
+  - principle_cluster: comparison_support
+    references:
+      - reference_id: nielsen_1994_h6_comparison_use
+        claim_supported: >
+          Showing both states side-by-side converts a recall task ("what was
+          this before?") into a recognition task ("does new differ from old
+          in the expected way?"), reducing memory load.
+        source_type: practitioner_heuristic
+        source_citation: >
+          Nielsen, J. (1994). 10 Usability Heuristics, #6 Recognition rather
+          than Recall. Nielsen Norman Group.
+          https://www.nngroup.com/articles/ten-usability-heuristics/
+        why_it_matters_here: >
+          Comparison views (old vs new, expected vs actual) are the most
+          direct mechanism for moving review judgments from recall to
+          recognition.
+        evidence_strength: medium
+        notes: >
+          Same source as recognition_over_recall cluster. Cited here for the
+          specific implication about comparison framing.
+
+      - reference_id: yagi_2024_diff_optimization
+        claim_supported: >
+          Suboptimal automatically-generated diffs hinder reviewers'
+          understanding of changes; the quality of the comparison
+          representation itself affects review effectiveness.
+        source_type: preprint_empirical
+        source_citation: >
+          Yagi, T., & co-author. (2024). Toward Interactive Optimization of
+          Source Code Differences: An Empirical Study of Its Performance.
+          arXiv:2409.13590.
+        why_it_matters_here: >
+          Comparison support helps only when the comparison itself is
+          well-aligned. Bad diff alignment increases load instead of
+          decreasing it.
+        evidence_strength: low
+        notes: >
+          Single recent study, simulation-based methodology. Useful as a
+          caution, not as a strong claim.
+
+  - principle_cluster: code_review_understanding_and_review_size
+    references:
+      - reference_id: bacchelli_bird_2013
+        claim_supported: >
+          The primary bottleneck in modern code review is understanding the
+          change, not finding defects; existing tools poorly support this
+          understanding need.
+        source_type: peer_reviewed_conference
+        source_citation: >
+          Bacchelli, A., & Bird, C. (2013). Expectations, Outcomes, and
+          Challenges of Modern Code Review.
+          Proceedings of the 35th International Conference on Software
+          Engineering (ICSE), 712-721.
+          https://doi.org/10.1109/ICSE.2013.6606617
+        why_it_matters_here: >
+          The first job of a fast review form is to convey "what changed and
+          why" before exposing details or metrics.
+        evidence_strength: high
+
+      - reference_id: sadowski_et_al_2018
+        claim_supported: >
+          At Google, most code reviews involve small changes, a single
+          reviewer, and minimal commentary; ~70% of weekday changes are
+          committed within 24h of the initial review request.
+        source_type: peer_reviewed_conference
+        source_citation: >
+          Sadowski, C., Soderberg, E., Church, L., Sipko, M., & Bacchelli, A.
+          (2018). Modern Code Review: A Case Study at Google.
+          Proceedings of the 40th International Conference on Software
+          Engineering: Software Engineering in Practice (ICSE-SEIP), 181-190.
+          https://doi.org/10.1145/3183519.3183525
+        why_it_matters_here: >
+          At realistic scale, "fast review" is the default mode, not an edge
+          case. Forms must be optimized for small-and-frequent, not for the
+          rare large review.
+        evidence_strength: high
+
+      - reference_id: baum_schneider_bacchelli_2019
+        claim_supported: >
+          Larger and more complex code changes significantly reduce the
+          probability of detecting delocalized defects (large effect size).
+          High working memory is a necessary but not sufficient condition for
+          detecting such defects. Change-part ordering measurably affects
+          review performance.
+        source_type: peer_reviewed_journal
+        source_citation: >
+          Baum, T., Schneider, K., & Bacchelli, A. (2019). Associating
+          working memory capacity and code change ordering with code review
+          performance. Empirical Software Engineering, 24(4), 1762-1798.
+          https://doi.org/10.1007/s10664-018-9676-8
+        why_it_matters_here: >
+          Direct experimental bridge between working-memory limits and review
+          outcomes. Justifies (a) limiting review unit size and
+          (b) grouping related items by semantic relation rather than file
+          path order.
+        evidence_strength: high
+
+  - principle_cluster: checklist_for_high_complexity_review
+    references:
+      - reference_id: haynes_et_al_2009
+        claim_supported: >
+          Implementation of a 19-item surgical safety checklist across eight
+          hospitals was associated with a drop in 30-day mortality from 1.5%
+          to 0.8% (P=0.003) and a reduction in inpatient complications.
+        source_type: peer_reviewed_journal
+        source_citation: >
+          Haynes, A. B., Weiser, T. G., Berry, W. R., et al. (2009).
+          A Surgical Safety Checklist to Reduce Morbidity and Mortality in a
+          Global Population. New England Journal of Medicine, 360(5), 491-499.
+          https://doi.org/10.1056/NEJMsa0810119
+        why_it_matters_here: >
+          Empirical evidence that even highly trained experts under pressure
+          benefit from an explicit "must-check" list. Supports embedding a
+          minimum review-checklist tier in the form.
+        evidence_strength: high
+        notes: >
+          Cross-domain analogy from surgery to general result review is
+          plausible but not itself empirically validated.
+
+      - reference_id: gawande_2009_book
+        claim_supported: >
+          In complex domains, well-designed checklists protect against the
+          two main expert failure modes: forgetting routine but critical
+          steps under stress, and consciously skipping "obvious" steps.
+        source_type: trade_book_synthesis
+        source_citation: >
+          Gawande, A. (2009). The Checklist Manifesto: How to Get Things
+          Right. Metropolitan Books.
+        why_it_matters_here: >
+          Provides the conceptual framing (read-do vs do-confirm checklists,
+          minimum viable item count, scope discipline) for designing the
+          review-form's mandatory-check tier.
+        evidence_strength: medium
+        notes: >
+          Synthesis / popular work, not primary research. Useful for design
+          vocabulary; primary evidence sits in Haynes et al. 2009.
