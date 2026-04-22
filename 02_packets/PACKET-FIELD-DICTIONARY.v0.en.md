@@ -712,6 +712,11 @@ Rule:
 Meaning:
 Artifacts or concepts that must be compared before deciding.
 
+Rule:
+- decision-relevant comparison support only
+- should make the needed comparison target explicit
+- should not turn into render-engine or layout specification
+
 ### `do_not_need_to_read`
 Meaning:
 What the reviewer can safely skip for this decision.
@@ -723,6 +728,55 @@ Rule:
 Meaning:
 Short summary of what changed or is proposed to change.
 
+Rule:
+- support field only
+- should not replace chunked review structure when a more explicit review surface exists
+- if `change_units` exists, `change_summary` should not be treated as the primary decision surface by default
+
+### `change_units`
+Meaning:
+Small review units that split the change into decision-relevant chunks.
+
+Rule:
+- should help the reviewer inspect change structure incrementally
+- should remain semantic and compact
+- not a UI layout contract
+
+### `impact_surface`
+Meaning:
+Short statement of what areas, behaviors, or truth surfaces may be affected.
+
+### `evidence_at_a_glance`
+Meaning:
+Compact evidence snapshot that helps a reviewer see the supporting basis quickly.
+
+Rule:
+- should stay summary-level
+- should point toward evidence, not replace it
+
+### `acceptance_check_result`
+Meaning:
+Compact result summary of whether the declared acceptance checks appear satisfied.
+
+Rule:
+- should report check outcome, not final authority
+
+### `unresolved_questions`
+Meaning:
+Open questions that still matter to the current review decision.
+
+Rule:
+- should stay decision-relevant
+- should not become a catch-all note dump
+
+### `safe_to_approve_if`
+Meaning:
+Explicit conditions under which approval would be considered safe.
+
+Rule:
+- should state bounded approval conditions
+- should not be used as a hidden substitute for final approval
+
 ### `risk_summary`
 Meaning:
 Short summary of the key risk shape.
@@ -730,6 +784,11 @@ Short summary of the key risk shape.
 ### `recommendation`
 Meaning:
 Best current recommendation from the producing layer.
+
+Rule:
+- producer-layer recommendation only
+- should stay compact
+- should not become essay-style persuasion
 
 Examples:
 - approve
