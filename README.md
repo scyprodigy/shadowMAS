@@ -2,15 +2,83 @@
 
 shadowMAS is a governance-oriented, memory-aware, human-AI collaboration system.
 
-It is not the product application itself.
-It is a separate system used to govern:
-- agent collaboration
-- truth boundaries
-- memory and promotion flow
-- review and mergeback
-- controlled write-back into project repos
+It is not the product application itself.  
+It is a separate governance system for multi-agent and multi-session work.
 
-## v0 Repo Purpose
+## What problem shadowMAS solves
+
+shadowMAS exists to reduce five failure modes that become common once AI work grows beyond a single chat:
+
+- **authority confusion** — who may decide, who may execute, and who may promote results
+- **truth confusion** — execution output, cache, and drafts being mistaken for canonical truth
+- **giant prompt collapse** — reusable rules, governance, project truth, and runtime-specific constraints being flattened into one blob
+- **intake chaos** — blind full-repo traversal instead of controlled entry and compiled intake
+- **mergeback contamination** — governance artifacts polluting product repos or overriding project-domain truth
+
+## What shadowMAS is not
+
+shadowMAS is not:
+- the product application itself
+- a giant prompt system
+- a blind repo traversal bot
+- a direct replacement for project-specific canonical truth
+- a UI-first platform
+- a DB-first platform
+- just another general-purpose agent framework
+
+## Why hard separation matters
+
+shadowMAS must remain hard-separated from product repos.
+
+A product repo should still be able to:
+- develop
+- implement
+- test
+- deploy
+- operate
+
+even if shadowMAS is unavailable.
+
+Preferred model:
+- shadowMAS lives in its own root/repo
+- product repos consume selected outputs only
+
+Typical outputs:
+- entry/index files
+- truth-priority files
+- change-impact maps
+- handoff packets
+- review outputs
+- write-back suggestions
+- controlled scripts/hooks
+
+## Why machine-first artifacts matter
+
+shadowMAS uses human-facing docs and machine-first artifacts for different jobs.
+
+Human-facing docs are for:
+- onboarding
+- navigation
+- explanation
+- design rationale
+- review support
+
+Machine-first artifacts are for:
+- packets
+- registries
+- routing
+- validation
+- automation surfaces
+
+Machine-first artifacts should converge toward:
+- minimal format
+- parseability
+- low ambiguity
+- explicit structure
+- stable contract boundaries
+
+## v0 repo purpose
+
 This repo is the minimum landing zone for shadowMAS v0.
 
 Current direction:
@@ -24,7 +92,7 @@ Current direction:
 ## Top-level directory guide
 
 ### `00_entry/`
-Entry and navigation files for agents and humans.
+Entry and navigation files for agents and humans.  
 Use this layer to avoid blind repo traversal.
 
 ### `01_truth/`
@@ -60,22 +128,28 @@ Human-facing documents.
 ### `07_working/`
 Working integration area for handoffs, merged drafts, temporary working files, and archive state.
 
-## Current reading policy
-Do not treat this README as the only truth source.
-It is an entry file.
+## Reading policy
 
-First human-facing onboarding entry points:
-- English: `06_human_docs/en/onboarding/SHADOWMAS-OPERATOR-GUIDE.v0.en.md`
-- zh-TW: `06_human_docs/zh-TW/onboarding/SHADOWMAS-OPERATOR-GUIDE.v0.zh-TW.md`
+Do not treat this README as the only truth source.  
+It is an entry file.
 
 Primary formal truth lives in:
 - `01_truth/`
 
+Primary human-facing navigation lives in:
+- `06_human_docs/zh-TW/`
+
+Suggested first reading path:
+1. `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
+2. `01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md`
+3. `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
+4. `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
+
 ## v0 design bias
+- rules-first
 - text-first
 - local-first
 - inspectable
-- index-first
 - schema-first
 - minimal dependencies
 - explicit review gates

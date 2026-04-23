@@ -3,7 +3,7 @@
 ## Purpose
 This file freezes the current minimum truth of shadowMAS before deeper implementation begins.
 
-It is not the final architecture book.
+It is not the final architecture book.  
 It is the smallest stable truth that future files must follow.
 
 ## System Identity
@@ -22,6 +22,17 @@ shadowMAS is not:
 - a blind repo traversal bot
 - a direct replacement for project-specific canonical truth
 - a UI-first platform
+
+## Problem Profile
+shadowMAS exists to reduce five recurring failure modes in AI-assisted work:
+
+- authority confusion
+- truth confusion
+- giant prompt collapse
+- blind intake / full-repo traversal by default
+- mergeback contamination between governance and product repos
+
+This problem profile explains why shadowMAS is governance-first, hard-separated, and machine-first at key boundaries.
 
 ## Hard Separation Rule
 shadowMAS must remain hard-separated from product systems.
@@ -147,7 +158,7 @@ Format preference:
 ## Packet Direction
 shadowMAS internal main exchange direction currently prefers a self-defined minimum packet system rather than ACP/A2A as the internal primary protocol.
 
-Packet fields and semantics belong to the logical packet contract.
+Packet fields and semantics belong to the logical packet contract.  
 For v0, the default packet codec is YAML.
 
 Minimum packet families:
@@ -279,8 +290,8 @@ Direction:
 ## WFGY Position
 WFGY is currently a reference source for extraction and adaptation.
 
-It is not approved shadowMAS truth.
-It is not yet the official shadowMAS DSL.
+It is not approved shadowMAS truth.  
+It is not yet the official shadowMAS DSL.  
 It may inform future control-language or routing design.
 
 ## v0 Boundary
@@ -311,6 +322,7 @@ Do not hard-finalize yet:
 - final git workflow
 - final bilingual sync lifecycle
 - final write-back automation contract
+
 <!-- SHADOWMAS_PRINCIPLES_PATCH:BEGIN -->
 ## Core Principles Patch v0
 
