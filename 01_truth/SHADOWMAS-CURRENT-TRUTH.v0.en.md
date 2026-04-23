@@ -147,8 +147,8 @@ Format preference:
 ## Packet Direction
 shadowMAS internal main exchange direction currently prefers a self-defined minimum packet system rather than ACP/A2A as the internal primary protocol.
 
-Primary packet format:
-- YAML
+Packet fields and semantics belong to the logical packet contract.
+For v0, the default packet codec is YAML.
 
 Minimum packet families:
 - `task_packet`

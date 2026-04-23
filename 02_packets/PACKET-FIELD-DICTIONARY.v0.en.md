@@ -16,6 +16,18 @@ Current minimum packet families:
 - `memory_packet`
 - `review_packet`
 
+## Logical Packet Contract vs Default Codec
+This dictionary defines the logical packet contract for shadowMAS packet families:
+- shared field names
+- field meanings
+- packet-family semantics
+- machine-stable interpretation rules
+
+It does not itself require one specific serialization format.
+For v0, YAML is the default codec used by the current packet files.
+Future codecs may serialize the same logical packet contract without changing this dictionary.
+Codec-specific transport, framing, or compression concerns belong to runtime handling unless later promoted explicitly into governed truth.
+
 ## Naming Rules
 - use `snake_case`
 - keep names explicit and stable
