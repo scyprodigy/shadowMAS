@@ -1,3 +1,4 @@
+![封面](shadowMAS.png)
 # shadowMAS
 
 shadowMAS is a governance-oriented, memory-aware, human-AI collaboration system.
