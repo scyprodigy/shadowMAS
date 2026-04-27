@@ -1,12 +1,14 @@
-> status: draft / source-evidence
+> status: working draft
 > authority: none
-> do not promote without governance review
-> source lane: runtime-adapter missing contract drafts
+> not canonical truth
+> not runtime implementation
+> not packet schema law unless later promoted through governance
+> source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # PACKET-COMPATIBILITY-LAYER.v0
 
 ## Purpose
-Define compatibility levels between raw intake evidence, adapter-wrapped artifacts, packet candidates, and approved packets.
+Define compatibility levels between native shadowMAS packets and non-native inputs.
 
 This is a working draft, not canonical truth. It does not modify `01_truth/`, canonical `02_packets/`, `03_memory/`, or `04_runtime/`.
 
@@ -26,7 +28,7 @@ Runtime adapters adapt execution and do not redefine truth.
 - no full SemVer or version-governance edge-case resolution
 
 ## Compatibility Levels
-Packet compatibility is not binary.
+Packet compatibility is not binary. It must preserve uncertainty and loss.
 PC-levels are packet-compatibility maturity levels, not shadowMAS L-layer role/operation levels.
 
 - `PC0 raw_intake_evidence`: raw chat/doc/output/source; no direct routing; no promotion.

@@ -1,7 +1,9 @@
-> status: draft / source-evidence
+> status: working draft
 > authority: none
-> do not promote without governance review
-> source lane: runtime-adapter missing contract drafts
+> not canonical truth
+> not runtime implementation
+> not packet schema law unless later promoted through governance
+> source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # PROJECT-INTAKE-CONTRACT.v0
 
@@ -39,6 +41,7 @@ A draft project intake record SHOULD include:
 - `current_phase`
 - `known_decisions`
 - `known_gaps`
+- `existing_artifacts`
 - `runtime_hosts`
 - `write_back_policy`
 - `source_refs`
@@ -77,6 +80,8 @@ Write-back MAY occur only after separate governed approval and when a separate g
 ## Allowed Intake Sources
 - project README or entry file
 - project-local truth or decision files
+- source docs / entry docs named by the project owner or task
+- existing artifacts already present in the project or handoff
 - scoped source files named by the task
 - prior packets or handoffs
 - issue/task descriptions

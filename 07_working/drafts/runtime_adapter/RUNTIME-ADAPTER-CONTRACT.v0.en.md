@@ -1,7 +1,9 @@
-> status: draft / source-evidence
+> status: working draft
 > authority: none
-> do not promote without governance review
-> source lane: runtime-adapter missing contract drafts
+> not canonical truth
+> not runtime implementation
+> not packet schema law unless later promoted through governance
+> source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # RUNTIME-ADAPTER-CONTRACT.v0
 
