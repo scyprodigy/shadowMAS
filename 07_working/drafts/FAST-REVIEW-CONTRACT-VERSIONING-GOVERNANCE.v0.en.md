@@ -367,3 +367,5 @@ The following edge cases remain intentionally unresolved here:
 - reservation-registry location for retired identifiers
 - YAML compatibility diff implementation
 - full SemVer adoption
+
+These unresolved items are tracked for later selection in `07_working/drafts/FAST-REVIEW-CONTRACT-VERSIONING-EDGE-CASES.v0.en.md`.
