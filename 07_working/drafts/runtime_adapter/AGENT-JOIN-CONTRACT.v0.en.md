@@ -1,7 +1,9 @@
-> status: draft / source-evidence
+> status: working draft
 > authority: none
-> do not promote without governance review
-> source lane: runtime-adapter missing contract drafts
+> not canonical truth
+> not runtime implementation
+> not packet schema law unless later promoted through governance
+> source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # AGENT-JOIN-CONTRACT.v0
 
@@ -45,7 +47,8 @@ A draft join record SHOULD include:
 - `source_refs`
 
 ## Authority Boundary
-Agents may be added during an active workflow through a governed hot-join process, but no agent joins with undefined authority.
+Agents may join dynamically, but no agent joins with undefined authority.
+Agents may be added during an active workflow through a governed hot-join process.
 Hot-join does not mean dynamic role assignment, self-claim authority, or automatic write permission.
 
 Rules:
@@ -54,6 +57,14 @@ Rules:
 - agents must not promote T4/T5 material directly into T2 truth
 - an agent join record is evidence for routing, not approval to modify canonical truth
 - runtime or host capability does not create governance authority or write permission
+
+## Required Intake Files
+Before joining work, an agent SHOULD receive or be pointed to:
+- current task packet or human task scope
+- relevant shadowMAS truth boundary files
+- project-local truth or entry docs when project work is involved
+- applicable runtime-adapter draft constraints
+- any packet compatibility or legacy-intake notes needed for the task
 
 ## Allowed Outputs by L/T Layer
 - `L2/T1`: bounded plans, routing proposals, task packets, review requests
