@@ -1,12 +1,14 @@
-> status: draft / source-evidence
+> status: working draft
 > authority: none
-> do not promote without governance review
-> source lane: runtime-adapter missing contract drafts
+> not canonical truth
+> not runtime implementation
+> not packet schema law unless later promoted through governance
+> source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # LEGACY-INTAKE-NORMALIZATION.v0
 
 ## Purpose
-Define how non-packet history, chat, docs, screenshots, Claude/Cursor/Codex outputs, or pre-shadow work enters shadowMAS as evidence or candidate material.
+Define how non-packet history, chats, docs, task sheets, screenshots, Claude/Cursor/Codex outputs, or pre-shadow work enters shadowMAS as evidence or candidate material.
 
 This is a working draft, not canonical truth. It does not modify `01_truth/`, `02_packets/`, `03_memory/`, or `04_runtime/`.
 
@@ -29,6 +31,7 @@ Runtime adapters adapt execution and do not redefine truth.
 ## Legacy Source Kinds
 - chat transcripts
 - ad hoc docs or notes
+- task sheets
 - screenshots
 - Claude, Cursor, Codex, Ollama, or other agent outputs
 - pre-shadow task history
@@ -42,9 +45,13 @@ A draft record SHOULD include:
 - `source_path_or_location`
 - `source_hash`
 - `capture_time`
+- `capture_timestamp`
 - `captured_by`
+- `original_author`
+- `claimed_authority`
 - `preservation_status`
 - `extraction_method`
+- `converted_packet_candidate`
 - `candidate_packet_family`
 - `confidence`
 - `loss_notes`
