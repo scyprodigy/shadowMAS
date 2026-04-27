@@ -6,6 +6,12 @@
 
 ---
 
+## Distillation note
+
+This working draft was later distilled into `07_working/DRAFT-ENTRY-RULE.v0.en.md` as the bounded working-area rule for `07_working/drafts/` intake. This file remains source support and was not deleted or promoted into canonical truth.
+
+---
+
 ## 1. One-sentence rule
 
 An external-research artifact should enter `drafts/` only when it has moved beyond a temporary idea, scattered links, or one-off chat notes, and is **likely to be cited, compared, converged, or reused as design-discussion input in later sessions**.
