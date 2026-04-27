@@ -67,7 +67,8 @@ authority_definitions:
 default_rules:
   english_formal_truth_default_status: approved_truth
   zh_tw_single_source_default_status: governed_support
-  packet_yaml_default_status: truth_candidate
+  packet_dictionary_default_status: approved_truth
+  packet_yaml_default_status: approved_truth
   registry_yaml_default_status: machine_registry
   working_folder_default_status: working_draft
 
@@ -162,6 +163,51 @@ tracked_files:
       - human_governance
     notes: Human navigation brain, not canonical execution truth.
 
+  - path: 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+    artifact_type: packet_contract_dictionary
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Canonical logical packet contract dictionary for v0 packet families.
+
+  - path: 02_packets/packet_common_shell.v0.yaml
+    artifact_type: packet_schema
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Canonical shared shell for machine-stable packet contract surfaces.
+
+  - path: 02_packets/task_packet.v0.yaml
+    artifact_type: packet_schema
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Canonical task packet schema in the active v0 packet contract line.
+
+  - path: 02_packets/memory_packet.v0.yaml
+    artifact_type: packet_schema
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Canonical memory packet schema in the active v0 packet contract line.
+
+  - path: 02_packets/review_packet.v0.yaml
+    artifact_type: packet_schema
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Canonical review packet schema in the active v0 packet contract line.
+
 folder_defaults:
   "07_working/incoming_handoffs/":
     status: handoff_only
@@ -182,7 +228,7 @@ folder_defaults:
 review_rules:
   - rule: approved_truth must not be overwritten by working_draft without explicit human review.
   - rule: zh-TW human_navigation docs do not override English canonical truth.
-  - rule: packet schema truth_candidates must be reviewed before first git push for v0-min-landing-skeleton.
+  - rule: new or materially changed packet schema artifacts must be reviewed before promotion or continued retention as approved_truth.
   - rule: handoff_only artifacts must not silently become canonical truth.
   - rule: source changed events must mark dependent shared memory or reusable artifacts as stale until revalidated.
   - rule: source deleted events must mark dependent shared memory or reusable artifacts as broken_reference.

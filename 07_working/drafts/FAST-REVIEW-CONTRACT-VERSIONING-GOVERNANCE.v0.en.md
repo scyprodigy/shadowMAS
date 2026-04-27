@@ -5,6 +5,7 @@ Draft.
 
 This file is a working governance draft for shadowMAS machine-first contract versioning.
 It is not yet canonical truth.
+It is intentionally retained under `07_working/drafts/` as working-only governance input.
 
 ## Purpose
 This draft defines the minimum version-governance model for machine-first artifacts in shadowMAS.
@@ -343,5 +344,5 @@ Primary and near-primary references that informed this draft:
 - RFC 9745 Deprecation Header — <https://www.rfc-editor.org/rfc/rfc9745.html>
 - RFC 8594 Sunset Header — <https://www.rfc-editor.org/info/rfc8594>
 
-Supporting memo retained separately:
-- external research memo: `EXTERNAL-RESEARCH-CONTRACT-VERSIONING.v1.en.md`
+Supporting memo:
+- no separate supporting memo is required for retaining this draft in `07_working/drafts/`
