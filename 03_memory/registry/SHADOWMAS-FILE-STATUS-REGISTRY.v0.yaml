@@ -227,6 +227,7 @@ folder_defaults:
 
 review_rules:
   - rule: approved_truth must not be overwritten by working_draft without explicit human review.
+  - rule: draft entry into 07_working/drafts/ is governed by 07_working/DRAFT-ENTRY-RULE.v0.en.md as working-area intake handling only; it does not create truth authority or change status/authority semantics.
   - rule: zh-TW human_navigation docs do not override English canonical truth.
   - rule: new or materially changed packet schema artifacts must be reviewed before promotion or continued retention as approved_truth.
   - rule: packet dictionary and packet schema artifacts remain approved canonical machine-contract surfaces when listed with status approved_truth and authority canonical.
