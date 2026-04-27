@@ -51,22 +51,27 @@ example_entry:
 
 identified_gaps:
   - id: AGENT-JOIN-CONTRACT
-    status: gap_recognized
-    do_not_author_now: true
+    status: draft_authored
+    draft_path: "07_working/drafts/runtime_adapter/AGENT-JOIN-CONTRACT.v0.en.md"
+    do_not_promote: true
     reason: "runtime-adapter must not preempt version-governance lane"
   - id: PROJECT-INTAKE-CONTRACT
-    status: gap_recognized
-    do_not_author_now: true
+    status: draft_authored
+    draft_path: "07_working/drafts/runtime_adapter/PROJECT-INTAKE-CONTRACT.v0.en.md"
+    do_not_promote: true
     reason: "runtime-adapter must not preempt version-governance lane"
   - id: LEGACY-INTAKE-NORMALIZATION
-    status: gap_recognized
-    do_not_author_now: true
+    status: draft_authored
+    draft_path: "07_working/drafts/runtime_adapter/LEGACY-INTAKE-NORMALIZATION.v0.en.md"
+    do_not_promote: true
     reason: "runtime-adapter must not preempt version-governance lane"
   - id: PACKET-COMPATIBILITY-LAYER
-    status: gap_recognized
-    do_not_author_now: true
+    status: draft_authored
+    draft_path: "07_working/drafts/packet/PACKET-COMPATIBILITY-LAYER.v0.en.md"
+    do_not_promote: true
     reason: "runtime-adapter must not preempt version-governance lane"
   - id: RUNTIME-ADAPTER-CONTRACT
-    status: gap_recognized
-    do_not_author_now: true
+    status: draft_authored
+    draft_path: "07_working/drafts/runtime_adapter/RUNTIME-ADAPTER-CONTRACT.v0.en.md"
+    do_not_promote: true
     reason: "runtime-adapter must not preempt version-governance lane"

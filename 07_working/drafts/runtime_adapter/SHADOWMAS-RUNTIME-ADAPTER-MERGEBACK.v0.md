@@ -857,3 +857,17 @@ week1_scope_preserved: true
 Yes, after producing this file, this branch can go back to main HEAD.
 
 `files.zip` should not be blindly deleted before main HEAD confirms mergeback. Keep the original archive as source evidence. Delete only temporary extracted folders after merge. Preserve selected files as draft material, not canonical truth.
+
+---
+
+## 15. Follow-Up Drafts Authored Later
+
+The five follow-up gaps identified by this mergeback were later authored as working drafts only:
+
+- `07_working/drafts/runtime_adapter/AGENT-JOIN-CONTRACT.v0.en.md`
+- `07_working/drafts/runtime_adapter/PROJECT-INTAKE-CONTRACT.v0.en.md`
+- `07_working/drafts/runtime_adapter/LEGACY-INTAKE-NORMALIZATION.v0.en.md`
+- `07_working/drafts/packet/PACKET-COMPATIBILITY-LAYER.v0.en.md`
+- `07_working/drafts/runtime_adapter/RUNTIME-ADAPTER-CONTRACT.v0.en.md`
+
+These drafts remain non-canonical runtime-adapter support material and do not promote Claude bundle content into approved truth.
