@@ -229,6 +229,9 @@ review_rules:
   - rule: approved_truth must not be overwritten by working_draft without explicit human review.
   - rule: zh-TW human_navigation docs do not override English canonical truth.
   - rule: new or materially changed packet schema artifacts must be reviewed before promotion or continued retention as approved_truth.
+  - rule: packet dictionary and packet schema artifacts remain approved canonical machine-contract surfaces when listed with status approved_truth and authority canonical.
+  - rule: materially changed packet schema artifacts require governance review for schema_version authority, filename-major alignment, optional additive compatibility, breaking changes, deprecation-before-removal, and retired identifier reuse.
+  - rule: packet and registry review guidance does not reopen completed packet/registry reconciliation unless a concrete contradiction is found.
   - rule: handoff_only artifacts must not silently become canonical truth.
   - rule: source changed events must mark dependent shared memory or reusable artifacts as stale until revalidated.
   - rule: source deleted events must mark dependent shared memory or reusable artifacts as broken_reference.
