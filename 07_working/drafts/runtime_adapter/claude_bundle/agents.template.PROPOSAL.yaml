@@ -1,0 +1,146 @@
+# status: draft / source-evidence
+# authority: none
+# do not promote without governance review
+
+# shadowMAS Agent Registry
+# Location: ~/.shadowmas-user/agents.yaml
+# Purpose: define which agents exist in this user's environment,
+# their capabilities, how to deliver prompts to them, and how roles are assigned.
+#
+# The shadow has no fixed shape. It takes the form of whatever agents you register.
+# Add, remove, swap agents freely. The governance contract does not change.
+
+# ============================================================================
+# AGENT DEFINITIONS
+# ============================================================================
+
+agents:
+  - id: claude_code_local
+    provider: anthropic
+    host: claude_code
+    capabilities:
+      - decision
+      - planning
+      - delegation
+      - reasoning_heavy
+      - code_edit
+    prompt_delivery:
+      method: file
+      path: ~/.claude/CLAUDE.md        # symlink to ~/AGENTS.md
+    hook_support: full                   # 21 lifecycle events, PreToolUse/PostToolUse/etc.
+    notes: "Current primary L2 decision seat. Manages hooks for this workstation."
+
+  - id: codex_cli_local
+    provider: openai
+    host: codex
+    capabilities:
+      - decision
+      - planning
+      - code_edit
+      - reasoning_heavy
+    prompt_delivery:
+      method: file
+      path: ~/AGENTS.md                  # Codex reads AGENTS.md natively
+    hook_support: partial                # Codex hook model differs; separate mapping needed
+    notes: "Interchangeable with claude_code_local as decision tier."
+
+  - id: cursor_local
+    provider: anthropic_or_other         # Cursor is model-agnostic
+    host: cursor
+    capabilities:
+      - code_edit
+      - local_refactor
+      - execution
+    prompt_delivery:
+      method: file
+      path: .cursor/rules/shadowmas.mdc  # Cursor 1.7+ scoped rules (.cursorrules deprecated)
+    hook_support: partial                # Cursor 1.7+ has hooks but different event model
+    notes: "Primary L3 execution. Receives task_packets only."
+
+  - id: ollama_qwen3_8b
+    provider: ollama
+    host: api
+    capabilities:
+      - atomic_extraction
+      - normalization
+      - summarization
+    prompt_delivery:
+      method: api_call
+      template: ~/.shadowmas-user/outputs/ollama_system.txt
+    hook_support: none
+    notes: "R/T5 helper. Output must be verified before reuse. Never grants authority."
+
+  - id: gpt_head_session
+    provider: openai
+    host: chatgpt_web
+    capabilities:
+      - decision
+      - planning
+      - routing
+      - summarization
+      - delegation
+    prompt_delivery:
+      method: manual_paste                # no file access; human pastes Custom Instructions
+      template: ~/.shadowmas-user/outputs/chatgpt_custom.txt
+    hook_support: none
+    notes: "External head session for dispatch routing. No local hook reach."
+
+  # Add more agents here. Shadow adapts to shape.
+
+# ============================================================================
+# ROLE ASSIGNMENT POLICY
+# ============================================================================
+
+role_assignment:
+  mode: fixed                            # fixed | dynamic | self_claim
+                                         # Change by scenario, not by mood.
+                                         # Record mode changes in decisions.yaml.
+
+  # ---- mode: fixed ----
+  # Use when: project is stable, process is validated, linear pipeline desired.
+  # Operation: the defaults below are authoritative, no dynamic scoring.
+  defaults:
+    decision: claude_code_local
+    execution: cursor_local
+    helper: ollama_qwen3_8b
+    head_dispatch: gpt_head_session
+
+  # ---- mode: dynamic (for scenario: exploration / experimentation) ----
+  # When mode=dynamic, the defaults above are starting points.
+  # Agents are scored on packet completion success / failure / scope-exceedance.
+  # Low-scoring agents get cooldown; another capable agent takes their role.
+  dynamic:
+    enabled: false                       # v0 = off; v0.5 will enable
+    pools:
+      decision: [claude_code_local, codex_cli_local]
+      execution: [cursor_local, claude_code_local]
+      helper: [ollama_qwen3_8b]
+    scoring:
+      starting_score: 0.8
+      min_threshold: 0.5                 # below this, agent is cooled down
+      cooldown_seconds: 300
+      max_consecutive_failures: 2
+      appeal_process: human_review
+
+  # ---- mode: self_claim (for scenario: multi-agent concurrent exploration) ----
+  # When mode=self_claim, packets are dispatched with agent_id=null.
+  # Any agent whose capabilities match required_capabilities may claim.
+  # First claim wins. Conflict resolution via optimistic lock.
+  self_claim:
+    enabled: false                       # v0 = off; requires v0.5 packet transport
+    conflict_resolution: abort_and_notify
+    claim_timeout_seconds: 30
+
+# ============================================================================
+# MODE SWITCHING GUIDANCE
+# ============================================================================
+
+# Scenario -> recommended mode:
+#
+# "I just want things to ship this week"                      -> fixed
+# "I want to test which agent does X best"                    -> dynamic
+# "I want multiple agents to race on independent sub-tasks"   -> self_claim
+# "I'm onboarding a new agent provider"                       -> fixed first, dynamic later
+#
+# Mode changes are recorded in {project}/.shadowmas/decisions.yaml
+# with a reason and a rollback plan.

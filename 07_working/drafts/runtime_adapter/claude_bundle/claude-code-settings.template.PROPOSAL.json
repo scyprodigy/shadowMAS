@@ -1,0 +1,91 @@
+{
+  "_status_": "draft / source-evidence",
+  "_authority_": "none",
+  "_promotion_warning_": "do not promote without governance review",
+  "_comment_": "shadowMAS Claude Code hooks v0 — minimum set of 7 + 3 lifecycle. Place at {project}/.claude/settings.json",
+  "_doc_": "Each hook script reads JSON from stdin, writes to stdout. exit 2 = hard block, exit 0 = pass. Make all scripts executable: chmod +x .claude/hooks/*.sh",
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "_id_": "HS1",
+        "_name_": "session_start_inject",
+        "command": ".claude/hooks/HS1_session_start_inject.sh",
+        "timeout_ms": 1000
+      }
+    ],
+
+    "PreCompact": [
+      {
+        "_id_": "HS2",
+        "_name_": "pre_compact_reinject",
+        "command": ".claude/hooks/HS2_pre_compact_reinject.sh",
+        "timeout_ms": 500
+      }
+    ],
+
+    "Stop": [
+      {
+        "_id_": "HS3",
+        "_name_": "stop_suggest_new_session",
+        "command": ".claude/hooks/HS3_stop_suggest_new_session.sh",
+        "timeout_ms": 500
+      }
+    ],
+
+    "PreToolUse": [
+      {
+        "_id_": "H1",
+        "_name_": "pre_git_push",
+        "matcher": "Bash",
+        "command": ".claude/hooks/H1_pre_git_push.sh",
+        "timeout_ms": 500
+      },
+      {
+        "_id_": "H2",
+        "_name_": "pre_schema_edit",
+        "matcher": "Edit|Write",
+        "command": ".claude/hooks/H2_pre_schema_edit.sh",
+        "timeout_ms": 500
+      },
+      {
+        "_id_": "H3",
+        "_name_": "pre_root_dir_change",
+        "matcher": "Bash",
+        "command": ".claude/hooks/H3_pre_root_dir_change.sh",
+        "timeout_ms": 500
+      },
+      {
+        "_id_": "H4",
+        "_name_": "pre_sensitive_file",
+        "matcher": "Edit|Write|MultiEdit",
+        "command": ".claude/hooks/H4_pre_sensitive_file.sh",
+        "timeout_ms": 500
+      },
+      {
+        "_id_": "H5",
+        "_name_": "pre_phase_transition",
+        "matcher": "Edit|Write",
+        "command": ".claude/hooks/H5_pre_phase_transition.sh",
+        "timeout_ms": 500
+      },
+      {
+        "_id_": "H6",
+        "_name_": "pre_delegate_packet",
+        "matcher": "Task",
+        "command": ".claude/hooks/H6_pre_delegate_packet.sh",
+        "timeout_ms": 500
+      }
+    ],
+
+    "PostToolUse": [
+      {
+        "_id_": "H7",
+        "_name_": "post_multi_file_edit",
+        "matcher": "Edit|MultiEdit|Write",
+        "command": ".claude/hooks/H7_post_multi_file_edit.sh",
+        "timeout_ms": 300
+      }
+    ]
+  }
+}

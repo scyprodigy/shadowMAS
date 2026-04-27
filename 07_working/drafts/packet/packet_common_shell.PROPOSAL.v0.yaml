@@ -1,0 +1,130 @@
+# PROPOSAL ONLY.
+# Does not replace existing canonical 02_packets/packet_common_shell.v0.yaml.
+# Packet contract remains logical; YAML is the v0 default codec.
+# status: draft / source-evidence
+# authority: none
+# do not promote without governance review
+
+# shadowMAS packet common shell v0
+# This is the canonical minimal envelope every packet must carry.
+# Payload contents vary by packet_family but the shell is fixed.
+# Designed to be embeddable inside A2A Message Parts for future enterprise upgrade.
+
+# ============================================================================
+# SHELL FIELDS (required for every packet)
+# ============================================================================
+
+packet_id: <uuid-v4>                    # required, globally unique
+timestamp: <iso8601>                     # required, UTC
+protocol_version: "shadowmas/v0"         # required, version negotiation
+packet_family: task | memory | review    # required, shadowMAS canonical families
+
+# ---- Identity & role ----
+agent_id: <stable-string>                # required if assigned; null if self-claim pool
+session_id: <session-string>             # required when agent_id is set
+agent_role: decision | execution | helper | null   # null = not yet claimed
+task_id: <task-identifier>               # required, links packets within same task
+
+# ---- Governance anchors ----
+truth_refs:                              # required, can be empty list
+  - <reference to ~/AGENTS.md section>
+  - <reference to {project}/AGENTS.md section>
+  - <reference to decisions.yaml entry>
+
+required_capabilities: []                # required for delegation packets
+                                         # e.g. [code_edit, local_refactor, atomic_extraction]
+
+# ---- Extension region (TCP/IP options style) ----
+extensions: {}                           # optional, vendor/framework-specific
+                                         # MUST NOT override shell semantics
+                                         # MUST be ignorable by agents that don't understand it
+
+# ============================================================================
+# PAYLOAD (shape depends on packet_family)
+# ============================================================================
+
+# ---- When packet_family: task ----
+# payload:
+#   goal: <single sentence>
+#   scope: [<file_paths or concept boundaries>]
+#   out_of_scope: [<file_paths or concept boundaries>]
+#   truth_touchpoints: [<specific rules this task must respect>]
+#   worker_plan: [<step1>, <step2>, ...]
+#   acceptance_criteria: [<testable assertion>, ...]
+#   stop_conditions: [<when to abort and escalate>, ...]
+
+# ---- When packet_family: memory ----
+# payload:
+#   memory_kind: session_log | working | shared
+#   memory_scope: <agent_id | task_id | project | global>
+#   summary: <human-readable brief>
+#   structured_payload: <machine data>
+#   source_refs: [<where this came from>]
+#   invalidation_triggers: [<conditions that void this memory>]
+#   confidence: 0.0 - 1.0
+#   promotion_candidate: true | false
+
+# ---- When packet_family: review ----
+# payload:
+#   files_changed: [<paths>]
+#   tests_run: [{name, result}]
+#   blockers: []                         # empty list if none
+#   scope_exceeded: false                # boolean
+#   acceptance_satisfied: [{criterion, satisfied, evidence}]
+#   notes: <string>
+
+# ============================================================================
+# FUTURE EXTENSION HOOKS (reserved fields for v0.5+)
+# ============================================================================
+
+# expected_version: <resource version>   # optimistic lock for concurrent edits
+# conflict_resolution: abort | negotiate | queue
+# trust_score_required: 0 - 1000         # for dynamic role assignment
+# signed_by: <signature>                 # for cryptographic attestation (A2A-style)
+# a2a_wrapping:                          # when this packet is wrapped in A2A Message Part
+#   agent_card_ref: <DID or URL>
+#   task_id_upstream: <A2A task id>
+
+# ============================================================================
+# EXAMPLE: task_packet for Cursor
+# ============================================================================
+
+# packet_id: "b3f7a1c2-4d8e-11ef-9a8c-0242ac120002"
+# timestamp: "2026-04-24T15:30:00Z"
+# protocol_version: "shadowmas/v0"
+# packet_family: task
+# agent_id: "cursor_local"
+# session_id: "cursor_sess_20260424_001"
+# agent_role: execution
+# task_id: "ride_w1_orders_api_001"
+# truth_refs:
+#   - "project:AGENTS.md#week1-scope"
+#   - "project:decisions.yaml#api-response-format"
+# required_capabilities: [code_edit, local_refactor]
+# extensions: {}
+# payload:
+#   goal: "Implement POST /orders endpoint with stable error format"
+#   scope:
+#     - "apps/api/routes/orders.ts"
+#     - "apps/api/schemas/order.ts"
+#   out_of_scope:
+#     - "apps/api/routes/dispatch.ts"
+#     - "apps/api/routes/station.ts"
+#     - "anything touching auth"
+#   truth_touchpoints:
+#     - "error format spec in decisions.yaml#error-format"
+#     - "geofence blocked response spec in project/AGENTS.md"
+#   worker_plan:
+#     - "Write zod schema for Order"
+#     - "Write POST handler"
+#     - "Handle geofence validation failure with 422 + standard body"
+#     - "Return stable success response"
+#   acceptance_criteria:
+#     - "typecheck passes"
+#     - "build passes"
+#     - "POST /orders with valid body returns 201 + order id"
+#     - "POST /orders with blocked geofence returns 422 + standard error body"
+#   stop_conditions:
+#     - "any other route needs modification"
+#     - "any schema migration needed"
+#     - "any auth logic needed"

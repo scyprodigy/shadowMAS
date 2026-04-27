@@ -346,3 +346,13 @@ Primary and near-primary references that informed this draft:
 
 Supporting memo:
 - no separate supporting memo is required for retaining this draft in `07_working/drafts/`
+
+## Note - Authoritative Version Field
+
+This note is governance-language input only and is not yet formalized as canonical truth.
+
+- `schema_version` is the authoritative in-artifact contract version field.
+- For SemVer-aligned contract versions, prefer `MAJOR.MINOR.PATCH` value form, for example `"0.0.0"`.
+- Filename `.v0` remains a major-line mirror only and is not parser authority.
+- Do not formalize full SemVer adoption yet.
+- Use SemVer only as governance language for PATCH / MINOR / MAJOR bump policy until edge cases are resolved.

@@ -1,0 +1,572 @@
+# status: draft / source-evidence
+# authority: none
+# do not promote without governance review
+
+# shadowMAS Claude Code Runtime Adapter — Plan Self-Description
+# Layer 4 Runtime Adapter Prompt design for RideDispatch project
+# This file describes the adapter plan in machine-stable form.
+# Companion to: SHADOWMAS-CLAUDE-CODE-ADAPTER-PLAN.v0.md
+
+adapter_name: shadowmas-claude-code-adapter
+adapter_version: v0
+target_runtime: claude_code
+target_project: ridedispatch
+plan_layer: layer_4_runtime_adapter_prompt
+authority_level: L2_planning_only
+created: 2026-04-27
+
+# ============================================================================
+# SCOPE
+# ============================================================================
+
+scope:
+  - design Claude Code prompt composition (file layering)
+  - design skills invocation policy
+  - design hooks policy (timing, blocking, advisory)
+  - design delegation routing (Claude Code -> Cursor, Ollama)
+  - design session bootstrap protocol
+  - apply current Week 1 phase guardrail
+  - produce paste-ready Claude Code bootstrap prompt
+  - produce risk and unresolved question list
+
+out_of_scope:
+  - modifying shadowMAS governance truth (T2)
+  - defining RideDispatch business rules (project domain truth)
+  - implementing Week 1 code
+  - implementing memory plane (deferred to v0.5)
+  - implementing promotion gate automation (deferred)
+  - implementing trust scoring runtime (deferred)
+  - cross-org A2A endpoints (out of personal-scale niche)
+
+# ============================================================================
+# LAYER MAPPING (see plan §1 for detail)
+# ============================================================================
+
+layer_mapping:
+  human_owner:
+    L: L1
+    T: T0
+    R: na
+    may_decide: yes_final
+    may_write: yes
+    may_promote: yes
+    forbidden: []
+
+  gpt_head_session:
+    L: L1_or_L2
+    T: T1
+    R: no
+    may_decide: yes_within_scope
+    may_write: yes_packet_only
+    may_promote: no
+    forbidden:
+      - touch local hook implementation
+      - modify shadowMAS truth files
+
+  claude_code_session:
+    L: L2_primary
+    T: T1
+    R: yes_invoke_hooks
+    may_decide: yes_within_scope
+    may_write: yes_packet_or_patch
+    may_promote: no
+    forbidden:
+      - modify shadowMAS truth
+      - supply project business specs
+      - cross task scope without approval
+
+  codex_cli_session:
+    L: L2_or_L3
+    T: T1_or_T4
+    R: yes
+    may_decide: depends_on_assigned_role
+    may_write: yes
+    may_promote: no
+    forbidden: same_as_claude_code
+
+  cursor_local:
+    L: L3
+    T: T4
+    R: partial
+    may_decide: no
+    may_write: yes_within_packet
+    may_promote: no
+    forbidden:
+      - self-initiated decisions
+      - architecture choices
+      - schema or auth changes
+
+  ollama_local:
+    L: R_or_T5
+    T: T5
+    R: yes
+    may_decide: no
+    may_write: yes_temporary
+    may_promote: no
+    forbidden:
+      - any security/schema/auth/architecture decision
+      - direct feed into review or promotion
+
+  hooks:
+    L: na
+    T: na
+    R: yes_substrate
+    may_decide: no
+    may_write: no
+    may_promote: no
+    forbidden: act_as_truth_source
+
+  skills:
+    L: layer_4
+    T: na
+    R: support
+    may_decide: no
+    may_write: no
+    may_promote: no
+    forbidden: act_as_canonical_truth
+
+# ============================================================================
+# PROMPT LAYERS (see plan §2)
+# ============================================================================
+
+prompt_layers:
+  global_user:
+    path: ~/AGENTS.md
+    source: ~/.shadowmas-user/shared_core.md
+    sync: distribute.sh
+    consumed_by: [codex, cursor, gemini_cli, copilot, windsurf]
+    line_budget: 200
+
+  claude_code_global:
+    path: ~/.claude/CLAUDE.md
+    source: symlink_to_~/AGENTS.md
+    sync: symlink
+    consumed_by: [claude_code]
+    line_budget: 200
+
+  claude_code_specific:
+    path: ~/.claude/claude-specific.md
+    source: ~/.shadowmas-user/claude-specific.md
+    sync: copy
+    consumed_by: [claude_code]
+    line_budget: 50
+    purpose: hook paths, claude_code-only commands
+
+  project_global:
+    path: "{project}/AGENTS.md"
+    source: "{project}/.shadowmas/project_execution.md"
+    sync: distribute.sh
+    consumed_by: [all_agents_in_project]
+    line_budget: 200
+
+  project_claude:
+    path: "{project}/CLAUDE.md"
+    source: symlink_to_{project}/AGENTS.md
+    sync: symlink
+    consumed_by: [claude_code]
+    line_budget: 200
+
+  project_cursor:
+    path: "{project}/.cursor/rules/shadowmas.mdc"
+    source: "{project}/.shadowmas/project_execution.md + ~/.shadowmas-user/shared_core.md"
+    sync: distribute.sh
+    consumed_by: [cursor]
+    line_budget: 250
+
+  ollama_template:
+    path: ~/.shadowmas-user/outputs/ollama_system.txt
+    source: ~/.shadowmas-user/shared_core.md (filtered)
+    sync: distribute.sh
+    consumed_by: [any_program_calling_ollama]
+    line_budget: 100
+
+  chatgpt_paste:
+    path: ~/.shadowmas-user/outputs/chatgpt_custom.txt
+    source: ~/.shadowmas-user/shared_core.md (filtered)
+    sync: distribute.sh + manual_paste
+    consumed_by: [chatgpt_via_custom_instructions]
+    line_budget: 80
+
+  skills_directory:
+    path: "{project}/.claude/skills/"
+    format: SKILL.md
+    cross_tool_compatible: true
+    consumed_by: [claude_code, codex, cursor, gemini_cli]
+
+  hooks_directory:
+    path: "{project}/.claude/hooks/"
+    config: "{project}/.claude/settings.json"
+    consumed_by: [claude_code]
+
+  packet_output_location:
+    task_packets: "{project}/.shadowmas/packets/task/"
+    review_packets: "{project}/.shadowmas/packets/review/"
+    note: "actual storage location is GPT head session's responsibility, not adapter's"
+
+# ============================================================================
+# SKILLS POLICY (see plan §4)
+# ============================================================================
+
+skills_policy:
+  bootstrap_interview:
+    trigger:
+      - project_knowledge_empty
+      - user_says_new_project
+      - project_execution_md_missing
+    allowed_output:
+      - structured_interview_questions
+      - initial_architecture_draft
+      - decisions_yaml_draft
+    forbidden_output:
+      - production_code
+      - final_decisions_claim
+    supports_tier: [L2_decision]
+    when_used: before_human_confirmation
+
+  core_reasoning:
+    trigger:
+      - multi_option_choice
+      - quality_drift_detected
+      - delegating_to_subagent
+      - reviewing_returned_packet
+      - context_drift_detected
+    allowed_output:
+      - option_analysis_with_tradeoff
+      - counter_arguments
+      - verification_checklist
+      - session_cut_recommendation
+    forbidden_output:
+      - direct_decision
+      - facts_not_in_source
+    supports_tier: [L1, L2]
+    when_used: before_and_after_confirmation
+
+  system_analyst:
+    trigger:
+      - module_design_discussion
+      - api_planning
+      - phase_transition
+      - erd_discussion
+      - tech_stack_decision
+      - multi_module_task_breakdown
+    allowed_output:
+      - architecture_text_diagram
+      - phase_gate_checklist
+      - module_boundary_proposal
+      - adr_candidate
+    forbidden_output:
+      - phase_completion_claim
+      - schema_commit
+      - architectural_final_call
+    supports_tier: [L2]
+    when_used: both
+
+  task_delegator:
+    trigger:
+      - claude_code_decided_to_delegate
+    allowed_output:
+      - shadowmas_compliant_task_packet
+    forbidden_output:
+      - direct_command_to_subagent
+      - packet_missing_required_fields
+      - custom_packet_fields_outside_extensions
+    supports_tier: [L2]
+    when_used: after_human_confirmation
+
+# ============================================================================
+# HOOKS POLICY (see plan §5)
+# ============================================================================
+
+hooks_policy:
+  philosophy:
+    - hook_is_last_meter_fence_not_thought_police
+    - calibrated_trust_against_rubber_stamping
+    - deterministic_enforcement_immune_to_context_drift
+    - never_truth_source
+
+  three_tier_check:
+    fixed_gate:
+      description: triggers on specific events, always runs
+      v0_active: true
+    random_audit:
+      description: probabilistic trigger to defeat rubber-stamping
+      v0_active: false
+      v0_5_planned: true
+    forced_block:
+      description: absolute denial zones
+      v0_active: true
+
+  v0_minimum_set:
+    - id: H1
+      name: pre_git_push
+      event: PreToolUse
+      matcher: "Bash"
+      condition: "command contains 'git push'"
+      tier: fixed_gate
+      action: hard_block_unless_session_declared_intent
+      exit_code: 2
+
+    - id: H2
+      name: pre_schema_edit
+      event: PreToolUse
+      matcher: "Edit|Write"
+      condition: "path matches prisma/schema.prisma OR */migrations/*"
+      tier: fixed_gate
+      action: hard_block_unless_decisions_yaml_approves
+      exit_code: 2
+
+    - id: H3
+      name: pre_root_dir_change
+      event: PreToolUse
+      matcher: "Bash"
+      condition: "command matches mkdir|rm|mv AND path depth=1 from repo root"
+      tier: fixed_gate
+      action: hard_block_require_human_confirmation
+      exit_code: 2
+
+    - id: H4
+      name: pre_sensitive_file
+      event: PreToolUse
+      matcher: "Edit|Write"
+      condition: "path matches .env*|secrets/*|*.key|*.pem"
+      tier: forced_block
+      action: hard_block_no_override
+      exit_code: 2
+
+    - id: H5
+      name: pre_phase_transition
+      event: PreToolUse
+      matcher: "Edit"
+      condition: "path = decisions.yaml AND diff contains 'phase:'"
+      tier: fixed_gate
+      action: hard_block_require_human_confirmation
+      exit_code: 2
+
+    - id: H6
+      name: pre_delegate_packet
+      event: PreToolUse
+      matcher: "Task"
+      condition: "delegation pattern detected without compliant packet shell"
+      tier: fixed_gate
+      action: hard_block_request_task_delegator_skill
+      exit_code: 2
+      message: "Use task-delegator skill to produce a shadowMAS-compliant packet first."
+
+    - id: H7
+      name: post_multi_file_edit
+      event: PostToolUse
+      matcher: "MultiEdit|Edit"
+      condition: "session-cumulative file edit count > 5"
+      tier: fixed_gate
+      action: warn_only
+      exit_code: 0
+      message: "Session has touched {N} files. Verify scope is still aligned."
+
+  session_lifecycle_hooks:
+    - id: HS1
+      name: session_start_inject
+      event: SessionStart
+      action: inject_into_additionalContext
+      payload:
+        - ~/AGENTS.md
+        - "{project}/AGENTS.md"
+        - "{project}/.shadowmas/decisions.yaml"
+
+    - id: HS2
+      name: pre_compact_reinject
+      event: PreCompact
+      action: reinject_hard_constraints
+      payload:
+        - shared_core_section_5_role_awareness
+        - shared_core_section_6_session_discipline
+        - shared_core_section_7_hard_constraints
+
+    - id: HS3
+      name: stop_suggest_new_session
+      event: Stop
+      condition: "session_turn_count > 50 OR consecutive_failures >= 2"
+      action: emit_advisory
+      message: "Suggest /clear and start new session with sync export."
+
+  v0_5_random_audits:
+    - probability_5_percent_post_edit:
+        ask_agent_to_self_state_scope_and_acceptance
+    - probability_10_percent_pre_delegation:
+        run_core_reasoning_devils_advocate
+    - probability_20_percent_on_stop:
+        require_session_summary_artifact
+
+# ============================================================================
+# DELEGATION ROUTING (see plan §6)
+# ============================================================================
+
+delegation_routing:
+  claude_code_to_cursor:
+    allowed_for: [L3_execution]
+    transport: task_packet
+    required_payload_fields:
+      - goal
+      - scope
+      - out_of_scope
+      - truth_touchpoints
+      - worker_plan
+      - acceptance_criteria
+      - stop_conditions
+    cursor_must_return: review_packet
+    cursor_review_required_fields:
+      - files_changed
+      - tests_run
+      - blockers
+      - scope_exceeded
+      - acceptance_satisfied
+
+  claude_code_to_ollama:
+    allowed_for: [atomic_helper_tasks]
+    transport: task_packet (helper variant)
+    constraints:
+      - single_file_or_single_output
+      - no_authority
+      - no_promotion
+      - no_architecture_decision
+    output_handling: must_be_verified_by_claude_before_reuse
+
+  gpt_head_to_claude_code:
+    payload:
+      - dispatch_routing_message
+      - current_phase
+      - task_intent
+      - boundary
+    do_not_dump: full_shadowmas_context
+
+  claude_code_to_gpt_head:
+    payload:
+      - adapter_proposal
+      - unresolved_questions
+      - mergeback_package
+    constraint: claude_code_does_not_write_dispatch_files_directly
+
+# ============================================================================
+# CURRENT PHASE GUARDRAIL (see plan §7)
+# ============================================================================
+
+current_phase_guardrail:
+  phase_id: week_1_minimal_order_loop
+  
+  allowed_frontend:
+    - /dashboard
+    - /orders/create
+    - /no-access
+    - api_client_skeleton
+    - mock_real_switch
+    - typecheck_build
+
+  allowed_backend:
+    - /health
+    - POST /orders
+    - POST /orders/force-create
+    - stable_response_error_format
+    - stable_geofence_blocked_response
+    - cors_base_url_rules
+
+  forbidden_modules:
+    - dispatch
+    - station
+    - chat
+    - audit_center
+    - management_crud
+    - permission_persistence
+    - cti_integration
+    - formal_auth
+    - formal_audit
+    - wallet
+
+  forbidden_actions:
+    - first_level_directory_change
+    - schema_migration_without_approved_erd
+    - architecture_decisions_outside_scope
+
+  enforcement:
+    - decisions_yaml_phase_field
+    - project_agents_md_explicit_scope_block
+    - h5_phase_transition_hook
+    - task_delegator_skill_scope_check
+    - bootstrap_step_2_phase_declaration
+
+# ============================================================================
+# UNRESOLVED QUESTIONS (deferred to next session)
+# ============================================================================
+
+unresolved_questions:
+  - id: U1
+    topic: ollama_invocation_transport
+    question: "Will Claude Code call Ollama via shell, MCP, or a wrapper script?"
+    impact: hook H6 packet detection accuracy
+    proposal: defer until first real Ollama task; document path when chosen
+
+  - id: U2
+    topic: packet_storage_location
+    question: "Where do task_packets and review_packets physically live?"
+    note: "This is GPT head session's responsibility, outside adapter scope."
+    impact: bootstrap step 2 unresolved-items detection
+
+  - id: U3
+    topic: codex_hook_equivalent
+    question: "Codex CLI hook model differs from Claude Code; need separate adapter for Codex layer 4"
+    impact: full agent-agnosticism only achieved when codex adapter is also designed
+    proposal: design codex adapter as v0.1 follow-up
+
+  - id: U4
+    topic: dynamic_scoring_persistence
+    question: "Where is per-agent score history stored in dynamic mode?"
+    impact: dynamic mode unusable until storage location decided
+    proposal: defer to v0.5 with memory plane
+
+  - id: U5
+    topic: a2a_wrapping_concrete_schema
+    question: "Exact mapping from shadowMAS packet to A2A Message Part"
+    impact: future enterprise upgrade path
+    proposal: defer until v0.5; reserved field a2a_wrapping in packet shell
+
+# ============================================================================
+# RISKS (see RISKS-AND-UNRESOLVED.md for narrative)
+# ============================================================================
+
+risks:
+  - id: R1
+    severity: high
+    description: silent rule dropout in long sessions despite SessionStart inject
+    mitigation: HS2 PreCompact reinject + HS3 stop suggestion
+
+  - id: R2
+    severity: high
+    description: hook bypass via shell escape or unusual command syntax
+    mitigation: H1-H5 condition matchers must be tested against creative bypasses
+
+  - id: R3
+    severity: medium
+    description: distribute.sh failure leaves agents desynced
+    mitigation: distribute.sh writes a hash file, agents check on bootstrap
+
+  - id: R4
+    severity: medium
+    description: cursor_local may receive Claude-only instructions through symlink chain
+    mitigation: distribute.sh filters Claude-specific blocks when generating .cursor/rules/
+
+  - id: R5
+    severity: medium
+    description: ollama output trusted without verification
+    mitigation: Shared Core Section 7 hard constraint, plus packet protocol enforcement
+
+  - id: R6
+    severity: low
+    description: phase guardrail bypassed via creative scope reframing
+    mitigation: H5 + bootstrap step 2 + task_delegator skill scope check (defense in depth)
+
+  - id: R7
+    severity: low
+    description: too many hooks slow Claude Code session unacceptably
+    mitigation: hooks v0 are lightweight bash; benchmark before adding more
+
+# ============================================================================
+# END OF SELF-DESCRIPTION
+# ============================================================================
