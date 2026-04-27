@@ -204,6 +204,8 @@ Open questions:
 - Do not change packet schema required fields.
 - Do not promote this decision board into canonical truth.
 
+Validator and CI implementation-prep is tracked separately in `07_working/drafts/CONTRACT-VERSIONING-VALIDATOR-CI-PREP.v0.en.md`; that prep note must not resolve these edge cases by implication.
+
 ## Open Questions
 - Which edge cases must be resolved before any validator design begins?
 - Should unknown-value tolerance be the first formal addendum to packet governance?

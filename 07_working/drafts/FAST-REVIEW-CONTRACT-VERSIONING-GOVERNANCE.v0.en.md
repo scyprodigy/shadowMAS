@@ -369,3 +369,5 @@ The following edge cases remain intentionally unresolved here:
 - full SemVer adoption
 
 These unresolved items are tracked for later selection in `07_working/drafts/FAST-REVIEW-CONTRACT-VERSIONING-EDGE-CASES.v0.en.md`.
+
+Future validator and CI implementation-prep is tracked separately in `07_working/drafts/CONTRACT-VERSIONING-VALIDATOR-CI-PREP.v0.en.md`.
