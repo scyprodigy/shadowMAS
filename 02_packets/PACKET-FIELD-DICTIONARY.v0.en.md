@@ -27,6 +27,8 @@ It does not itself require one specific serialization format.
 For v0, YAML is the default codec used by the current packet files.
 Future codecs may serialize the same logical packet contract without changing this dictionary.
 Codec-specific transport, framing, or compression concerns belong to runtime handling unless later promoted explicitly into governed truth.
+This boundary does not adopt binary transport or create/formalize a codec seam.
+It also does not add `format_version`, `codec_version`, `serialization_version`, `content_type`, or `format_id` fields.
 
 ## Naming Rules
 - use `snake_case`
