@@ -91,14 +91,29 @@ Allowed current values:
 
 ### `schema_version`
 Meaning:
-Packet schema version used by this packet.
+Authoritative in-artifact contract version field for machine-first packet contract surfaces.
 
 Rule:
 - required for validation compatibility
 - must not be omitted in machine-stable packets
+- parsers and validators must use this field, not the filename, as the authoritative contract version when this field exists
+- for SemVer-aligned contract versions, prefer `MAJOR.MINOR.PATCH` value form, for example `"0.0.0"`
 
 Example:
-- `v0`
+- `"0.0.0"`
+
+### Packet contract versioning rules
+Filename `.vN` is a major-line mirror for human navigation, grep, and diff convenience only.
+It is not parser authority when `schema_version` exists.
+
+Rules:
+- filename major and in-artifact major should remain aligned
+- mismatch between filename `.vN` and `major(schema_version)` should be treated as a review-blocking condition
+- use SemVer-aligned PATCH / MINOR / MAJOR language as governance language only; this dictionary does not formalize full SemVer adoption
+- additive optional fields are normally backward-compatible if they do not change existing requiredness, type, meaning, default behavior, or allowed-value semantics
+- changes to requiredness, type, semantic meaning, default behavior, or wire-visible identifier names are breaking contract changes
+- deprecation must precede removal for visible contract identifiers
+- retired identifiers must not be reused
 
 ### `task_id`
 Meaning:

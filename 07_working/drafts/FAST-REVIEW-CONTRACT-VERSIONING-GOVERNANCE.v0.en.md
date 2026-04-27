@@ -356,3 +356,14 @@ This note is governance-language input only and is not yet formalized as canonic
 - Filename `.v0` remains a major-line mirror only and is not parser authority.
 - Do not formalize full SemVer adoption yet.
 - Use SemVer only as governance language for PATCH / MINOR / MAJOR bump policy until edge cases are resolved.
+
+## Note - Distilled Packet/Registry Clarification
+
+This draft remains working-only. The Codex task that touched the packet dictionary and file-status registry distilled only the mature packet/registry clarification subset from this draft.
+
+The following edge cases remain intentionally unresolved here:
+- format-dialect version field naming and location
+- enum-addition tolerance and unknown-value handling
+- reservation-registry location for retired identifiers
+- YAML compatibility diff implementation
+- full SemVer adoption
