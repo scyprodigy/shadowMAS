@@ -48,3 +48,25 @@ example_entry:
   human_decision:
     status: "pending"
     note: ""
+
+identified_gaps:
+  - id: AGENT-JOIN-CONTRACT
+    status: gap_recognized
+    do_not_author_now: true
+    reason: "runtime-adapter must not preempt version-governance lane"
+  - id: PROJECT-INTAKE-CONTRACT
+    status: gap_recognized
+    do_not_author_now: true
+    reason: "runtime-adapter must not preempt version-governance lane"
+  - id: LEGACY-INTAKE-NORMALIZATION
+    status: gap_recognized
+    do_not_author_now: true
+    reason: "runtime-adapter must not preempt version-governance lane"
+  - id: PACKET-COMPATIBILITY-LAYER
+    status: gap_recognized
+    do_not_author_now: true
+    reason: "runtime-adapter must not preempt version-governance lane"
+  - id: RUNTIME-ADAPTER-CONTRACT
+    status: gap_recognized
+    do_not_author_now: true
+    reason: "runtime-adapter must not preempt version-governance lane"
