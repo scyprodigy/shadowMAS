@@ -113,7 +113,7 @@ Minimum memory-plane structure:
 Runtime state folders for inbox, packetized artifacts, indexing, review, approval, rejection, and writeback.
 
 ### `05_scripts/`
-CLI-oriented scripts grouped by function:
+Reserved future CLI implementation lane. No runnable scripts are implied by this directory map. The labels below are placeholder grouping names only if scripts are explicitly approved later:
 - ingest
 - packetize
 - validate
@@ -128,6 +128,7 @@ Human-facing documents.
 
 ### `07_working/`
 Working integration area for handoffs, merged drafts, temporary working files, and archive state.
+Files under `07_working/` are working-area materials such as drafts, intake rules, integration notes, and handoff support. They are not canonical truth unless later promoted through an explicit governance path.
 
 ## Reading policy
 
@@ -140,11 +141,14 @@ Primary formal truth lives in:
 Primary human-facing navigation lives in:
 - `06_human_docs/zh-TW/`
 
-Suggested first reading path:
+Current v0 intake pack:
 1. `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
 2. `01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md`
-3. `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
+3. `01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md`
 4. `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
+
+For deeper governance review, also read:
+- `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
 
 ## v0 design bias
 - rules-first
