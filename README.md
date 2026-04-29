@@ -6,6 +6,10 @@ shadowMAS is a governance-oriented, memory-aware, human-AI collaboration system.
 It is not the product application itself.  
 It is a separate governance system for multi-agent and multi-session work.
 
+shadowMAS is not an agent framework. It is a local-first governance contract layer for multi-agent development work.
+
+Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the packet, workspace, review, handoff, and promotion boundaries around that work.
+
 ## What problem shadowMAS solves
 
 shadowMAS exists to reduce five failure modes that become common once AI work grows beyond a single chat:
@@ -26,6 +30,18 @@ shadowMAS is not:
 - a UI-first platform
 - a DB-first platform
 - just another general-purpose agent framework
+
+## Boundary model
+
+Governance outside, candidate work writable, promotion controlled.
+
+The shadowMAS source repo contains the system contracts, docs, scripts, and governance surfaces.
+
+An external shadowMAS workspace stores governance artifacts such as packets, reviews, handoffs, and runs.
+
+shadowMAS governance artifacts should not be written into product repos by default. This includes packets, reviews, handoffs, runs, memory candidates, and raw governance state.
+
+Product repos may still receive product-owned outputs in controlled branches or worktrees as candidate changes. Product canonical branches should receive promoted changes only through human git review / merge decision.
 
 ## Why hard separation matters
 
@@ -120,6 +136,22 @@ Reserved future CLI implementation lane. No runnable scripts are implied by this
 - embed
 - review
 - writeback
+
+Current executable surfaces are direct script commands, not installed package commands:
+
+```bash
+python3 05_scripts/validate/shadowmas_validate.py <packet-file>
+python3 05_scripts/workspace/shadowmas_workspace.py init --project <project-path>
+python3 05_scripts/workspace/shadowmas_workspace.py where --project <project-path>
+```
+
+Logical future command shapes:
+
+```bash
+shadowmas validate <packet-file>
+shadowmas workspace init --project <project-path>
+shadowmas workspace where --project <project-path>
+```
 
 ### `06_human_docs/`
 Human-facing documents.
