@@ -3,6 +3,11 @@ packet_type: task_packet
 extends: packet_common_shell.v0.yaml
 
 required_fields:
+  task_id:
+    type: string
+    required: true
+    meaning: higher-level task identifier associated with the packet
+
   goal:
     type: string
     required: true
@@ -12,6 +17,27 @@ required_fields:
     type: list[string]
     required: true
     meaning: what is inside the task boundary
+
+  out_of_scope:
+    type: list[string]
+    required: true
+    meaning: explicitly excluded work
+
+  truth_touchpoints:
+    type: list[string]
+    required: true
+    meaning: truth files or truth layers this task may affect
+
+  worker_plan:
+    type: object
+    required: true
+    meaning: minimal execution plan and worker selection hints
+    shape:
+      preferred_worker: string
+      fallback_worker: string
+      allow_fanout: boolean
+      fanout_limit: integer
+      retry_limit: integer
 
   acceptance_criteria:
     type: list[string]
@@ -27,6 +53,7 @@ required_shared_fields:
   - packet_uid
   - packet_type
   - schema_version
+  - task_id
   - created_at
   - created_by
   - owner
@@ -45,24 +72,6 @@ optional_fields:
     shape:
       required_context: list[string]
       optional_context: list[string]
-
-  out_of_scope:
-    type: list[string]
-    meaning: explicitly excluded work
-
-  truth_touchpoints:
-    type: list[string]
-    meaning: truth files or truth layers this task may affect
-
-  worker_plan:
-    type: object
-    meaning: minimal execution plan and worker selection hints
-    shape:
-      preferred_worker: string
-      fallback_worker: string
-      allow_fanout: boolean
-      fanout_limit: integer
-      retry_limit: integer
 
   on_blocked:
     type: object

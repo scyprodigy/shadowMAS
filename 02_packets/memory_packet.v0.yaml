@@ -53,6 +53,8 @@ required_shared_fields:
   - created_at
   - created_by
   - owner
+  - supervision_mode
+  - risk
   - status
 
 optional_fields:
