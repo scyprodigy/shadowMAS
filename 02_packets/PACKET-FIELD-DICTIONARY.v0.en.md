@@ -100,9 +100,11 @@ Rule:
 - must not be omitted in machine-stable packets
 - parsers and validators must use this field, not the filename, as the authoritative contract version when this field exists
 - for SemVer-aligned contract versions, prefer `MAJOR.MINOR.PATCH` value form, for example `"0.0.0"`
+- current v0 packet schemas may use `schema_version: v0`; parsers must treat `v0` as major line 0 for current v0 artifacts
 
 Example:
 - `"0.0.0"`
+- `v0`
 
 ### Packet contract versioning rules
 Filename `.vN` is a major-line mirror for human navigation, grep, and diff convenience only.
@@ -112,6 +114,7 @@ Rules:
 - filename major and in-artifact major should remain aligned
 - mismatch between filename `.vN` and `major(schema_version)` should be treated as a review-blocking condition
 - use SemVer-aligned PATCH / MINOR / MAJOR language as governance language only; this dictionary does not formalize full SemVer adoption
+- strict full SemVer validation is not adopted by this patch
 - additive optional fields are normally backward-compatible if they do not change existing requiredness, type, meaning, default behavior, or allowed-value semantics
 - changes to requiredness, type, semantic meaning, default behavior, or wire-visible identifier names are breaking contract changes
 - deprecation must precede removal for visible contract identifiers
@@ -260,6 +263,10 @@ Each source reference should prefer fields like:
 - `section`
 - `relation`
 
+Validation direction:
+- `source_refs` is required where the packet family marks it required, currently `memory_packet`
+- when a `source_refs` item is present, validators should at least expect `source_type`, `relation`, and either `source_path` or `source_id`
+
 #### `source_type`
 Meaning:
 What kind of source this is.
@@ -314,6 +321,10 @@ Each artifact reference should prefer fields like:
 - `produced_by`
 - `task_role`
 
+Validation direction:
+- `artifact_refs` remains optional unless a packet family schema marks it required
+- when an `artifact_refs` item is present, validators should at least expect `artifact_type`, `artifact_path`, and `change_kind`
+
 #### `artifact_type`
 Meaning:
 Kind of artifact.
@@ -367,6 +378,9 @@ Examples:
 ---
 
 ## 3. Handoff Block Fields
+`handoff` remains optional unless a packet family later marks it required.
+When `handoff` is present, it should include `to_role`, `needed_action`, `reason`, and `resume_from`.
+`handoff.blockers` may be an empty list when there are no blockers.
 
 ### `handoff.from_packet_ref`
 Meaning:
@@ -451,7 +465,7 @@ Meaning:
 What is explicitly outside task scope.
 
 Rule:
-- strongly recommended
+- required
 - prevents uncontrolled expansion
 
 ### `truth_touchpoints`
@@ -460,13 +474,14 @@ Which truth files, truth layers, or authority surfaces this task may affect.
 
 Rule:
 - critical for governance safety
-- should not be omitted for non-trivial work
+- required
 
 ### `worker_plan`
 Meaning:
 Minimal execution plan for task execution control.
 
 Rule:
+- required
 - should remain actionable
 - not a giant essay
 
@@ -893,6 +908,9 @@ Do not confuse:
 - `status`
 - `goal`
 - `scope`
+- `out_of_scope`
+- `truth_touchpoints`
+- `worker_plan`
 - `acceptance_criteria`
 - `stop_conditions`
 
@@ -903,6 +921,8 @@ Do not confuse:
 - `created_at`
 - `created_by`
 - `owner`
+- `supervision_mode`
+- `risk`
 - `status`
 - `memory_kind`
 - `memory_scope`
@@ -920,6 +940,8 @@ Do not confuse:
 - `created_at`
 - `created_by`
 - `owner`
+- `supervision_mode`
+- `risk`
 - `status`
 - `decision_needed`
 - `why_you_are_seeing_this`
