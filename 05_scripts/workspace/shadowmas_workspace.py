@@ -4,6 +4,7 @@
 Direct use:
   python3 05_scripts/workspace/shadowmas_workspace.py init --project <project-path>
   python3 05_scripts/workspace/shadowmas_workspace.py where --project <project-path>
+  python3 05_scripts/workspace/shadowmas_workspace.py inspect --project <project-path>
 """
 
 from __future__ import annotations
@@ -20,6 +21,17 @@ from pathlib import Path
 
 
 WORKSPACE_SUBDIRS = ["packets", "reviews", "handoffs", "runs"]
+REQUIRED_METADATA_FIELDS = [
+    "schema_version",
+    "workspace_kind",
+    "project_id",
+    "project_path",
+    "workspace_path",
+    "created_at",
+    "created_by",
+    "boundary",
+]
+REQUIRED_BOUNDARY_FIELDS = ["writes_product_repo", "governance_artifacts_external"]
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -31,7 +43,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    for name in ("init", "where"):
+    for name in ("init", "where", "inspect"):
         command = subparsers.add_parser(name)
         command.add_argument("--project", required=True, help="Product project directory path")
 
@@ -40,6 +52,20 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def print_error(message: str) -> None:
     print(f"ERROR: {message}", file=sys.stderr)
+
+
+def print_workspace_error(
+    code: str,
+    workspace: Path | None,
+    field: str | None,
+    message: str,
+) -> None:
+    print(f"ERROR {code}")
+    if workspace is not None:
+        print(f"workspace: {workspace}")
+    if field is not None:
+        print(f"field: {field}")
+    print(f"message: {message}")
 
 
 def resolve_project(path_text: str) -> Path:
@@ -144,6 +170,186 @@ def where_workspace(project_path: Path) -> int:
     return 0
 
 
+def inspect_project_error(project_path: Path) -> int:
+    if not project_path.exists():
+        print_workspace_error(
+            "PROJECT_NOT_FOUND",
+            None,
+            "project_path",
+            f"project path does not exist: {project_path}",
+        )
+        return 1
+    if not project_path.is_dir():
+        print_workspace_error(
+            "PROJECT_NOT_DIRECTORY",
+            None,
+            "project_path",
+            f"project path is not a directory: {project_path}",
+        )
+        return 1
+    return 0
+
+
+def metadata_field(data: dict[str, object], field_path: str) -> object:
+    current: object = data
+    for part in field_path.split("."):
+        if not isinstance(current, dict) or part not in current:
+            raise KeyError(field_path)
+        current = current[part]
+    return current
+
+
+def inspect_workspace(project_path: Path) -> int:
+    project_error = inspect_project_error(project_path)
+    if project_error:
+        return project_error
+
+    workspace = workspace_path(project_path)
+    if not workspace.exists():
+        print_workspace_error(
+            "WORKSPACE_NOT_FOUND",
+            workspace,
+            None,
+            f"workspace does not exist: {workspace}",
+        )
+        return 1
+    if not workspace.is_dir():
+        print_workspace_error(
+            "WORKSPACE_NOT_DIRECTORY",
+            workspace,
+            None,
+            f"workspace path is not a directory: {workspace}",
+        )
+        return 1
+
+    metadata_path = workspace / "workspace.json"
+    if not metadata_path.exists():
+        print_workspace_error(
+            "WORKSPACE_METADATA_MISSING",
+            workspace,
+            "workspace.json",
+            "workspace metadata file is missing",
+        )
+        return 1
+
+    try:
+        data = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        print_workspace_error(
+            "WORKSPACE_METADATA_UNREADABLE",
+            workspace,
+            "workspace.json",
+            f"unable to read workspace metadata: {exc}",
+        )
+        return 2
+    except json.JSONDecodeError as exc:
+        print_workspace_error(
+            "WORKSPACE_METADATA_PARSE_ERROR",
+            workspace,
+            "workspace.json",
+            f"unable to parse workspace metadata as JSON: {exc}",
+        )
+        return 2
+
+    if not isinstance(data, dict):
+        print_workspace_error(
+            "WORKSPACE_METADATA_NOT_OBJECT",
+            workspace,
+            "workspace.json",
+            "workspace metadata root must be an object",
+        )
+        return 1
+
+    for field in REQUIRED_METADATA_FIELDS:
+        if field not in data:
+            print_workspace_error(
+                "WORKSPACE_METADATA_FIELD_MISSING",
+                workspace,
+                field,
+                f"workspace metadata requires {field}",
+            )
+            return 1
+
+    boundary = data.get("boundary")
+    if not isinstance(boundary, dict):
+        print_workspace_error(
+            "WORKSPACE_METADATA_VALUE_MISMATCH",
+            workspace,
+            "boundary",
+            "workspace metadata boundary must be an object",
+        )
+        return 1
+
+    for field in REQUIRED_BOUNDARY_FIELDS:
+        field_path = f"boundary.{field}"
+        if field not in boundary:
+            print_workspace_error(
+                "WORKSPACE_METADATA_FIELD_MISSING",
+                workspace,
+                field_path,
+                f"workspace metadata requires {field_path}",
+            )
+            return 1
+
+    expected_values: dict[str, object] = {
+        "schema_version": "v0",
+        "workspace_kind": "external_workspace",
+        "boundary.writes_product_repo": False,
+        "boundary.governance_artifacts_external": True,
+    }
+    for field_path, expected in expected_values.items():
+        try:
+            actual = metadata_field(data, field_path)
+        except KeyError:
+            print_workspace_error(
+                "WORKSPACE_METADATA_FIELD_MISSING",
+                workspace,
+                field_path,
+                f"workspace metadata requires {field_path}",
+            )
+            return 1
+        if actual != expected:
+            print_workspace_error(
+                "WORKSPACE_METADATA_VALUE_MISMATCH",
+                workspace,
+                field_path,
+                f"expected {field_path} to be {expected!r}, got {actual!r}",
+            )
+            return 1
+
+    expected_paths = {
+        "workspace_path": str(workspace),
+        "project_path": str(project_path),
+    }
+    for field, expected in expected_paths.items():
+        actual = data.get(field)
+        if actual != expected:
+            print_workspace_error(
+                "WORKSPACE_METADATA_PATH_MISMATCH",
+                workspace,
+                field,
+                f"expected {field} to be {expected!r}, got {actual!r}",
+            )
+            return 1
+
+    expected_project_id = project_id(project_path)
+    actual_project_id = data.get("project_id")
+    if actual_project_id != expected_project_id:
+        print_workspace_error(
+            "WORKSPACE_METADATA_PROJECT_ID_MISMATCH",
+            workspace,
+            "project_id",
+            f"expected project_id to be {expected_project_id!r}, got {actual_project_id!r}",
+        )
+        return 1
+
+    print("OK workspace metadata valid")
+    print(f"workspace: {workspace}")
+    print(f"project_id: {expected_project_id}")
+    print("schema_version: v0")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     try:
         args = parse_args(argv)
@@ -152,6 +358,8 @@ def main(argv: list[str]) -> int:
             return init_workspace(project_path)
         if args.command == "where":
             return where_workspace(project_path)
+        if args.command == "inspect":
+            return inspect_workspace(project_path)
         print_error(f"unknown command: {args.command}")
         return 2
     except Exception as exc:  # Defensive boundary for unexpected CLI failures.
