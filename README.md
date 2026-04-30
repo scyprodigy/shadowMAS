@@ -143,7 +143,10 @@ Current executable surfaces are direct script commands, not installed package co
 python3 05_scripts/validate/shadowmas_validate.py <packet-file>
 python3 05_scripts/workspace/shadowmas_workspace.py init --project <project-path>
 python3 05_scripts/workspace/shadowmas_workspace.py where --project <project-path>
+python3 05_scripts/workspace/shadowmas_workspace.py inspect --project <project-path>
 ```
+
+Current scripts do not run agents, modify product repos, or perform write-back.
 
 Logical future command shapes:
 
@@ -151,6 +154,7 @@ Logical future command shapes:
 shadowmas validate <packet-file>
 shadowmas workspace init --project <project-path>
 shadowmas workspace where --project <project-path>
+shadowmas workspace inspect --project <project-path>
 ```
 
 ### `06_human_docs/`
