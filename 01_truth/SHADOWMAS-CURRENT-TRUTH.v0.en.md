@@ -384,6 +384,19 @@ The default v0 intake approach is:
 - request more files only after calibration
 - if a compact intake artifact is introduced later, it should be compiled from canonical sources rather than maintained as an independent handwritten truth file
 
+### Compiled Intake Rule
+The current v0 intake pack is the default intake profile, not a closed forever list.
+
+Intake packs must be derived from canonical files. Handwritten standalone intake content is forbidden.
+
+An intake pack is a compiled, extracted, or compressed onboarding view for zero-memory agents. It is not canonical truth.
+
+If an intake pack conflicts with canonical files, the canonical files win.
+
+Intake must not regress into blind full repo traversal.
+
+v0 does not implement a dynamic intake compiler or role-specific intake profiles. Future task / memory / review intake profiles may exist only if they remain derived from canonical files.
+
 ### Current v0 Intake Pack
 Single maintained owner for the exact current zero-memory intake pack:
 1. `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
