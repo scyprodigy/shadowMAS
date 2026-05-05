@@ -241,6 +241,17 @@ Rules:
 - promotion gate is mandatory
 - invalidation must be explicit
 
+## Memory Plane Principles
+Memory is a core shadowMAS design surface.
+
+Memory strategy is task-dependent. The memory plane should optimize semantic cleanliness, token economy, handoff continuity, and cross-agent reuse.
+
+Memory backend selection is an implementation detail. Filesystem, vector, graph, and hybrid stores may all be valid R-layer implementations, but v0 does not select any canonical backend and does not implement a memory store.
+
+Retrieval hits, cache hits, or memory lookups do not arbitrate truth. Memory promotion must pass through the review / promotion boundary.
+
+`memory_packet` is the minimum cross-agent memory handoff contract. It is not a memory store design.
+
 ## Local Model Baseline
 Current recorded baseline:
 - `qwen3:8b` for small and cheap text tasks
