@@ -48,6 +48,11 @@ even if shadowMAS is unavailable.
 
 shadowMAS may connect to product repos through controlled integration points only.
 
+Boundary invariant:
+- Product repositories must not require shadowMAS governance artifacts, runtime state, packets, reviews, handoffs, workspace metadata, or shadowMAS workspaces to build, test, deploy, or operate.
+- Automation may write product-owned candidate artifacts into controlled product branches or worktrees, but those artifacts must not create a runtime or build-time dependency on shadowMAS governance state.
+- Promotion into canonical product branches remains a human git review / merge decision.
+
 ## Integration Model
 Preferred model:
 - shadowMAS lives in its own root/repo
