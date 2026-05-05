@@ -113,6 +113,15 @@ This layer must not:
 - redefine reusable shared-core rules
 - pretend to be the top authority
 
+### Runtime Skill Package Classification
+Runtime skill packages, including platform-native or `SKILL.md`-style skill folders, may be classified as Prompt Layer 4: Runtime Adapter Prompt helpers when used by an execution environment.
+
+They are execution helpers, not canonical truth, not packet families, not promotion gates, not governance authorities, and not human authority.
+
+Skill output remains execution feed unless it is explicitly captured, reviewed, and promoted through shadowMAS packet / review / promotion boundaries.
+
+This classification does not imply v0 support for skill installation, a skill registry, a skill marketplace, or a runtime adapter implementation. shadowMAS does not treat any host-specific skill path or skill format as canonical in v0.
+
 ### Layer 5: Host Native / Opaque Prompt
 Definition:
 The platform-native hidden or semi-hidden instruction layer outside shadowMAS control.
