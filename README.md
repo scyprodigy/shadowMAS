@@ -106,6 +106,24 @@ Current direction:
 - no DB-first design
 - hard-separated from product repos
 
+## First run
+
+Run commands from the repository root.
+
+`<project-path>` must be an existing product project directory.
+
+```bash
+python3 05_scripts/workspace/shadowmas_workspace.py init --project <project-path>
+python3 05_scripts/workspace/shadowmas_workspace.py inspect --project <project-path>
+python3 05_scripts/validate/shadowmas_validate.py examples/packets/task_packet.valid.v0.yaml
+```
+
+The workspace commands create and inspect an external shadowMAS workspace outside the product project directory.
+
+The validator command validates the non-canonical example packet under `examples/packets/`. The validator checks packet shape and contract rules; it does not execute tasks or run agents.
+
+Examples under `examples/` are non-canonical illustrative examples. They are not truth files and not packet schemas.
+
 ## Top-level directory guide
 
 ### `00_entry/`
@@ -129,7 +147,7 @@ Minimum memory-plane structure:
 Runtime state folders for inbox, packetized artifacts, indexing, review, approval, rejection, and writeback.
 
 ### `05_scripts/`
-Reserved future CLI implementation lane. No runnable scripts are implied by this directory map. The labels below are placeholder grouping names only if scripts are explicitly approved later:
+Current direct script surfaces live here. Installed package commands are not available yet. The labels below are grouping names for current and possible future scripts:
 - ingest
 - packetize
 - validate
