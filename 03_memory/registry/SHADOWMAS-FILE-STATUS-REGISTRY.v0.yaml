@@ -4,6 +4,15 @@ purpose: >
   Minimal file-status registry for shadowMAS v0.
   Tracks file role, authority, status, and promotion meaning.
 
+scope_invariant:
+  - This registry is not a full repo inventory.
+  - Git-tracked files do not automatically require registry entries.
+  - Explicit registry entries are required only for files whose authority, status, promotion meaning, or reuse risk must be machine-visible.
+  - Folder defaults may classify repeated low-risk areas.
+  - Examples are non-canonical illustrative material and must not be treated as truth files or packet schemas.
+  - Scripts are executable support surfaces, not governance truth, unless a specific script becomes governance-critical enough to require explicit status.
+  - Working drafts are working-only by default unless a specific draft becomes a promotion candidate or governed support artifact.
+
 status_definitions:
   handoff_only:
     meaning: Single-session or transfer artifact used for handoff, not mainline truth.
