@@ -1,0 +1,40 @@
+# This is a non-canonical illustrative example.
+# It is provided only for validator first-run usage.
+# It is not a packet schema.
+# It is not canonical truth.
+
+packet_uid: example-task-packet-valid-v0-001
+packet_type: task_packet
+schema_version: v0
+created_at: "2026-05-06T00:00:00Z"
+created_by: example_author
+owner: example_owner
+supervision_mode: human_available_delegate
+risk: r0_trivial
+status: draft
+
+task_id: example-illustrative-status-note
+goal: Create a short illustrative status note from provided source material.
+scope:
+  - Read the provided source material only.
+  - Summarize current status in a short note.
+  - Keep the output generic and non-canonical.
+out_of_scope:
+  - Do not modify source files.
+  - Do not make governance decisions.
+  - Do not promote the note as truth.
+truth_touchpoints:
+  - No canonical truth files are changed by this illustrative example.
+worker_plan:
+  preferred_worker: documentation_helper
+  fallback_worker: human_reviewer
+  allow_fanout: false
+  fanout_limit: 1
+  retry_limit: 0
+acceptance_criteria:
+  - The note is concise and based only on provided source material.
+  - The note clearly remains illustrative and non-canonical.
+  - No product-specific project is referenced.
+stop_conditions:
+  - Stop if source material is missing.
+  - Stop if the task would require editing canonical truth, schemas, scripts, or product repo files.
