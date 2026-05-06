@@ -10,6 +10,8 @@ shadowMAS is not an agent framework. It is a local-first governance contract lay
 
 Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the packet, workspace, review, handoff, and promotion boundaries around that work.
 
+Licensed under the Apache License 2.0. See `LICENSE`.
+
 ## What problem shadowMAS solves
 
 shadowMAS exists to reduce five failure modes that become common once AI work grows beyond a single chat:
