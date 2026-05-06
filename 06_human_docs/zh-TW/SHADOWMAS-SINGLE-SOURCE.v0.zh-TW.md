@@ -281,10 +281,14 @@ packet 的價值在於：
 
 ## 12. 第一次接觸 shadowMAS，建議怎麼讀
 
-先讀：
+目前 v0 intake pack 先讀：
 1. `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
 2. `01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md`
-3. `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
+3. `01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md`
+4. `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
+
+如果要做更深入的治理 review，再讀：
+- `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
 
 再用這份中文單一入口補：
 - 為什麼這樣設計
