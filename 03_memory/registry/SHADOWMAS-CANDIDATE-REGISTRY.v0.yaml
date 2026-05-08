@@ -1,0 +1,139 @@
+registry:
+  id: SHADOWMAS-CANDIDATE-REGISTRY
+  version: v0
+  status: active_registry
+  purpose: live_candidate_lifecycle_tracking
+  owner_surface: 03_memory/registry
+  created_for: P0_5_candidate_landing_surface
+
+authority_boundary:
+  is_canonical_truth: false
+  is_approval_authority: false
+  human_approval_required_for_patch: true
+  score_or_vote_is_evidence_not_authority: true
+  cannot_promote_from:
+    - T4_execution_feed
+    - T5_ephemeral_cache_or_session_state
+
+status_semantics:
+  candidate_for_human_review:
+    meaning: live candidate awaiting human review
+    may_do:
+      - preserve_candidate_state
+      - support_human_review
+      - support_approve_revise_reject_defer_decision
+    may_not_do:
+      - modify_canonical_truth
+      - modify_packet_schema
+      - bypass_collision_check
+      - bypass_human_approval
+
+  revise_required:
+    meaning: reviewed but requires bounded revision
+    may_do:
+      - update_candidate_entry
+      - attach_reviewer_notes
+    may_not_do:
+      - patch_target_files_without_approval
+
+  approved_for_patch:
+    meaning: human approved creation of a separate patch task
+    may_do:
+      - create_separate_codex_patch_task
+    may_not_do:
+      - directly_modify_canonical_truth_by_registry_entry
+      - treat_registry_entry_as_patch_itself
+
+  rejected:
+    meaning: rejected and must not return without new evidence
+    terminal: true
+
+  deferred:
+    meaning: valid but inactive until blocker or revisit condition changes
+    terminal_until_reopened: true
+
+candidate_entry_schema:
+  required_fields:
+    - candidate_id
+    - p_lane
+    - title
+    - status
+    - source_basis
+    - target_surfaces
+    - change_type
+    - proposed_minimum_shape
+    - collision_check
+    - governance_boundary
+    - change_impact_check
+    - revision_control
+    - reviewer_decision
+    - next_action
+
+candidates:
+  - candidate_id: P1-001
+    p_lane: P1
+    title: residual_first_report_minimum_shape
+    status: candidate_for_human_review
+    source_basis:
+      - P1_candidate_1_residual_first_report_minimum_shape
+      - prior_codex_recovery_collision_summary
+    target_surfaces:
+      primary: 02_packets/review_packet.v0.yaml
+      secondary: 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+      collision_check: 02_packets/packet_common_shell.v0.yaml
+    change_type: packet_field_change
+    proposed_minimum_shape:
+      add_or_reuse_fields:
+        - expected_state
+        - actual_state
+        - residuals
+        - validation_gap
+        - truth_conflicts
+        - decision_needed
+        - stop_condition_status
+      reuse_existing:
+        - decision_needed
+    collision_check:
+      status: checked_by_prior_codex_recovery
+      exact_collisions:
+        - field: decision_needed
+          result: exists_and_should_be_reused
+      semantic_near_collisions:
+        - residuals_vs_unresolved_questions
+        - validation_gap_vs_acceptance_check_result
+        - truth_conflicts_vs_source_refs_relation
+        - stop_condition_status_vs_shared_status
+      warnings:
+        - stop_condition_status_must_not_redefine_packet_lifecycle_status
+    governance_boundary:
+      human_approval_required: true
+      registry_entry_is_not_truth_patch: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+    change_impact_check:
+      required_before_patch:
+        - 02_packets/review_packet.v0.yaml
+        - 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+        - 02_packets/packet_common_shell.v0.yaml
+        - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md if packet identity changes
+        - 06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md if human explanation changes
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+    reviewer_decision:
+      decision: null
+      decided_by: null
+      decided_at: null
+      notes: null
+    next_action: human_review_approve_revise_reject_defer
+
+notes:
+  - this_registry_is_not_canonical_truth
+  - this_registry_is_not_approval_authority
+  - registry_entries_do_not_modify_packet_schemas
+  - approved_for_patch_only_authorizes_a_separate_patch_task
+  - scores_votes_quorums_or_signals_are_evidence_not_authority
+  - do_not_use_this_registry_as_a_draft_storage_surface
