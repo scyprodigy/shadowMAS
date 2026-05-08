@@ -130,6 +130,306 @@ candidates:
       notes: null
     next_action: human_review_approve_revise_reject_defer
 
+  - candidate_id: P2-001
+    p_lane: P2
+    title: signal_field_event
+    candidate_name: signal_field_event
+    candidate_kind: r_layer_runtime_artifact_shape
+    status: candidate_for_human_review
+    owner_session: claude_p2_lane
+
+    source_basis:
+      - active_log_R3_signal_field_coordination_section_17_9_1
+      - active_log_R4_externalized_free_energy_landscape_cross_reference
+      - active_log_R16_learnable_KL_frontier_cross_reference
+      - claude_round_3_finalization
+      - codex_round_3_fact_check_confirmed
+
+    target_surfaces:
+      primary: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      future_runtime_contract: future_R_layer_runtime_contract_not_created_here
+      future_hook_surface: future_runtime_adapter_hook_gap_not_created_here
+      forbidden_now:
+        - 01_truth
+        - 02_packets
+        - 04_runtime
+        - runtime_adapter_hooks
+
+    change_type: r_layer_runtime_artifact_candidate
+
+    proposed_minimum_shape:
+      not_a_packet: true
+      not_a_memory_artifact: true
+      not_implemented: true
+      not_promoted: true
+      not_canonical_truth: true
+      shape:
+        event_id:
+          type: string
+          required: true
+          meaning: human-readable event identifier
+          naming_alignment_note: parallels packet_id pattern
+        zone:
+          type: string
+          required: true
+          meaning: signal field zone identifier this event belongs to
+          boundary_note: zone scope is defined by future P2-003 candidate, not here
+        channel:
+          type: enum
+          required: true
+          allowed:
+            - trail
+            - alarm
+            - territory
+            - question
+            - constraint
+            - evidence
+        residual_kind:
+          type: enum
+          required: true
+          allowed:
+            - success_path
+            - failure
+            - conflict
+            - uncertainty
+            - duplicate_claim
+            - validation_gap
+        residual_magnitude:
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+            - blocker
+        urgency:
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+            - critical
+        confidence:
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+          forbidden_use: confidence_is_not_truth_authority
+        created_by:
+          type: string
+          required: true
+          vocabulary_anchor: packet_common_shell_created_by
+        created_at:
+          type: string
+          required: true
+          format: RFC3339_UTC
+          vocabulary_anchor: packet_common_shell_timestamp_format
+          example: "2026-05-08T04:00:00Z"
+        ttl:
+          type: string
+          required: true
+          format: ISO8601_duration_or_named_class
+          examples:
+            - PT5M
+            - PT1H
+            - task_duration
+            - session
+          substrate_note: substrate_agnostic_not_bound_to_specific_runtime_clock
+        decay_policy:
+          type: enum
+          required: true
+          allowed:
+            - linear
+            - exponential
+            - step_at_ttl
+            - manual_purge_only
+        source_refs:
+          type: list_of_object
+          required: true
+          minimum_length: 0
+          item_shape:
+            source_type: string
+            source_id: string
+            source_path: string
+            source_hash: string
+            source_version: string
+            section: string
+            relation: string
+          vocabulary_anchor: PACKET_FIELD_DICTIONARY_source_refs_shape
+        audit_summary:
+          type: string
+          required: true
+          hard_constraints:
+            - must_not_contain_decision_authority_claims
+            - must_not_claim_truth_status_beyond_runtime_signal_only
+            - must_remain_inspectable_without_reexecuting_context
+        truth_status:
+          type: enum
+          required: true
+          allowed:
+            - runtime_signal_only
+          fixed_value: runtime_signal_only
+
+    collision_check:
+      status: codex_round_3_fact_check_passed
+      confirmed_alignments:
+        - created_at_bound_to_RFC3339_UTC
+        - created_by_exists
+        - source_refs_shape_confirmed
+        - relation_is_correct_field_name
+      no_existing_collision:
+        - truth_status
+        - runtime_signal_only
+        - signal_field
+        - runtime_signal
+      first_reservation_candidate:
+        - truth_status
+        - runtime_signal_only
+        - signal_field_event
+      known_gaps:
+        - no_signal_field_promotion_blocking_hook_in_H1_to_H7
+        - runtime_substrate_decision_deferred
+        - ghost_dependency_invalidation_behavior_deferred_to_P2_002
+
+    governance_boundary:
+      human_approval_required: true
+      registry_entry_is_not_truth_patch: true
+      registry_entry_is_not_runtime_implementation: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+      hard_flags:
+        not_a_packet: true
+        not_a_memory_artifact: true
+        not_implemented: true
+        not_promoted: true
+        not_canonical_truth: true
+
+    change_impact_check:
+      registry_update_now:
+        - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      intentionally_deferred_until_promotion_or_implementation:
+        - 01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
+        - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+        - 01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
+        - 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+        - 02_packets/packet_common_shell.v0.yaml
+        - 04_runtime
+        - runtime_adapter_hook_files
+        - 06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md
+      defer_reason: candidate_registry_entry_only_not_promotion_not_implementation
+
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+
+    reviewer_decision:
+      decision: approved_for_registry_insertion_only
+      decided_by: human_via_GPT_session
+      decided_at: null
+      notes:
+        - approved_candidate_for_human_review_status
+        - approved_first_reservation_status
+        - approved_hook_gap_under_fixed_gate
+        - approved_hard_blocker_hook_plus_substrate
+        - approved_ghost_dependency_deferred_to_P2_002
+
+    first_reservation_status:
+      is_first_reservation_for:
+        - truth_status
+        - runtime_signal_only
+        - signal_field_event
+      governance_implication: future_candidates_must_not_reuse_these_labels_for_different_concepts
+      not_yet_canonical: true
+
+    hook_gap:
+      gap_id: gap-shadowmas-hook-signal-field-promotion-block
+      tier: fixed_gate
+      original_tier_label: 固定閘門
+      description: no_existing_H1_to_H7_hook_blocks_signal_field_event_promotion_into_T2_or_T3
+      do_not_implement_in_this_task: true
+      suggested_owner_lane: P4_hook_design_lane
+
+    blocker:
+      blocker_id: blocker-p2-001-implementation-prerequisites
+      severity: hard
+      unresolved_items:
+        - fixed_gate_promotion_blocking_hook_not_closed
+        - R_layer_runtime_substrate_decision_not_made
+      enforcement: must_not_advance_to_approved_for_patch_or_runtime_implementation_until_unresolved_items_close
+
+    ghost_dependency_relationship:
+      rule_source: MEMORY_PLANE_HARNESS_Ghost_Dependency_Rule
+      relevance: signal_field_event_carries_source_refs
+      handling_in_P2_001: source_refs_declared_only_no_invalidation_behavior_specified
+      deferred_to: P2-002_zone_level_invalidation_block
+      do_not_implement_in_this_task: true
+
+    substrate_stance:
+      position: substrate_agnostic_at_contract_level
+      must_be_compatible_with:
+        - single_writer_queue
+        - atomic_write_by_rename
+        - append_only_operation_log_with_log_position_as_fencing_token
+        - optimistic_concurrency_cas
+      must_not_assume:
+        - any_specific_queue_implementation
+        - any_specific_lock_model
+        - cross_host_coordination
+        - exactly_once_delivery
+
+    rejection_boundary:
+      field_naming:
+        must_not_use:
+          - writer
+          - wrote_at
+          - event_type
+          - payload
+          - source_ref_singular
+        must_use:
+          - created_by
+          - created_at
+          - channel
+          - residual_kind
+          - source_refs
+      truth_status:
+        must_not_expand_enum_without_governance_review: true
+        must_not_be_promoted_via_field_aggregation: true
+        must_not_be_overridden_by_audit_summary_text: true
+      not_a_packet:
+        must_not_inherit:
+          - packet_uid
+          - packet_type
+          - schema_version
+          - packet_common_shell_extensions_region
+          - a2a_wrapping
+      promotion_path:
+        must_not_jump_T5_to_T2: true
+        must_not_jump_T5_to_T3_without_validation: true
+        must_not_jump_T4_to_T2_without_formal_promotion: true
+
+    related_candidates_not_designed_in_this_round:
+      - P2-002_zone_level_invalidation_block
+      - P2-003_signal_field_zone_shape
+      - P2-004_field_audit_projection
+      - P2-005_quorum_trigger_for_routing_only
+      - P2-006_field_poisoning_check
+      - P2-007_learnable_frontier_record
+
+    three_round_cadence_record:
+      round_1_scope_identification: P2_lane_scope_identified
+      round_2_design_redo: R3_13_field_shape_adopted_with_drift_fixes
+      round_3_finalization: registry_entry_serialized_after_codex_fact_check
+      rounds_used: 3
+      rounds_remaining_for_P2_001: 0
+
+    next_action: keep_candidate_for_human_review_do_not_implement
+
 notes:
   - this_registry_is_not_canonical_truth
   - this_registry_is_not_approval_authority
