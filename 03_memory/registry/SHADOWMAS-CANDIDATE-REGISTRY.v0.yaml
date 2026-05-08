@@ -430,6 +430,447 @@ candidates:
 
     next_action: keep_candidate_for_human_review_do_not_implement
 
+  - candidate_id: P2-005
+    p_lane: P2
+    title: quorum_trigger_for_routing_only
+    candidate_name: quorum_trigger_for_routing_only
+    candidate_kind: r_layer_runtime_artifact_trigger_definition
+    status: candidate_for_human_review
+    owner_session: claude_p2_lane
+
+    source_basis:
+      - active_log_section_17_9_3_quorum_trigger_schema
+      - active_log_section_17_5_branch_K_accepted_for_routing_escalation
+      - active_log_section_17_5_branch_J_rejected_quorum_for_all_decisions
+      - active_log_section_17_6_MoE_votes_K_accepted_with_caveats
+      - active_log_section_17_7_LATS_accepted_for_routing_or_escalation
+      - active_log_section_17_7_LATS_rejected_for_protected_truth_decisions
+      - active_log_section_17_8_kernel_principle_quorum_does_not_govern_final_truth
+      - active_log_section_17_9_2_signal_field_zone_referenced_only
+      - active_log_section_17_9_4_field_audit_projection_reverse_dependency
+      - claude_round_1_preflight_session
+      - claude_round_2_minimum_shape_session
+      - codex_round_2_to_3_fact_check_alignment_pass
+      - p2_001_signal_field_event_vocabulary_anchor
+
+    source_basis_caveat:
+      active_log_source_class: temporary_user_context_copy_noncanonical
+      active_log_path_as_read: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      treatment:
+        - design_evidence_only
+        - not_canonical_truth
+        - not_commit_target
+        - not_promotion_authority
+      expected_action_after_session: file_deletion_by_human
+      governance_note: registry_entry_must_not_treat_active_log_as_canonical_after_deletion
+
+    target_surfaces:
+      primary: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      future_runtime_contract: future_R_layer_runtime_contract_not_created_here
+      future_hook_surface: future_P4_hook_lane_for_human_review_action_not_created_here
+      future_zone_shape: future_P2-003_signal_field_zone_not_created_here
+      future_anti_spam_logic: future_P2-006_field_poisoning_check_not_created_here
+      forbidden_now:
+        - 01_truth
+        - 02_packets
+        - 04_runtime
+        - runtime_adapter_hooks
+
+    change_type: r_layer_runtime_artifact_candidate
+
+    proposed_minimum_shape:
+      not_a_packet: true
+      not_a_memory_artifact: true
+      not_implemented: true
+      not_promoted: true
+      not_canonical_truth: true
+      total_field_count: 14
+      field_count_breakdown:
+        core_fields_from_active_log_section_17_9_3: 11
+        governance_audit_shell_fields: 3
+      shape:
+        trigger_id:
+          type: string
+          required: true
+          meaning: human_readable_trigger_identifier
+          naming_alignment_note: parallels_packet_id_pattern_and_P2-001_event_id_pattern
+
+        zone:
+          type: string
+          required: true
+          meaning: forward_string_reference_to_future_P2-003_signal_field_zone
+          dependency_classification:
+            for_candidate_shape: NOT_HARD
+            for_implementation: HARD
+          constraint: must_not_define_zone_shape_in_P2-005
+
+        channel:
+          type: list_of_enum
+          required: true
+          minimum_length: 1
+          item_enum_anchor: P2-001_signal_field_event_channel_enum
+          allowed_values_inherited_from_P2-001:
+            - trail
+            - alarm
+            - territory
+            - question
+            - constraint
+            - evidence
+          constraint: must_not_redefine_or_extend_P2-001_channel_enum
+          semantics: subscription_set_of_channels_this_trigger_observes
+
+        threshold:
+          type: object
+          required: true
+          meaning: aggregation_condition_that_fires_the_trigger
+          fields:
+            metric:
+              type: enum
+              required: true
+              allowed:
+                - event_count
+                - aggregated_residual_magnitude
+                - distinct_writer_count
+                - urgency_weighted_score
+            comparator:
+              type: enum
+              required: true
+              allowed:
+                - gte
+                - gt
+                - eq
+            value:
+              type: number_or_named_class
+              required: true
+          forbidden_semantics:
+            - threshold_must_not_be_interpreted_as_truth_promotion_gate
+            - threshold_must_not_be_interpreted_as_packet_change_authority
+
+        observation_window:
+          type: string
+          required: true
+          format: ISO8601_duration_or_named_class
+          examples:
+            - PT1M
+            - PT5M
+            - task_duration
+            - session
+          substrate_note: substrate_agnostic_not_bound_to_specific_runtime_clock
+          vocabulary_anchor: parallels_P2-001_ttl_substrate_stance
+
+        trigger_action:
+          type: enum
+          required: true
+          allowed:
+            - converge
+            - reroute
+            - lock
+            - escalate
+            - human_review
+          enum_source: active_log_section_17_9_3_verbatim
+          codex_fact_check_result: enum_complete_no_missing_or_extra_values
+          forbidden_actions_outside_enum:
+            - approve_packet_change
+            - promote_truth
+            - bypass_review
+            - silent_approval
+
+        required_confidence:
+          type: enum
+          required: true
+          enum_anchor: P2-001_signal_field_event_confidence_enum
+          allowed_values_inherited_from_P2-001:
+            - low
+            - medium
+            - high
+          constraint: must_not_redefine_or_extend_P2-001_confidence_enum
+          forbidden_use: confidence_is_not_truth_authority
+
+        anti_spam_rule:
+          type: object_placeholder
+          required: true
+          meaning: declared_field_for_anti_spam_logic_logic_deferred_to_P2-006
+          fields:
+            kind:
+              type: enum
+              required: true
+              allowed:
+                - none_in_this_candidate
+                - reference_to_future_P2-006
+            reference_to_future_P2-006:
+              type: string
+              required: false
+              meaning: forward_reference_only_no_logic_in_P2-005
+          constraint: must_not_implement_anti_spam_logic_in_P2-005
+
+        decay_rule:
+          type: enum
+          required: true
+          allowed:
+            - linear
+            - exponential
+            - step_at_window_end
+            - manual_purge_only
+          vocabulary_alignment_note: parallels_P2-001_decay_policy_enum
+
+        authority_boundary:
+          type: structured_object_with_fixed_keys
+          required: true
+          fixed_keys:
+            may_route: true
+            may_reroute: true
+            may_escalate: true
+            may_request_human_review: true
+            may_switch_execution_mode: true
+            may_raise_review_urgency: true
+            must_not_promote_truth: true
+            must_not_approve_packet_changes: true
+            must_not_bypass_human_authority: true
+            must_not_convert_T4_T5_runtime_signal_into_T2_T3_truth: true
+          constraint: keys_are_fixed_must_not_drift_into_truth_authority_claims
+
+        cannot_promote_truth:
+          type: boolean
+          required: true
+          fixed_value: true
+          forbidden_use: must_not_be_overridden_by_any_field_aggregation_or_audit_summary
+
+        created_by:
+          type: string
+          required: true
+          vocabulary_anchor: packet_common_shell_created_by
+
+        created_at:
+          type: string
+          required: true
+          format: RFC3339_UTC
+          vocabulary_anchor: packet_common_shell_timestamp_format
+          example: "2026-05-08T04:00:00Z"
+
+        source_refs:
+          type: list_of_object
+          required: true
+          minimum_length: 0
+          item_shape:
+            source_type: string
+            source_id: string
+            source_path: string
+            source_hash: string
+            source_version: string
+            section: string
+            relation: string
+          vocabulary_anchor: PACKET_FIELD_DICTIONARY_source_refs_shape
+
+    collision_check:
+      status: codex_round_2_to_3_fact_check_passed
+      confirmed_alignments:
+        - core_field_set_matches_active_log_section_17_9_3
+        - trigger_action_enum_complete_no_missing_or_extra_values
+        - channel_enum_inherited_verbatim_from_P2-001
+        - confidence_enum_inherited_verbatim_from_P2-001
+        - source_refs_item_shape_confirmed
+        - created_at_RFC3339_UTC_confirmed
+        - threshold_metric_enum_no_truth_authority_implication
+        - governance_matrix_no_contradiction_with_routes_only_boundary
+        - no_packet_common_shell_inheritance
+        - substrate_stance_aligned_with_P2-001_and_concurrency_memo
+      no_existing_collision:
+        - quorum_trigger_for_routing_only
+        - quorum_trigger
+      first_reservation_candidate:
+        - quorum_trigger_for_routing_only
+        - quorum_trigger
+      verified_no_overlap_with:
+        - p1_001_residual_first_report
+        - p2_001_signal_field_event
+      known_gaps:
+        - no_p4_hook_for_human_review_trigger_action
+        - p2_003_signal_field_zone_shape_not_designed
+        - p2_006_field_poisoning_check_not_designed
+        - runtime_substrate_decision_deferred
+
+    governance_boundary:
+      human_approval_required: true
+      registry_entry_is_not_truth_patch: true
+      registry_entry_is_not_runtime_implementation: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+      hard_constraints_for_quorum:
+        - quorum_routes_only
+        - quorum_never_promotes_truth
+        - quorum_never_approves_packet_changes
+        - quorum_never_bypasses_human_authority
+        - quorum_never_converts_T4_T5_runtime_signal_into_T2_T3_truth
+      hard_flags:
+        not_a_packet: true
+        not_a_memory_artifact: true
+        not_implemented: true
+        not_promoted: true
+        not_canonical_truth: true
+
+    change_impact_check:
+      registry_update_now:
+        - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      intentionally_deferred_until_promotion_or_implementation:
+        - 01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
+        - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+        - 01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
+        - 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+        - 02_packets/packet_common_shell.v0.yaml
+        - 04_runtime
+        - runtime_adapter_hook_files
+        - 06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md
+      defer_reason: candidate_registry_entry_only_not_promotion_not_implementation
+
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+
+    reviewer_decision:
+      decision: approved_for_registry_insertion_only
+      decided_by: human_via_GPT_session
+      decided_at: null
+      notes:
+        - approved_candidate_for_human_review_status
+        - approved_narrowed_first_reservation_status
+        - approved_routes_only_boundary
+        - approved_hard_blockers
+        - approved_no_promotion_no_implementation_boundary
+
+    first_reservation_status:
+      globally_reserved_now:
+        - quorum_trigger_for_routing_only
+        - quorum_trigger
+      candidate_local_fields_not_global_reservations_yet:
+        - trigger_action
+        - cannot_promote_truth
+      governance_implication: future_candidates_must_not_reuse_globally_reserved_labels_for_different_concepts
+      candidate_local_fields_remain_open_for_other_runtime_artifacts: true
+      rationale_for_narrowing:
+        - trigger_action_is_likely_reusable_by_other_trigger_like_runtime_artifacts
+        - cannot_promote_truth_is_an_authority_boundary_constraint_not_unique_to_quorum
+        - over_reserving_generic_labels_creates_future_naming_pressure_and_semantic_drift
+      collision_check_against_p2_001:
+        p2_001_reserved:
+          - truth_status
+          - runtime_signal_only
+          - signal_field_event
+        collision_status: no_collision
+      not_yet_canonical: true
+
+    hook_gap:
+      gap_id: gap-shadowmas-hook-quorum-human-review-trigger
+      tier: future_lane_dependency
+      description: trigger_action_human_review_requires_future_P4_hook_lane_to_be_implementable
+      do_not_implement_in_this_task: true
+      suggested_owner_lane: P4_hook_design_lane
+      related_existing_gap: gap-shadowmas-hook-signal-field-promotion-block_from_P2-001
+
+    blocker:
+      blocker_id: blocker-p2-005-implementation-prerequisites
+      severity: hard
+      unresolved_items:
+        - p2_003_signal_field_zone_shape_required_before_implementation
+        - p4_hook_lane_required_before_human_review_action_can_be_implemented
+        - p2_006_field_poisoning_check_required_before_anti_spam_rule_logic_can_be_implemented
+        - runtime_substrate_decision_remains_deferred
+      enforcement: must_not_advance_to_approved_for_patch_or_runtime_implementation_until_unresolved_items_close
+
+    ghost_dependency_relationship:
+      rule_source: MEMORY_PLANE_HARNESS_Ghost_Dependency_Rule
+      relevance: quorum_trigger_consumes_signal_field_event_aggregates_via_zone_reference
+      handling_in_P2_005: zone_referenced_only_no_invalidation_behavior_specified
+      deferred_to: P2-002_zone_level_invalidation_block
+      do_not_implement_in_this_task: true
+
+    substrate_stance:
+      position: substrate_agnostic_at_contract_level
+      must_be_compatible_with:
+        - single_writer_queue
+        - atomic_write_by_rename
+        - append_only_operation_log_with_log_position_as_fencing_token
+        - optimistic_concurrency_cas
+      must_not_assume:
+        - any_specific_queue_implementation
+        - any_specific_lock_model
+        - cross_host_coordination
+        - exactly_once_delivery
+      alignment_note: identical_stance_to_P2-001_substrate_stance
+
+    rejection_boundary:
+      field_naming:
+        must_not_use:
+          - vote_count_as_truth
+          - quorum_decides
+          - approval_threshold
+          - auto_approve
+          - approve
+          - decision
+          - ratify
+          - quorum_truth
+          - writer
+          - wrote_at
+          - event_type
+          - payload
+        must_use:
+          - threshold
+          - trigger_action
+          - authority_boundary
+          - cannot_promote_truth
+          - created_by
+          - created_at
+          - source_refs
+          - decay_rule
+      semantics_must_not:
+        - interpret_threshold_as_truth_promotion_gate
+        - interpret_quorum_firing_as_packet_change_authorization
+        - interpret_human_review_action_as_silent_approval
+        - aggregate_field_signals_into_canonical_truth
+        - convert_T4_T5_runtime_signal_into_T2_T3_truth
+        - replace_human_authority_with_score_quorum_or_field_heat
+      promotion_path:
+        must_not_jump_T5_to_T2: true
+        must_not_jump_T5_to_T3_without_validation: true
+        must_not_jump_T4_to_T2_without_formal_promotion: true
+        must_not_be_promoted_via_field_aggregation: true
+        must_not_be_overridden_by_audit_summary_text: true
+      not_a_packet:
+        must_not_inherit:
+          - packet_uid
+          - packet_type
+          - schema_version
+          - packet_common_shell_extensions_region
+          - a2a_wrapping
+      scope_isolation:
+        must_not_design_in_P2-005:
+          - P2-003_signal_field_zone
+          - P2-004_field_audit_projection
+          - P2-006_field_poisoning_check
+          - H1_to_H7_hooks
+          - runtime_substrate
+          - canonical_truth_changes
+          - packet_schema_changes
+
+    related_candidates_not_designed_in_this_round:
+      - P2-002_zone_level_invalidation_block
+      - P2-003_signal_field_zone_shape
+      - P2-004_field_audit_projection
+      - P2-006_field_poisoning_check
+      - P2-007_learnable_frontier_record
+
+    three_round_cadence_record:
+      round_1_scope_identification: dependency_topology_classified_blocker_questions_listed
+      round_2_design_redo: 14_field_minimum_shape_proposed_with_narrowed_first_reservation
+      round_3_finalization: registry_ready_entry_serialized_after_codex_alignment_pass
+      rounds_used: 3
+      rounds_remaining_for_P2_005: 0
+      codex_fact_check_result: alignment_pass
+
+    next_action: keep_candidate_for_human_review_do_not_implement
+
 notes:
   - this_registry_is_not_canonical_truth
   - this_registry_is_not_approval_authority
