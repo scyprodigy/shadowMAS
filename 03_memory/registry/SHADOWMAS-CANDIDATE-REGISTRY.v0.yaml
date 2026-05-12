@@ -871,6 +871,393 @@ candidates:
 
     next_action: keep_candidate_for_human_review_do_not_implement
 
+  - candidate_id: P2-003
+    p_lane: P2
+    title: signal_field_zone_shape
+    candidate_name: signal_field_zone_shape
+    candidate_kind: r_layer_runtime_artifact_shape_zone_container
+    status: candidate_for_human_review
+    owner_session: claude_p2_lane
+
+    source_basis:
+      - active_log_section_17_9_2_signal_field_zone_schema
+      - gpt_side_round_2_corrections
+      - codex_round_2_fact_check_alignment_pass
+      - p2_001_signal_field_event_event_id_and_channel_anchor
+      - p2_005_quorum_trigger_reverse_dependency_anchor
+
+    source_basis_caveat:
+      active_log_source_class: tracked_context_copy_noncanonical
+      active_log_path_as_read: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      treatment:
+        - design_evidence_only
+        - not_canonical_truth
+        - not_promotion_authority
+      governance_note: active_log_location_does_not_make_it_canonical_truth
+
+    target_surfaces:
+      primary: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      future_runtime_contract: future_R_layer_runtime_contract_not_created_here
+      reverse_dependency_consumer: P2-005_quorum_trigger_for_routing_only
+      forbidden_now:
+        - 01_truth
+        - 02_packets
+        - 04_runtime
+        - runtime_adapter_hooks
+
+    change_type: r_layer_runtime_artifact_candidate
+
+    dependency_topology:
+      p2_001_signal_field_event:
+        relation: EVENT_REFERENCE_ANCHOR
+        note: active_events references P2-001 event_id; dominant_channel aligns to P2-001 channel enum.
+      p2_005_quorum_trigger_for_routing_only:
+        relation: REVERSE_DEPENDENCY
+        note: P2-005 requires P2-003 zone shape before implementation; P2-003 candidate shaping does not depend on P2-005.
+      p2_002_zone_level_invalidation_block:
+        relation: FORWARD_REF_ONLY
+        note: stale_event_count behavior is not designed here.
+      p2_004_field_audit_projection:
+        relation: FORWARD_REF_ONLY
+        note: audit_projection logic is not designed here.
+      p2_006_field_poisoning_check:
+        relation: FORWARD_REF_ONLY
+        note: poisoning_risk logic is not designed here.
+
+    proposed_minimum_shape:
+      not_a_packet: true
+      not_a_memory_artifact: true
+      not_implemented: true
+      not_promoted: true
+      not_canonical_truth: true
+      audit_shell_decision: skip_strict_11_field_per_active_log_section_17_9_2
+      total_field_count: 11
+      field_count_breakdown:
+        declared_fields: 5
+        derived_runtime_fields: 4
+        derived_or_forward_projection_refs: 2
+      declared_fields:
+        - zone_id
+        - scope
+        - owner
+        - writable_by
+        - readable_by
+      derived_runtime_fields:
+        - active_events
+        - aggregated_score
+        - dominant_channel
+        - stale_event_count
+      derived_or_forward_projection_refs:
+        - poisoning_risk
+        - audit_projection
+      audit_shell_fields_skipped:
+        - created_by
+        - created_at
+        - source_refs
+        - truth_status
+      shape:
+        zone_id:
+          type: string
+          required: true
+          classification: declared_field
+          meaning: stable_human_readable_signal_field_zone_identifier
+          reservation_status: globally_reserved_now
+
+        scope:
+          type: string
+          required: true
+          classification: declared_field
+          shape: string_scope_expression
+          meaning: bounded_scope_expression_for_where_zone_applies
+          reservation_status: candidate_local_only
+
+        owner:
+          type: string
+          required: true
+          classification: declared_field
+          shape: role_or_agent_identifier_string
+          meaning: stable_responsibility_holder_for_zone_lifecycle
+          reservation_status: candidate_local_only
+          constraint: do_not_introduce_capability_token_in_P2-003
+
+        writable_by:
+          type: list_of_string
+          required: true
+          classification: declared_field
+          item_shape: role_or_agent_identifier_string
+          meaning: roles_or_agents_allowed_to_write_runtime_signals_into_zone
+          reservation_status: candidate_local_only
+          constraint: do_not_introduce_capability_token_in_P2-003
+
+        readable_by:
+          type: list_of_string
+          required: true
+          classification: declared_field
+          item_shape: role_or_agent_identifier_string
+          meaning: roles_or_agents_allowed_to_read_runtime_signal_state_from_zone
+          reservation_status: candidate_local_only
+          constraint: do_not_introduce_capability_token_in_P2-003
+
+        active_events:
+          type: list_of_string
+          required: true
+          classification: derived_runtime_field
+          item_ref: P2-001.event_id
+          meaning: currently_active_signal_field_event_references
+          boundary: derived_runtime_state_not_declared_truth
+
+        aggregated_score:
+          type: object
+          required: true
+          classification: derived_runtime_field
+          meaning: runtime_aggregate_summary_for_zone_attention_review_urgency_or_routing_heuristic_support
+          required_keys:
+            score_kind:
+              type: string
+            value:
+              type: number_or_named_class
+            computed_from:
+              type: list_of_string
+          hard_boundary:
+            - may_support_attention_review_urgency_or_routing_heuristics
+            - must_never_authorize_routing_by_itself
+            - must_never_authorize_promotion
+            - must_never_be_truth_gate
+            - must_never_bypass_human_authority
+
+        dominant_channel:
+          type: enum
+          required: true
+          classification: derived_runtime_field
+          enum_anchor: P2-001_signal_field_event_channel_enum
+          allowed_values_inherited_from_P2-001:
+            - trail
+            - alarm
+            - territory
+            - question
+            - constraint
+            - evidence
+          meaning: current_runtime_dominant_signal_channel_if_known
+
+        stale_event_count:
+          type: integer
+          required: true
+          classification: derived_runtime_field
+          meaning: count_of_events_in_zone_that_are_stale_by_future_invalidation_logic
+          logic_deferred_to: P2-002_zone_level_invalidation_block
+
+        poisoning_risk:
+          type: forward_ref
+          required: true
+          classification: derived_or_forward_projection_ref
+          meaning: placeholder_for_future_field_poisoning_risk_assessment
+          logic_deferred_to: P2-006_field_poisoning_check
+          do_not_design_in_this_candidate: true
+
+        audit_projection:
+          type: forward_ref
+          required: true
+          classification: derived_or_forward_projection_ref
+          meaning: placeholder_for_future_audit_projection_view
+          logic_deferred_to: P2-004_field_audit_projection
+          do_not_design_in_this_candidate: true
+
+      omitted_fields:
+        zone_ttl:
+          omitted: true
+          reason: event_ttl_exists_in_P2-001_zone_lifecycle_deferred
+        zone_decay:
+          omitted: true
+          reason: event_decay_exists_in_P2-001_zone_lifecycle_deferred
+        capability_token:
+          omitted: true
+          reason: belongs_to_future_P4_or_runtime_adapter_lane_if_adopted
+
+    collision_check:
+      status: codex_round_2_fact_check_passed
+      confirmed_alignments:
+        - active_log_section_17_9_2_field_set_exact_11_fields
+        - no_audit_shell_fields_in_active_log_section_17_9_2
+        - p2_001_event_id_anchor_exists
+        - p2_001_channel_enum_alignment_confirmed
+        - p2_001_ttl_and_decay_policy_anchor_exists
+        - p2_004_and_p2_006_forward_refs_do_not_conflict_with_registry_entries
+        - no_global_reservation_collision_for_signal_field_zone_or_zone_id
+        - governance_matrix_no_contradiction_with_aggregated_score_boundary
+        - capability_token_not_required_by_existing_related_fields
+        - no_zone_level_ttl_or_decay_in_active_log_section_17_9_2
+        - substrate_stance_aligned_with_P2-001_and_P2-005
+        - packet_common_shell_inheritance_not_required
+      known_caveats:
+        - owner_writable_by_and_scope_have_existing_packet_dictionary_meanings_and_remain_candidate_local_here
+        - active_log_is_design_evidence_not_canonical_truth
+      no_existing_global_reservation_collision:
+        - signal_field_zone
+        - zone_id
+
+    governance_boundary:
+      human_approval_required: true
+      registry_entry_is_not_truth_patch: true
+      registry_entry_is_not_runtime_implementation: true
+      registry_entry_is_not_packet_schema_change: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+      hard_constraints_for_zone:
+        - zone_heat_density_or_quorum_must_never_promote_truth
+        - aggregated_score_may_support_attention_review_urgency_or_routing_heuristics
+        - aggregated_score_must_never_authorize_routing_by_itself
+        - aggregated_score_must_never_authorize_promotion
+        - aggregated_score_must_never_act_as_truth_gate
+        - aggregated_score_must_never_bypass_human_authority
+      hard_flags:
+        not_a_packet: true
+        not_a_memory_artifact: true
+        not_implemented: true
+        not_promoted: true
+        not_canonical_truth: true
+
+    change_impact_check:
+      registry_update_now:
+        - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      intentionally_deferred_until_promotion_or_implementation:
+        - 01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
+        - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+        - 01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
+        - 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+        - 02_packets/packet_common_shell.v0.yaml
+        - 04_runtime
+        - runtime_adapter_hook_files
+        - 06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md
+      defer_reason: candidate_registry_entry_only_not_promotion_not_implementation
+
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+
+    reviewer_decision:
+      decision: approved_for_registry_insertion_only
+      decided_by: human_review
+      decided_at: null
+      notes:
+        - approved_candidate_for_human_review_status
+        - approved_strict_11_field_signal_field_zone_shape
+        - approved_audit_shell_skip
+        - approved_narrowed_first_reservation_status
+        - approved_candidate_local_handling_for_scope_owner_writable_by
+        - approved_zone_not_truth_not_approval_authority_boundary
+        - approved_aggregated_score_authority_boundary
+        - approved_hard_blockers
+        - approved_no_promotion_no_implementation_boundary
+
+    first_reservation_status:
+      globally_reserved_now:
+        - signal_field_zone
+        - zone_id
+      candidate_local_fields_not_global_reservations_yet:
+        - scope
+        - owner
+        - writable_by
+        - readable_by
+        - active_events
+        - aggregated_score
+        - dominant_channel
+        - stale_event_count
+        - poisoning_risk
+        - audit_projection
+      governance_implication: future_candidates_must_not_reuse_globally_reserved_labels_for_different_concepts
+      candidate_local_fields_remain_open_for_other_runtime_artifacts: true
+      rationale_for_narrowing:
+        - signal_field_zone_and_zone_id_are_specific_enough_to_reserve_globally
+        - other_labels_are_generic_access_control_runtime_state_or_audit_concepts
+        - over_reserving_generic_labels_creates_future_naming_pressure_and_semantic_drift
+      not_yet_canonical: true
+
+    blocker:
+      blocker_id: blocker-p2-003-implementation-prerequisites
+      severity: hard
+      unresolved_items:
+        - p2_002_zone_level_invalidation_block_required_before_stale_event_count_behavior_can_be_implemented
+        - p2_004_field_audit_projection_required_before_audit_projection_logic_can_be_implemented
+        - p2_006_field_poisoning_check_required_before_poisoning_risk_logic_can_be_implemented
+        - runtime_substrate_decision_remains_deferred
+        - p4_runtime_adapter_lane_required_before_capability_token_or_permission_enforcement_can_be_implemented
+      enforcement: must_not_advance_to_approved_for_patch_or_runtime_implementation_until_unresolved_items_close
+
+    substrate_stance:
+      position: substrate_agnostic_at_contract_level
+      must_be_compatible_with:
+        - single_writer_queue
+        - atomic_write_by_rename
+        - append_only_operation_log_with_log_position_as_fencing_token
+        - optimistic_concurrency_cas
+      must_not_assume:
+        - any_specific_queue_implementation
+        - any_specific_lock_model
+        - cross_host_coordination
+        - exactly_once_delivery
+      alignment_note: same_stance_as_P2-001_and_P2-005
+
+    rejection_boundary:
+      field_naming:
+        must_not_use:
+          - capability_token
+          - zone_ttl
+          - zone_decay
+          - quorum_truth
+          - approval_threshold
+          - auto_approve
+        must_use:
+          - signal_field_zone
+          - zone_id
+          - active_events
+          - aggregated_score
+          - poisoning_risk
+          - audit_projection
+      semantics_must_not:
+        - treat_zone_as_packet
+        - treat_zone_as_canonical_truth
+        - treat_zone_as_approval_authority
+        - treat_aggregated_score_as_truth_gate
+        - let_aggregated_score_authorize_routing_by_itself
+        - let_aggregated_score_authorize_promotion
+        - bypass_human_authority_with_zone_heat_density_or_quorum
+        - convert_T4_T5_runtime_signal_into_T2_T3_truth
+      not_a_packet:
+        must_not_inherit:
+          - packet_uid
+          - packet_type
+          - schema_version
+          - packet_common_shell_extensions_region
+          - a2a_wrapping
+      scope_isolation:
+        must_not_design_in_P2-003:
+          - P2-002_zone_level_invalidation_block
+          - P2-004_field_audit_projection
+          - P2-006_field_poisoning_check
+          - P4_permission_or_hook_behavior
+          - runtime_substrate
+          - canonical_truth_changes
+          - packet_schema_changes
+
+    related_candidates_not_designed_in_this_round:
+      - P2-002_zone_level_invalidation_block
+      - P2-004_field_audit_projection
+      - P2-006_field_poisoning_check
+      - P2-007_learnable_frontier_record
+
+    three_round_cadence_record:
+      round_1_scope_identification: classification_and_BQ_defaults_accepted
+      round_2_design_redo: strict_11_field_zone_shape_with_corrected_dependency_topology
+      round_3_finalization: registry_ready_entry_after_codex_alignment_pass
+      rounds_used: 3
+      rounds_remaining_for_P2_003: 0
+      codex_fact_check_result: alignment_pass
+
+    next_action: keep_candidate_for_human_review_do_not_implement
+
 notes:
   - this_registry_is_not_canonical_truth
   - this_registry_is_not_approval_authority
