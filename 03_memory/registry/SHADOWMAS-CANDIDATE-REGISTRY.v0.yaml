@@ -1258,6 +1258,370 @@ candidates:
 
     next_action: keep_candidate_for_human_review_do_not_implement
 
+  - candidate_id: P2-006
+    p_lane: P2
+    title: field_poisoning_check
+    candidate_name: field_poisoning_check
+    candidate_kind: r_layer_runtime_artifact_shape_security_boundary_check
+    status: candidate_for_human_review
+    owner_session: claude_p2_lane
+
+    source_basis:
+      - active_log_section_19_9_3_field_poisoning_check_schema
+      - gpt_side_round_2_approval
+      - codex_round_2_fact_check_alignment_pass
+      - p2_001_signal_field_event_vocabulary_anchor
+      - p2_003_signal_field_zone_forward_ref_anchor
+      - p2_005_anti_spam_rule_forward_dependency
+
+    source_basis_caveat:
+      active_log_source_class: tracked_context_copy_noncanonical
+      active_log_path_as_read: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      treatment:
+        - design_evidence_only
+        - not_canonical_truth
+        - not_promotion_authority
+      governance_note: active_log_location_does_not_make_it_canonical_truth
+
+    target_surfaces:
+      primary: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      future_runtime_contract: future_R_layer_runtime_contract_not_created_here
+      future_hook_surface: future_P4_hook_or_runtime_adapter_lane_not_created_here
+      related_zone_shape: P2-003_signal_field_zone_shape
+      related_anti_spam_consumer: P2-005_quorum_trigger_for_routing_only
+      forbidden_now:
+        - 01_truth
+        - 02_packets
+        - 04_runtime
+        - runtime_adapter_hooks
+
+    change_type: r_layer_runtime_artifact_candidate
+
+    dependency_topology:
+      p2_001_signal_field_event:
+        relation: VOCABULARY_ANCHOR
+        note: suspicious_patterns align to confidence, created_by, ttl, decay_policy, channel, and source_refs names.
+      p2_003_signal_field_zone_shape:
+        relation: FORWARD_STRING_REFERENCE
+        note: zone references future zone shape without redefining signal_field_zone or zone_id.
+      p2_005_quorum_trigger_for_routing_only:
+        relation: FORWARD_DEPENDENCY_TARGET
+        note: P2-005 anti_spam_rule logic is deferred to P2-006; P2-006 does not implement P2-005.
+      p2_002_zone_level_invalidation_block:
+        relation: OUT_OF_SCOPE_INTERACTION
+        note: stale_signal_reactivation may later interact with invalidation behavior, but P2-002 is not designed here.
+      p2_004_field_audit_projection:
+        relation: OUT_OF_SCOPE_INTERACTION
+        note: audit surfacing logic is not designed here.
+      p4_runtime_adapter_or_hook_lane:
+        relation: FUTURE_ENFORCEMENT_OWNER
+        note: lock_field and human_review are enum values only; enforcement is not implemented here.
+
+    proposed_minimum_shape:
+      not_a_packet: true
+      not_a_memory_artifact: true
+      not_implemented: true
+      not_promoted: true
+      not_canonical_truth: true
+      audit_shell_decision: skip_strict_4_field_per_active_log_section_19_9_3
+      check_id_decision: rejected_strict_4_field_only_no_identifier_addition
+      total_field_count: 4
+      field_count_breakdown:
+        declared_fields: 1
+        derived_runtime_fields: 2
+        derived_advisory_recommendation_fields: 1
+      declared_fields:
+        - zone
+      derived_runtime_fields:
+        - suspicious_patterns
+        - risk_level
+      derived_advisory_recommendation_fields:
+        - mitigation
+      audit_shell_fields_skipped:
+        - check_id
+        - audit_id
+        - created_by
+        - created_at
+        - source_refs
+        - truth_status
+      shape:
+        zone:
+          type: string
+          required: true
+          classification: declared_field
+          meaning: forward_string_reference_to_P2-003_signal_field_zone
+          dependency_classification:
+            for_candidate_shape: NOT_HARD
+            for_implementation: HARD
+          constraint: must_not_redefine_zone_shape_in_P2-006
+
+        suspicious_patterns:
+          type: list_of_enum
+          required: true
+          classification: derived_runtime_field
+          allowed:
+            - repeated_low_confidence_deposits
+            - single_agent_overdominance
+            - stale_signal_reactivation
+            - contradiction_without_evidence
+            - high_alarm_without_source_ref
+          enum_source: active_log_section_19_9_3_verbatim
+          codex_fact_check_result: enum_complete_no_missing_or_extra_values
+          vocabulary_alignment:
+            repeated_low_confidence_deposits: P2-001_confidence_low
+            single_agent_overdominance: P2-001_created_by
+            stale_signal_reactivation: P2-001_ttl_and_decay_policy
+            contradiction_without_evidence: P2-001_source_refs
+            high_alarm_without_source_ref: P2-001_channel_alarm_and_source_refs
+
+        risk_level:
+          type: enum
+          required: true
+          classification: derived_runtime_field
+          allowed:
+            - low
+            - medium
+            - high
+          enum_source: active_log_section_19_9_3_verbatim
+          codex_fact_check_result: enum_complete_no_missing_or_extra_values
+          hard_boundary:
+            - may_support_attention_signaling_review_urgency_or_mitigation_selection_input
+            - must_not_authorize_lockdown_by_itself
+            - must_not_authorize_promotion
+            - must_not_act_as_truth_gate
+            - must_not_bypass_human_authority
+            - must_not_convert_T4_T5_runtime_signal_into_T2_T3_truth
+
+        mitigation:
+          type: enum
+          required: true
+          classification: derived_advisory_recommendation
+          allowed:
+            - discount
+            - require_evidence
+            - lock_field
+            - human_review
+          enum_source: active_log_section_19_9_3_verbatim
+          codex_fact_check_result: enum_complete_no_missing_or_extra_values
+          hard_boundary:
+            - mitigation_is_advisory_only
+            - discount_must_not_apply_discount_unilaterally
+            - require_evidence_must_not_block_runtime_unilaterally
+            - lock_field_must_not_perform_actual_field_lock_in_P2-006
+            - human_review_must_not_become_silent_approval
+            - mitigation_must_not_act_as_truth_gate
+            - lock_field_and_human_review_enforcement_deferred_to_future_P4_hook_or_runtime_adapter_lane
+
+      omitted_fields:
+        check_id:
+          omitted: true
+          reason: strict_4_field_shape_only_no_identifier_addition
+        audit_id:
+          omitted: true
+          reason: strict_4_field_shape_only_no_audit_identifier_addition
+        created_by:
+          omitted: true
+          reason: governance_audit_shell_skipped
+        created_at:
+          omitted: true
+          reason: governance_audit_shell_skipped
+        source_refs:
+          omitted: true
+          reason: governance_audit_shell_skipped
+        truth_status:
+          omitted: true
+          reason: governance_audit_shell_skipped
+
+    collision_check:
+      status: codex_round_2_fact_check_passed
+      confirmed_alignments:
+        - active_log_section_19_9_3_field_set_exact_4_fields
+        - no_check_id_or_audit_id_in_active_log_section_19_9_3
+        - no_governance_audit_shell_fields_in_active_log_section_19_9_3
+        - suspicious_patterns_enum_complete_no_missing_or_extra_values
+        - risk_level_enum_complete_no_missing_or_extra_values
+        - mitigation_enum_complete_no_missing_or_extra_values
+        - p2_003_zone_forward_ref_alignment_confirmed
+        - p2_001_vocabulary_alignment_confirmed
+        - p2_005_anti_spam_rule_deferred_to_P2-006_without_conflict
+        - p2_002_and_p2_004_scope_isolation_confirmed
+        - no_global_reservation_collision_for_field_poisoning_check
+        - governance_matrix_no_contradiction_with_risk_level_boundary
+        - governance_matrix_no_contradiction_with_mitigation_non_enforcement_boundary
+        - substrate_stance_aligned_with_P2-001_P2-003_and_P2-005
+        - packet_common_shell_inheritance_not_required
+      known_caveats:
+        - zone_already_appears_as_candidate_local_runtime_field_in_P2-001_and_P2-005
+        - field_poisoning_check_was_referenced_by_current_candidates_but_not_registered_or_reserved_before_this_entry
+        - active_log_is_design_evidence_not_canonical_truth
+      no_existing_global_reservation_collision:
+        - field_poisoning_check
+
+    governance_boundary:
+      human_approval_required: true
+      registry_entry_is_not_truth_patch: true
+      registry_entry_is_not_runtime_implementation: true
+      registry_entry_is_not_packet_schema_change: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+      hard_constraints_for_field_poisoning_check:
+        - advisory_security_boundary_check_only
+        - not_canonical_truth
+        - not_approval_authority
+        - no_runtime_enforcement
+        - risk_level_must_not_authorize_lockdown_by_itself
+        - risk_level_must_not_authorize_promotion
+        - risk_level_must_not_act_as_truth_gate
+        - risk_level_must_not_bypass_human_authority
+        - risk_level_must_not_convert_T4_T5_runtime_signal_into_T2_T3_truth
+        - mitigation_must_be_advisory_only
+        - lock_field_must_not_perform_actual_field_lock_in_P2-006
+        - human_review_must_not_become_silent_approval
+      hard_flags:
+        not_a_packet: true
+        not_a_memory_artifact: true
+        not_implemented: true
+        not_promoted: true
+        not_canonical_truth: true
+
+    change_impact_check:
+      registry_update_now:
+        - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      intentionally_deferred_until_promotion_or_implementation:
+        - 01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
+        - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+        - 01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
+        - 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+        - 02_packets/packet_common_shell.v0.yaml
+        - 04_runtime
+        - runtime_adapter_hook_files
+        - 06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md
+      defer_reason: candidate_registry_entry_only_not_promotion_not_implementation
+
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+
+    reviewer_decision:
+      decision: approved_for_registry_insertion_only
+      decided_by: human_review
+      decided_at: null
+      notes:
+        - approved_candidate_for_human_review_status
+        - approved_strict_4_field_field_poisoning_check_shape
+        - approved_no_check_id
+        - approved_audit_shell_skip
+        - approved_narrowed_first_reservation_status
+        - approved_advisory_security_boundary_only
+        - approved_risk_level_authority_boundary
+        - approved_mitigation_non_enforcement_boundary
+        - approved_hard_blockers
+        - approved_no_promotion_no_implementation_boundary
+
+    first_reservation_status:
+      globally_reserved_now:
+        - field_poisoning_check
+      candidate_local_fields_not_global_reservations_yet:
+        - zone
+        - suspicious_patterns
+        - risk_level
+        - mitigation
+      governance_implication: future_candidates_must_not_reuse_globally_reserved_labels_for_different_concepts
+      candidate_local_fields_remain_open_for_other_runtime_artifacts: true
+      rationale_for_narrowing:
+        - field_poisoning_check_is_specific_enough_to_reserve_globally
+        - zone_is_already_candidate_local_in_other_P2_runtime_artifacts
+        - suspicious_patterns_risk_level_and_mitigation_are_generic_security_or_runtime_terms
+        - over_reserving_generic_labels_creates_future_naming_pressure_and_semantic_drift
+      not_yet_canonical: true
+
+    blocker:
+      blocker_id: blocker-p2-006-implementation-prerequisites
+      severity: hard
+      unresolved_items:
+        - p4_runtime_hook_lane_required_before_lock_field_or_human_review_enforcement_can_be_implemented
+        - p2_004_field_audit_projection_required_before_audit_surfacing_logic_can_be_implemented
+        - p2_002_zone_level_invalidation_block_may_interact_with_stale_signal_reactivation_or_lock_behavior_but_is_not_designed_here
+        - runtime_substrate_decision_remains_deferred
+      enforcement: must_not_advance_to_approved_for_patch_or_runtime_implementation_until_unresolved_items_close
+
+    substrate_stance:
+      position: substrate_agnostic_at_contract_level
+      must_be_compatible_with:
+        - single_writer_queue
+        - atomic_write_by_rename
+        - append_only_operation_log_with_log_position_as_fencing_token
+        - optimistic_concurrency_cas
+      must_not_assume:
+        - any_specific_queue_implementation
+        - any_specific_lock_model
+        - cross_host_coordination
+        - exactly_once_delivery
+      alignment_note: same_stance_as_P2-001_P2-003_and_P2-005
+
+    rejection_boundary:
+      field_naming:
+        must_not_use:
+          - check_id
+          - audit_id
+          - created_by
+          - created_at
+          - source_refs
+          - truth_status
+          - poison_decides
+          - auto_lock
+          - auto_review
+          - enforcement_policy
+        must_use:
+          - field_poisoning_check
+          - zone
+          - suspicious_patterns
+          - risk_level
+          - mitigation
+      semantics_must_not:
+        - treat_risk_level_as_truth_gate
+        - let_risk_level_authorize_lockdown_by_itself
+        - let_risk_level_authorize_promotion
+        - bypass_human_authority_with_risk_level_or_mitigation
+        - convert_T4_T5_runtime_signal_into_T2_T3_truth
+        - apply_discount_unilaterally
+        - require_evidence_as_unilateral_runtime_block
+        - implement_lock_field_in_P2-006
+        - treat_human_review_as_silent_approval
+      not_a_packet:
+        must_not_inherit:
+          - packet_uid
+          - packet_type
+          - schema_version
+          - packet_common_shell_extensions_region
+          - a2a_wrapping
+      scope_isolation:
+        must_not_design_in_P2-006:
+          - P2-002_zone_level_invalidation_block
+          - P2-004_field_audit_projection
+          - P4_lock_field_or_human_review_hook_behavior
+          - runtime_substrate
+          - canonical_truth_changes
+          - packet_schema_changes
+
+    related_candidates_not_designed_in_this_round:
+      - P2-002_zone_level_invalidation_block
+      - P2-004_field_audit_projection
+      - P2-007_learnable_frontier_record
+
+    three_round_cadence_record:
+      round_1_scope_identification: field_poisoning_check_lane_identified
+      round_2_design_redo: strict_4_field_shape_without_check_id_or_audit_shell
+      round_3_finalization: registry_ready_entry_after_codex_alignment_pass
+      rounds_used: 3
+      rounds_remaining_for_P2_006: 0
+      codex_fact_check_result: alignment_pass
+
+    next_action: keep_candidate_for_human_review_do_not_implement
+
 notes:
   - this_registry_is_not_canonical_truth
   - this_registry_is_not_approval_authority
