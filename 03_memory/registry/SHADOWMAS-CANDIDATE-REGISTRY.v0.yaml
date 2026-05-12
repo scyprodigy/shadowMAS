@@ -1622,6 +1622,350 @@ candidates:
 
     next_action: keep_candidate_for_human_review_do_not_implement
 
+  - candidate_id: P2-004
+    p_lane: P2
+    title: field_audit_projection
+    candidate_name: field_audit_projection
+    candidate_kind: r_layer_runtime_artifact_shape_audit_projection_surface
+    status: candidate_for_human_review
+    owner_session: claude_p2_lane
+
+    source_basis:
+      - active_log_section_17_9_4_field_audit_projection_schema
+      - claude_round_2_strict_9_field_minimum_shape
+      - codex_round_2_fact_check_alignment_pass
+      - p2_001_signal_field_event_event_channel_ttl_anchor
+      - p2_003_signal_field_zone_zone_id_anchor
+      - p2_005_quorum_trigger_trigger_id_anchor
+      - p2_006_field_poisoning_risk_mitigation_anchor
+
+    target_surfaces:
+      primary: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      future_runtime_contract: future_R_layer_runtime_contract_not_created_here
+      future_projection_surface: future_runtime_audit_projection_surface_not_created_here
+      future_hook_surface: future_P4_hook_lane_for_recommended_action_enforcement_not_created_here
+      forbidden_now:
+        - 01_truth
+        - 02_packets
+        - 04_runtime
+        - runtime_adapter_hooks
+        - audit_ui
+
+    change_type: r_layer_runtime_artifact_candidate
+
+    proposed_minimum_shape:
+      not_a_packet: true
+      not_a_memory_artifact: true
+      not_implemented: true
+      not_promoted: true
+      not_canonical_truth: true
+      total_field_count: 9
+      audit_shell_decision: skip_strict_9_field_per_active_log_section_17_9_4
+      check_id_decision: rejected_strict_9_field_only_no_identifier_addition
+      audit_id_decision: rejected_strict_9_field_only_no_identifier_addition
+      recommended_action_enum_closure_decision: rejected_no_closed_enum_invented_in_P2-004
+      field_count_breakdown:
+        declared_fields: 1
+        derived_projection_view_fields: 7
+        derived_advisory_recommendation_fields: 1
+      declared_fields:
+        - field_id
+      derived_projection_view_fields:
+        - current_hot_zones
+        - top_residuals
+        - active_alarms
+        - active_territory_claims
+        - stale_signals
+        - suspected_poisoning
+        - triggered_quorums
+      derived_advisory_recommendation_fields:
+        - recommended_action
+      audit_shell_fields_skipped:
+        - check_id
+        - audit_id
+        - created_by
+        - created_at
+        - source_refs
+        - truth_status
+      shape:
+        field_id:
+          type: string
+          required: true
+          classification: declared_field
+          meaning: field_identifier_for_the_audit_projection_view
+
+        current_hot_zones:
+          type: list_of_string
+          required: true
+          classification: derived_projection_view_field
+          item_ref: P2-003_signal_field_zone_zone_id
+          constraint: must_not_redefine_zone_shape
+
+        top_residuals:
+          type: list_of_string
+          required: true
+          classification: derived_projection_view_field
+          item_ref: P2-001_signal_field_event_event_id
+          constraint: must_not_redefine_signal_event_shape
+
+        active_alarms:
+          type: list_of_string
+          required: true
+          classification: derived_projection_view_field
+          item_ref: P2-001_signal_field_event_event_id
+          channel_anchor: P2-001_channel_alarm
+
+        active_territory_claims:
+          type: list_of_string
+          required: true
+          classification: derived_projection_view_field
+          item_ref: P2-001_signal_field_event_event_id
+          channel_anchor: P2-001_channel_territory
+
+        stale_signals:
+          type: list_of_string
+          required: true
+          classification: derived_projection_view_field
+          item_ref: P2-001_signal_field_event_event_id
+          ttl_decay_anchor: P2-001_ttl_and_decay_policy
+          constraint: must_not_define_zone_level_invalidation_behavior
+
+        suspected_poisoning:
+          type: list_of_object
+          required: true
+          classification: derived_projection_view_field
+          item_shape:
+            zone_ref: string
+            risk_level: string
+            mitigation: string
+          vocabulary_anchor: P2-006_field_poisoning_check
+          constraint: must_not_reintroduce_P2-006_check_id_or_audit_id
+
+        triggered_quorums:
+          type: list_of_string
+          required: true
+          classification: derived_projection_view_field
+          item_ref: P2-005_quorum_trigger_trigger_id
+          constraint: must_not_redefine_quorum_logic
+
+        recommended_action:
+          type: structured_advisory_object
+          required: true
+          classification: derived_advisory_recommendation_field
+          meaning: advisory_projection_for_human_attention_and_routing_context
+          enum_closure: intentionally_not_defined_in_P2-004
+          hard_boundary:
+            - must_not_authorize_runtime_action_by_itself
+            - must_not_authorize_promotion
+            - must_not_authorize_packet_change
+            - must_not_act_as_truth_gate
+            - must_not_bypass_human_authority
+            - must_not_convert_T4_T5_runtime_signal_into_T2_T3_truth
+
+    collision_check:
+      status: codex_round_2_fact_check_passed
+      confirmed_alignments:
+        - strict_9_field_set_matches_active_log_section_17_9_4
+        - no_check_id_or_audit_id_in_active_log_shape
+        - no_governance_audit_shell_added
+        - recommended_action_has_no_closed_enum_in_source
+        - current_hot_zones_can_reference_P2-003_zone_id
+        - event_projection_fields_can_reference_P2-001_event_id
+        - suspected_poisoning_can_reference_P2-006_zone_risk_level_mitigation_without_check_id
+        - triggered_quorums_can_reference_P2-005_trigger_id
+        - governance_matrix_no_contradiction_with_read_only_advisory_boundary
+        - packet_common_shell_inheritance_not_required
+      known_caveats:
+        - field_audit_projection_was_referenced_by_current_candidates_but_not_registered_or_reserved_before_this_entry
+        - recommended_action_is_not_an_enforcement_surface
+        - active_log_is_design_evidence_not_canonical_truth
+      no_existing_global_reservation_collision:
+        - field_audit_projection
+
+    governance_boundary:
+      human_approval_required: true
+      registry_entry_is_not_truth_patch: true
+      registry_entry_is_not_runtime_implementation: true
+      registry_entry_is_not_packet_schema_change: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+      hard_constraints_for_field_audit_projection:
+        - read_only_advisory_audit_projection_only
+        - not_canonical_truth
+        - not_approval_authority
+        - no_runtime_enforcement
+        - no_runtime_storage
+        - no_audit_ui
+        - audit_projection_must_not_promote_truth
+        - audit_projection_must_not_approve_packet_changes
+        - audit_projection_must_not_authorize_runtime_enforcement_by_itself
+        - audit_projection_must_not_bypass_human_authority
+        - recommended_action_must_not_authorize_runtime_action_by_itself
+        - recommended_action_must_not_authorize_promotion
+        - recommended_action_must_not_authorize_packet_change
+        - recommended_action_must_not_act_as_truth_gate
+        - recommended_action_must_not_bypass_human_authority
+        - recommended_action_must_not_convert_T4_T5_runtime_signal_into_T2_T3_truth
+      hard_flags:
+        not_a_packet: true
+        not_a_memory_artifact: true
+        not_implemented: true
+        not_promoted: true
+        not_canonical_truth: true
+
+    change_impact_check:
+      registry_update_now:
+        - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      intentionally_deferred_until_promotion_or_implementation:
+        - 01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
+        - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+        - 01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
+        - 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+        - 02_packets/packet_common_shell.v0.yaml
+        - 04_runtime
+        - runtime_adapter_hook_files
+        - audit_ui
+        - 06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md
+      defer_reason: candidate_registry_entry_only_not_promotion_not_implementation
+
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+
+    reviewer_decision:
+      decision: approved_for_registry_insertion_only
+      decided_by: human_review
+      decided_at: null
+      notes:
+        - approved_candidate_for_human_review_status
+        - approved_strict_9_field_field_audit_projection_shape
+        - approved_no_check_id_or_audit_id
+        - approved_audit_shell_skip
+        - approved_no_recommended_action_enum_invention
+        - approved_narrowed_first_reservation_status
+        - approved_read_only_advisory_audit_projection_boundary
+        - approved_recommended_action_authority_boundary
+        - approved_forward_ref_visibility_without_redesign
+        - approved_hard_blockers
+        - approved_no_promotion_no_implementation_boundary
+
+    first_reservation_status:
+      globally_reserved_now:
+        - field_audit_projection
+      candidate_local_fields_not_global_reservations_yet:
+        - field_id
+        - current_hot_zones
+        - top_residuals
+        - active_alarms
+        - active_territory_claims
+        - stale_signals
+        - suspected_poisoning
+        - triggered_quorums
+        - recommended_action
+      governance_implication: future_candidates_must_not_reuse_globally_reserved_labels_for_different_concepts
+      candidate_local_fields_remain_open_for_other_runtime_artifacts: true
+      rationale_for_narrowing:
+        - field_audit_projection_is_specific_enough_to_reserve_globally
+        - field_id_and_projection_field_names_are_candidate_local_until_runtime_surfaces_are_clearer
+        - recommended_action_is_generic_and_must_not_be_over_reserved_as_global_authority_language
+      not_yet_canonical: true
+
+    blocker:
+      blocker_id: blocker-p2-004-implementation-prerequisites
+      severity: hard
+      unresolved_items:
+        - runtime_substrate_decision_remains_deferred
+        - runtime_aggregation_view_materialization_not_implemented
+        - p4_hook_runtime_adapter_lane_required_before_any_recommended_action_can_become_enforcement
+        - p2_002_zone_level_invalidation_block_may_later_consume_stale_signals_or_recommended_action_context_but_is_not_designed_here
+      enforcement: must_not_advance_to_approved_for_patch_or_runtime_implementation_until_unresolved_items_close
+
+    substrate_stance:
+      position: substrate_agnostic_at_contract_level
+      must_be_compatible_with:
+        - single_writer_queue
+        - atomic_write_by_rename
+        - append_only_operation_log_with_log_position_as_fencing_token
+        - optimistic_concurrency_cas
+      must_not_assume:
+        - any_specific_queue_implementation
+        - any_specific_lock_model
+        - cross_host_coordination
+        - exactly_once_delivery
+      alignment_note: same_stance_as_P2-001_P2-003_P2-005_and_P2-006
+
+    rejection_boundary:
+      field_naming:
+        must_not_use:
+          - check_id
+          - audit_id
+          - created_by
+          - created_at
+          - source_refs
+          - truth_status
+          - audit_decides
+          - auto_approve
+          - approval_action
+          - enforcement_action
+        must_use:
+          - field_audit_projection
+          - field_id
+          - current_hot_zones
+          - top_residuals
+          - active_alarms
+          - active_territory_claims
+          - stale_signals
+          - suspected_poisoning
+          - triggered_quorums
+          - recommended_action
+      semantics_must_not:
+        - treat_audit_projection_as_truth_gate
+        - let_recommended_action_authorize_runtime_action_by_itself
+        - let_recommended_action_authorize_promotion
+        - let_recommended_action_authorize_packet_change
+        - bypass_human_authority_with_recommended_action
+        - convert_T4_T5_runtime_signal_into_T2_T3_truth
+        - implement_runtime_storage_in_P2-004
+        - implement_audit_ui_in_P2-004
+        - invent_recommended_action_closed_enum_values_in_P2-004
+      not_a_packet:
+        must_not_inherit:
+          - packet_uid
+          - packet_type
+          - schema_version
+          - packet_common_shell_extensions_region
+          - a2a_wrapping
+      scope_isolation:
+        must_not_design_in_P2-004:
+          - P2-002_zone_level_invalidation_block
+          - P2-003_signal_field_zone
+          - P2-005_quorum_trigger_for_routing_only
+          - P2-006_field_poisoning_check
+          - P4_recommended_action_hook_behavior
+          - runtime_substrate
+          - canonical_truth_changes
+          - packet_schema_changes
+
+    related_candidates_not_designed_in_this_round:
+      - P2-002_zone_level_invalidation_block
+      - P2-003_signal_field_zone_shape
+      - P2-005_quorum_trigger_for_routing_only
+      - P2-006_field_poisoning_check
+      - P2-007_learnable_frontier_record
+
+    three_round_cadence_record:
+      round_1_scope_identification: field_audit_projection_lane_identified
+      round_2_design_redo: strict_9_field_shape_without_check_id_audit_id_or_audit_shell
+      round_3_finalization: registry_ready_entry_after_codex_alignment_pass
+      rounds_used: 3
+      rounds_remaining_for_P2_004: 0
+      codex_fact_check_result: alignment_pass
+
+    next_action: keep_candidate_for_human_review_do_not_implement
+
 notes:
   - this_registry_is_not_canonical_truth
   - this_registry_is_not_approval_authority
