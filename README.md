@@ -1,5 +1,19 @@
-![封面](shadowMAS.png)
+![cover](shadowMAS.png)
 # shadowMAS
+
+shadowMAS is a governance research artifact and testbed for multi-agent AI systems.
+It is not yet a polished open-source agent framework.
+It does not replace agent orchestration frameworks.
+Its core problem is authority-bounded interpretation.
+Seeing a runtime signal is not the same as trusting it, storing it, promoting it, or acting on it.
+
+## Minimal demo
+
+```bash
+python3 tools/shadowmas_minimal_validator.py examples/demo_signal_governance.json
+```
+
+This demo is not a runtime engine. It checks the shadowMAS governance boundary: runtime signals and audit projections may be visible as evidence, but must not silently become truth, memory, approval, or decision authority.
 
 shadowMAS is a governance-oriented, memory-aware, human-AI collaboration system.
 
