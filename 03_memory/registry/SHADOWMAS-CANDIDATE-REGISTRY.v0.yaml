@@ -1966,6 +1966,322 @@ candidates:
 
     next_action: keep_candidate_for_human_review_do_not_implement
 
+  - candidate_id: P2-007
+    p_lane: P2_runtime_signal
+    title: residual_action_value
+    candidate_name: residual_action_value
+    candidate_kind: runtime_residual_action_scoring_surface
+    status: candidate_for_human_review
+    owner_session: codex_p2_lane
+
+    source_basis:
+      - active_design_log_§19.9.1
+      - residual_action_value_candidate_review_artifact
+      - active_design_ledger_working_disposition_review
+      - human_approved_for_registry_patch_P2_007
+
+    source_basis_caveat:
+      active_log_source_class: tracked_context_copy_noncanonical
+      active_log_path_as_read: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      review_artifact_path: 07_working/drafts/rationale/residual_action_value_candidate_review.yaml
+      treatment:
+        - design_evidence_only
+        - not_canonical_truth
+        - not_promotion_authority
+      governance_note: active_log_location_does_not_make_it_canonical_truth
+
+    target_surfaces:
+      primary: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      future_runtime_signal_field_contract: future_runtime_signal_field_contract_not_created_here
+      p2_signal_field_family: P2_signal_field_family_candidate_only
+      future_field_audit_projection_inputs: future_P2-004_input_semantics_not_created_here
+      forbidden_now:
+        - canonical_truth
+        - approved_memory
+        - packet_schema
+        - review_packet
+        - runtime_authorization_layer
+        - human_approval_layer
+
+    change_type: runtime_residual_action_scoring_surface
+
+    proposed_minimum_shape:
+      not_a_packet: true
+      not_a_memory_artifact: true
+      not_implemented: true
+      not_promoted: true
+      not_canonical_truth: true
+      total_field_count: 12
+      fields:
+        - event_id
+        - zone
+        - residual_magnitude
+        - reducibility
+        - goal_relevance
+        - urgency
+        - confidence
+        - freshness
+        - risk_penalty
+        - authority_penalty
+        - expected_residual_reduction
+        - recommended_action
+      shape:
+        event_id:
+          classification: signal_event_reference
+          type: string
+          required: true
+          allowed: null
+          meaning: references_a_signal_field_event_like_event
+          boundary_note: must_not_merge_into_P2-001_without_review
+
+        zone:
+          classification: signal_field_zone_reference
+          type: string
+          required: true
+          allowed: null
+          meaning: references_runtime_signal_zone
+          boundary_note: does_not_redefine_P2-003_zone_shape
+
+        residual_magnitude:
+          classification: residual_severity_score
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+            - blocker
+          meaning: residual_severity_score_only
+          hard_boundary: score_is_not_truth_authority
+
+        reducibility:
+          classification: residual_reducibility_estimate
+          type: enum
+          required: true
+          allowed:
+            - unknown
+            - low
+            - medium
+            - high
+          meaning: estimate_of_residual_reducibility
+          hard_boundary: estimate_is_not_action_authority
+
+        goal_relevance:
+          classification: task_goal_relevance_score
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+          meaning: task_goal_relevance_score_only
+
+        urgency:
+          classification: runtime_attention_priority
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+            - critical
+          meaning: runtime_attention_priority_signal_only
+
+        confidence:
+          classification: confidence_score
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+          meaning: evidence_quality_signal
+          hard_boundary: confidence_is_not_approval
+
+        freshness:
+          classification: temporal_validity_hint
+          type: enum
+          required: true
+          allowed:
+            - fresh
+            - aging
+            - stale
+          meaning: temporal_validity_hint
+          hard_boundary: stale_values_must_not_authorize_reactivation_or_promotion
+
+        risk_penalty:
+          classification: risk_adjustment_score
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+          meaning: risk_adjustment_score_only
+
+        authority_penalty:
+          classification: authority_boundary_penalty
+          type: enum
+          required: true
+          allowed:
+            - none
+            - review_required
+            - human_only
+          meaning: authority_boundary_penalty_or_restriction
+          hard_boundary: authority_penalty_is_not_permission_grant
+
+        expected_residual_reduction:
+          classification: expected_value_score
+          type: enum
+          required: true
+          allowed:
+            - low
+            - medium
+            - high
+          meaning: expected_residual_reduction_score
+          hard_boundary: expected_reduction_is_not_authorization
+
+        recommended_action:
+          classification: advisory_action_recommendation
+          type: enum
+          required: true
+          allowed:
+            - ignore
+            - explore
+            - validate
+            - converge
+            - reroute
+            - escalate
+            - human_review
+          meaning: advisory_action_recommendation_only
+          advisory_only: true
+          hard_boundary:
+            - cannot_authorize_runtime_action_by_itself
+            - cannot_authorize_packet_changes
+            - cannot_write_memory
+            - cannot_promote_truth
+            - cannot_approve_human_decision
+
+    collision_check:
+      status: reviewed_for_registry_insertion
+      overlap_relationships:
+        - candidate_id: P2-001
+          primitive: signal_field_event
+          relationship: event_id_and_residual_magnitude_are_close_peers_do_not_merge_without_review
+        - candidate_id: P2-003
+          primitive: signal_field_zone
+          relationship: zone_references_runtime_zone_but_does_not_redefine_zone_shape
+        - candidate_id: P2-004
+          primitive: field_audit_projection
+          relationship: may_feed_top_residuals_or_recommended_action_context_but_does_not_define_audit_projection
+        - candidate_id: P2-006
+          primitive: field_poisoning_check
+          relationship: risk_penalty_authority_penalty_may_consume_risk_signals_but_do_not_redefine_poisoning_check
+        - candidate_id: P1-001
+          primitive: residual_first_report_minimum_shape
+          relationship: residual_semantics_overlap_must_not_redefine_residual_report_shape
+      future_collision_review_required:
+        - learnable_frontier_record
+      possible_collisions:
+        - recommended_action_semantics_in_demo_governance_validator
+        - review_packet_decision_needed_human_review_language
+        - future_P5_learnable_frontier_record_decision_fields
+      main_collision_risk: authority_confusion_around_recommended_action_and_residual_scoring
+      hard_boundaries:
+        - do_not_merge_into_P2-001_without_review
+        - do_not_change_P1-001_residual_first_report_scope
+        - review_learnable_frontier_record_collision_before_promotion
+
+    governance_boundary:
+      human_approval_required: true
+      registry_entry_is_not_truth_patch: true
+      registry_entry_is_not_runtime_implementation: true
+      registry_entry_is_not_packet_schema_change: true
+      all_scores_are_runtime_evidence_only: true
+      recommended_action_is_advisory_only: true
+      recommended_action_cannot_authorize_runtime_action_by_itself: true
+      recommended_action_cannot_authorize_packet_changes: true
+      recommended_action_cannot_write_memory: true
+      recommended_action_cannot_promote_truth: true
+      recommended_action_cannot_approve_human_decision: true
+      authority_penalty_is_restriction_signal_not_permission_grant: true
+      stale_freshness_must_not_authorize_reactivation_or_promotion: true
+      no_runtime_implementation_in_this_candidate: true
+      no_packet_schema_change: true
+      no_truth_promotion: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+      hard_constraints_for_residual_action_value:
+        - runtime_signal_scoring_surface_only
+        - recommended_action_advisory_only
+        - not_runtime_authorization_layer
+        - not_human_approval_layer
+        - not_memory_write_authority
+        - not_truth_promotion_path
+        - not_packet_schema_change
+        - must_not_bypass_human_review
+      hard_flags:
+        not_a_packet: true
+        not_a_memory_artifact: true
+        not_implemented: true
+        not_promoted: true
+        not_canonical_truth: true
+
+    change_impact_check:
+      registry_update_now:
+        - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      no_change_now:
+        - truth_files
+        - packet_schemas
+        - runtime_files
+        - P2-001_signal_field_event
+        - P1-001_residual_first_report_minimum_shape
+        - active_design_log
+        - review_artifact
+      future_impact_may_include:
+        - P2_signal_field_notes
+        - future_runtime_signal_field_contract
+        - field_audit_projection_input_semantics
+      every_future_impacted_surface_must_be_reviewed_before_patching: true
+      defer_reason: candidate_registry_entry_only_not_promotion_not_implementation
+
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+      insertion_record: initial_registry_insertion_from_review_artifact
+
+    reviewer_decision:
+      decision: approved_for_registry_insertion_only
+      decided_by: human_review
+      decided_at: null
+      notes:
+        - approved_P2_runtime_signal_lane
+        - approved_candidate_for_human_review_status
+        - approved_strict_12_field_source_shape
+        - approved_source_verified_enum_values
+        - approved_recommended_action_advisory_only_boundary
+        - approved_no_runtime_authorization
+        - approved_no_packet_change_authority
+        - approved_no_memory_write_authority
+        - approved_no_truth_promotion_authority
+        - approved_no_human_approval_authority
+        - approved_not_merge_into_P2_001
+        - approved_no_change_to_P1_001_scope
+        - approved_future_learnable_frontier_record_collision_review_required
+        - approved_no_runtime_implementation
+
+    next_action:
+      - human_review_candidate_shape
+      - confirm_collision_with_P2-001_residual_fields_before_future_patch
+      - confirm_collision_with_P1-001_residual_first_report_before_future_patch
+      - confirm_future_collision_with_learnable_frontier_record_before_promotion
+      - do_not_implement_runtime
+      - do_not_promote_to_truth
+      - do_not_modify_packet_schemas
+
   - candidate_id: P4-001
     p_lane: P4_hook_adapter
     title: shared_state_capability_check
