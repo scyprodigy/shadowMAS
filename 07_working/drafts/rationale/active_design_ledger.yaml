@@ -123,6 +123,18 @@ remaining_schema_primitives:
       - selection_rule
       - forbidden_actions
       - fallback_when_no_valid_zone
+    enum_or_fixed_values:
+      selection_rule:
+        - highest_expected_residual_reduction
+      forbidden_actions:
+        - promote_truth_from_field
+        - bypass_review_gate
+        - override_project_domain_truth
+      fallback_when_no_valid_zone:
+        - central_router
+        - direct_message
+        - idle
+        - ask_human
     current_status: not_extracted
     provisional_disposition: requires_human_decision
     suggested_lane: P2_runtime_signal
@@ -690,20 +702,67 @@ working_disposition_review:
         - do_not_promote_residual_scoring_into_P1_scope
 
     - primitive_name: field_navigation_policy
-      working_disposition: hold_requires_overlap_review
+      working_disposition: reference_only
       recommended_lane: P2_runtime_signal
       rationale: >
-        May restate existing canonical forbidden actions from governance matrix
-        and prompt-layering boundaries. Needs overlap review before any new
-        candidate extraction.
+        Read-only overlap review concluded that field_navigation_policy adds no new
+        normative governance content. forbidden_actions duplicate canonical
+        governance/prompt-layering rules; readable_zones and writable_zones are the
+        agent-side inverse of P2-003 signal_field_zone readable_by/writable_by; and
+        selection_rule depends on residual_action_value/P2-007 if present.
       overlap_review_targets:
         - SHADOWMAS-GOVERNANCE-MATRIX
         - SHADOWMAS-PROMPT-LAYERING-CONTRACT
         - P2-003 signal_field_zone readable_by/writable_by
-      next_action: human_overlap_review
+        - P2-007 residual_action_value if registered
+      reference_only_mapping:
+        agent_id:
+          maps_to: operational_agent_identifier
+          canonical_owner: null
+          note: no standalone governance candidate required
+        readable_zones:
+          maps_to: derived_inverse_of_P2_003_readable_by
+          canonical_owner: P2-003_signal_field_zone
+          must_not_do:
+            - do_not_treat_readable_zones_as_independent_authority_source
+            - do_not_let_readable_zones_drift_from_P2_003_readable_by
+        writable_zones:
+          maps_to: derived_inverse_of_P2_003_writable_by
+          canonical_owner: P2-003_signal_field_zone
+          must_not_do:
+            - do_not_treat_writable_zones_as_independent_authority_source
+            - do_not_let_writes_carry_implicit_truth_promotion
+            - do_not_grant_write_authority_by_default
+        selection_rule:
+          maps_to: highest_expected_residual_reduction
+          canonical_owner: P2-007_residual_action_value_if_registered
+          note: advisory routing heuristic only
+          must_not_do:
+            - do_not_treat_selection_rule_as_runtime_authorization
+            - do_not_replace_human_review_with_residual_heuristic
+        forbidden_actions:
+          maps_to:
+            - SHADOWMAS_GOVERNANCE_MATRIX_promotion_rules
+            - SHADOWMAS_PROMPT_LAYERING_CONTRACT_layer_boundaries
+          canonical_owner: canonical_governance_and_prompt_layering_surfaces
+          note: pointer to canonical rules, not a redefinition
+          must_not_do:
+            - do_not_duplicate_canonical_rules_under_new_name
+            - do_not_treat_this_list_as_exhaustive
+            - do_not_let_wording_drift_from_canonical_sources
+        fallback_when_no_valid_zone:
+          maps_to: operational_fallback_enum
+          canonical_owner: future_runtime_adapter_policy_if_needed
+          note: fallback route does not re-grant authorization
+          must_not_do:
+            - do_not_treat_fallback_as_bypass_permission
+            - do_not_allow_central_router_to_reauthorize_forbidden_actions
+            - do_not_allow_direct_message_to_skip_zone_permission_check
+      next_action: preserve_source_pointer_only
       must_not_do:
         - do_not_duplicate_canonical_rules_under_new_name
-        - do_not_extract_before_overlap_review
+        - do_not_treat_selection_rule_as_runtime_authorization
+        - do_not_treat_fallback_as_bypass_permission
 
     - primitive_name: learnable_frontier_filter
       working_disposition: reference_only
@@ -783,7 +842,7 @@ working_disposition_review:
     - shared_state_capability_check
     - residual_action_value
 
-  held_or_reference_order:
+  reference_only:
     - field_navigation_policy
     - learnable_frontier_filter
     - curiosity_budget_policy
@@ -797,7 +856,7 @@ working_disposition_review:
   next_allowed_codex_tasks:
     - prepare_shared_state_capability_check_candidate_review
     - prepare_residual_action_value_candidate_review
-    - preserve_compact_0_7_and_0_9_navigation_es
+    - preserve_compact_0_7_and_0_9_navigation_surfaces
     - prepare_active_log_move_plan_after_human_approval
 
   prohibited_followups_without_human_approval:
