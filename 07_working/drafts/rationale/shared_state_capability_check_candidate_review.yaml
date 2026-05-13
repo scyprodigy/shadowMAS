@@ -1,0 +1,167 @@
+review_artifact_name: shared_state_capability_check_candidate_review
+status: non_canonical_candidate_review_artifact
+candidate_id_assigned: false
+registry_changed: false
+canonical_truth_changed: false
+packet_schema_changed: false
+runtime_implemented: false
+
+source_basis:
+  active_design_log_path: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+  source_section: "§17.9.5"
+  ledger_path: 07_working/drafts/rationale/active_design_ledger.yaml
+  ledger_disposition: extract_candidate_next
+  source_status: non_canonical_design_evidence
+
+proposed_candidate:
+  provisional_label: candidate_unassigned_shared_state_capability_check
+  proposed_lane: P4_hook_adapter
+  title: shared_state_capability_check
+  change_type: host_runtime_capability_probe
+  target_surface:
+    - future_runtime_adapter_contract
+    - future_hook_adapter_policy
+    - P2_signal_field_runtime_adoption_precondition
+  not_target_surface:
+    - P2_runtime_signal_object
+    - packet_schema
+    - canonical_truth
+    - memory_packet
+    - review_packet
+
+schema_shape:
+  field_count: 6
+  fields:
+    - name: runtime
+      role: declared_runtime_identifier
+      allowed_values: null
+      notes: runtime or host being checked
+    - name: shared_writable_state_available
+      role: host_capability_flag
+      allowed_values:
+        - true
+        - false
+      notes: indicates whether shared writable state exists for runtime signal-field behavior
+    - name: persistence_level
+      role: host_capability_classification
+      allowed_values:
+        - ephemeral
+        - session
+        - project
+        - durable
+      notes: classifies persistence available to the runtime/host
+    - name: auditability
+      role: host_auditability_classification
+      allowed_values:
+        - low
+        - medium
+        - high
+      notes: classification only; auditability is not canonical truth authority
+    - name: permission_model_defined
+      role: host_permission_model_flag
+      allowed_values:
+        - true
+        - false
+      notes: states whether a permission model exists; does not grant approval authority
+    - name: fallback_if_false
+      role: fallback_policy_hint
+      allowed_values:
+        - direct_message
+        - central_router
+        - packet_queue
+      notes: fallback route when shared writable state or permission model is insufficient
+
+authority_boundary:
+  summary: >
+    This primitive checks whether a host/runtime can support signal-field-style
+    shared state safely. It does not itself create runtime authority, truth
+    authority, memory authority, approval authority, or packet-change authority.
+  fixed_constraints:
+    - host capability evidence is not canonical truth
+    - persistence_level is not permission to persist memory
+    - auditability is not approval authority
+    - permission_model_defined is not a permission grant
+    - fallback_if_false is advisory routing guidance until adopted by a reviewed runtime adapter
+  must_not_do:
+    - do_not_register_in_P2_lane
+    - do_not_treat_as_signal_field_event
+    - do_not_treat_persistence_level_as_memory_authority
+    - do_not_treat_auditability_as_truth_authority
+    - do_not_use_fallback_if_false_to_bypass_review
+    - do_not_assign_candidate_id_from_this_artifact
+
+collision_and_overlap_check:
+  overlaps_with_existing_candidates:
+    - candidate_id: P2-001
+      primitive: signal_field_event
+      relationship: runtime adoption precondition, not field overlap
+    - candidate_id: P2-003
+      primitive: signal_field_zone
+      relationship: shared writable state precondition, not zone schema overlap
+    - candidate_id: P2-004
+      primitive: field_audit_projection
+      relationship: auditability precondition, not audit projection schema overlap
+    - candidate_id: P2-005
+      primitive: quorum_trigger_for_routing_only
+      relationship: shared state and permission precondition for routing-only quorum use
+    - candidate_id: P2-006
+      primitive: field_poisoning_check
+      relationship: host auditability and permission precondition for future runtime enforcement
+  possible_collisions:
+    - runtime adapter loading semantics if such file exists
+    - future R-layer runtime contract
+    - future hook adapter policy
+    - 07_working/drafts/runtime_adapter/RUNTIME-ADAPTER-CONTRACT.v0.en.md
+  collision_summary: >
+    No direct field-level collision with registered P2 signal-field candidates.
+    Main risk is lane confusion: this is a P4 host/runtime capability probe, not
+    a P2 runtime signal object.
+
+change_impact_check:
+  impacted_now:
+    - none_registry_not_modified
+    - none_truth_not_modified
+    - none_packet_schema_not_modified
+    - none_runtime_not_implemented
+  impacted_if_later_registered:
+    - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+    - future runtime adapter contract
+    - future hook adapter policy
+    - P2 signal-field adoption notes
+  requires_review_before_registration:
+    - confirm P4_hook_adapter lane
+    - confirm fallback_if_false value set
+    - confirm source auditability values do not imply approval or truth authority
+    - confirm relation to runtime loading map or adapter contract if present
+
+review_questions_for_human:
+  - "Approve P4_hook_adapter lane instead of P2_runtime_signal? yes/no"
+  - "Approve candidate extraction after this review artifact? yes/no"
+  - "Keep source auditability values low/medium/high with explicit no-truth-authority note? yes/no"
+  - "Approve fallback_if_false values as source-derived review shape? yes/no"
+  - "Require runtime loading map collision check before registry insertion? yes/no"
+
+recommended_next_step:
+  if_approved: prepare_registry_candidate_patch_in_separate_task
+  if_not_approved: revise_review_artifact_or_mark_deferred
+  do_not_do_next:
+    - do_not_modify_registry_without_approval
+    - do_not_assign_candidate_id_without_approval
+    - do_not_implement_runtime
+    - do_not_modify_packet_schemas
+
+source_verification_notes:
+  - "§17.9.5 located and field count verified as 6."
+  - "Source persistence_level values are ephemeral | session | project | durable; expected prompt listed none instead of ephemeral."
+  - "Source auditability values are low | medium | high; expected prompt listed none | local_log | project_log | canonical_log_candidate."
+  - "Source fallback_if_false values are direct_message | central_router | packet_queue; expected prompt listed direct_message | task_packet_only | no_field_mode | human_review."
+  - Followed source values rather than expected prompt values.
+  - Ledger disposition confirmed as extract_candidate_next with recommended lane P4_hook_adapter.
+
+hard_boundaries:
+  - non_canonical_review_artifact_only
+  - no_registry_change
+  - no_truth_change
+  - no_packet_schema_change
+  - no_runtime_implementation
+  - no_candidate_id_assigned
