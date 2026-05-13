@@ -1,5 +1,6 @@
-![cover](shadowMAS.png)
 # shadowMAS
+
+![cover](shadowMAS.png)
 
 shadowMAS is a governance research artifact and testbed for multi-agent AI systems.
 It is not yet a polished open-source agent framework.
@@ -7,13 +8,55 @@ It does not replace agent orchestration frameworks.
 Its core problem is authority-bounded interpretation.
 Seeing a runtime signal is not the same as trusting it, storing it, promoting it, or acting on it.
 
+## Start here
+
+- [Minimal demo](#minimal-demo)
+- [Expected output](#expected-output)
+- [Current status](#current-status)
+- [Repository map](#repository-map)
+- [What shadowMAS is not](#what-shadowmas-is-not)
+
 ## Minimal demo
 
 ```bash
 python3 tools/shadowmas_minimal_validator.py examples/demo_signal_governance.json
 ```
 
+### Expected output
+
+```text
+PASS: runtime signal remains non-authoritative
+PASS: no T4/T5 to T2/T3 promotion
+PASS: no silent memory write
+PASS: audit projection has no approval authority
+PASS: recommended_action is advisory only
+PASS: human final authority preserved
+```
+
 This demo is not a runtime engine. It checks the shadowMAS governance boundary: runtime signals and audit projections may be visible as evidence, but must not silently become truth, memory, approval, or decision authority.
+
+## Current status
+
+shadowMAS is currently in research/spec/testbed stage.
+
+Available now:
+- minimal governance validator
+- minimal demo JSON
+- candidate registry
+- packet and truth-boundary specifications
+
+Not available yet:
+- production runtime engine
+- full agent orchestration layer
+- stable public API
+
+## Repository map
+
+- `01_truth/` — canonical truth and governance boundaries
+- `02_packets/` — packet schemas and field definitions
+- `03_memory/` — candidate registry and memory-related artifacts
+- `examples/` — runnable minimal examples
+- `tools/` — lightweight validators and utilities
 
 shadowMAS is a governance-oriented, memory-aware, human-AI collaboration system.
 
@@ -46,6 +89,9 @@ shadowMAS is not:
 - a UI-first platform
 - a DB-first platform
 - just another general-purpose agent framework
+
+shadowMAS is not a replacement for LangGraph, CrewAI, Dapr, OpenAI Agents SDK, MCP, or A2A.
+It can sit beside existing agent runtimes and focus on how their signals, traces, memory candidates, and audit projections are interpreted, reviewed, and prevented from becoming hidden authority.
 
 ## Boundary model
 
