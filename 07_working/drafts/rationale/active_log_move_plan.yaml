@@ -1,13 +1,14 @@
 plan_name: active_design_log_move_plan
 status: non_canonical_move_plan
-execution_status: plan_only_not_executed
-source_file_current_path: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+execution_status: executed_move_only
+source_file_current_path: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
 source_file_status: non_canonical_design_evidence
 canonical_truth_changed: false
 registry_changed: false
 candidate_ids_assigned: false
-active_log_moved: false
+active_log_moved: true
 active_log_deleted: false
+executed_move_target_path: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
 
 basis:
   coverage_ledger: 07_working/drafts/rationale/active_design_ledger.yaml
@@ -65,10 +66,10 @@ reference_scan:
     - file: 07_working/drafts/rationale/active_design_ledger.yaml
       line: 822
       note: note requires human decision before deleting or moving active design log
-    - file: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+    - file: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
       line: 14
       note: source file self-identifies as non-canonical active design log
-    - file: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+    - file: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
       line: null
       note: many self-references exist inside the active design log; these are internal historical text, not external path references
   registry_or_file_status_surfaces_found:
