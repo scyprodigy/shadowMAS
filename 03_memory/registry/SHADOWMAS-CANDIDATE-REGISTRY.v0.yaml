@@ -455,7 +455,7 @@ candidates:
 
     source_basis_caveat:
       active_log_source_class: temporary_user_context_copy_noncanonical
-      active_log_path_as_read: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      active_log_path_as_read: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
       treatment:
         - design_evidence_only
         - not_canonical_truth
@@ -888,7 +888,7 @@ candidates:
 
     source_basis_caveat:
       active_log_source_class: tracked_context_copy_noncanonical
-      active_log_path_as_read: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      active_log_path_as_read: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
       treatment:
         - design_evidence_only
         - not_canonical_truth
@@ -1276,7 +1276,7 @@ candidates:
 
     source_basis_caveat:
       active_log_source_class: tracked_context_copy_noncanonical
-      active_log_path_as_read: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      active_log_path_as_read: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
       treatment:
         - design_evidence_only
         - not_canonical_truth
