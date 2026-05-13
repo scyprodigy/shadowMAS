@@ -268,9 +268,180 @@ deletion_or_move_readiness:
     - decide extract/defer/reference_only for each remaining primitive
     - preserve §0.7 family index
     - preserve §0.9 promotion queue
+  move_requires:
+    - this ledger reviewed
+    - compact §0.7 preservation
+    - compact §0.9 preservation
+    - separate human approval
   move_preferred_over_delete: true
   reason: active log is non-canonical but still contains provenance and navigation evidence
   do_not_move_in_this_task: true
+
+working_disposition_review:
+  status: non_canonical_working_review
+  source: human_gpt_claude_disposition_review
+  canonical_truth_changed: false
+  registry_changed: false
+  candidate_ids_assigned: false
+  reviewed_after_commit: "e912e27 Add active design log coverage ledger"
+  active_log_can_move_after_this_review: false
+  active_log_can_delete_after_this_review: false
+  reason: >
+    This review clarifies extraction/defer/reference-only disposition, but the
+    active log still requires preserved §0.7/§0.9 navigation surfaces and a
+    separate human-approved move decision.
+
+  decisions:
+    - primitive_name: shared_state_capability_check
+      working_disposition: extract_candidate_next
+      recommended_lane: P4_hook_adapter
+      rationale: >
+        Host/runtime capability probe and precondition for any deployable P2
+        signal-field implementation; not a signal-field object.
+      authority_risk: >
+        permission_model_defined and persistence_level must not be read as
+        approval or truth authority.
+      next_action: prepare_candidate_review_later
+      must_not_do:
+        - do_not_register_in_P2_lane
+        - do_not_treat_persistence_level_as_truth_authority
+        - do_not_assign_candidate_id_from_this_ledger
+
+    - primitive_name: residual_action_value
+      working_disposition: extract_candidate_next
+      recommended_lane: P2_runtime_signal
+      rationale: >
+        Closest peer of P2-001 signal_field_event; adds residual/action scoring.
+        Highest authority risk because recommended_action can be misread as
+        authorisation.
+      authority_risk: >
+        recommended_action must be advisory_only and must not authorize runtime
+        action, packet changes, memory writes, or truth promotion.
+      next_action: prepare_candidate_review_later
+      must_not_do:
+        - do_not_let_recommended_action_imply_authorisation
+        - do_not_merge_into_P2_001_without_review
+        - do_not_promote_residual_scoring_into_P1_scope
+
+    - primitive_name: field_navigation_policy
+      working_disposition: hold_requires_overlap_review
+      recommended_lane: P2_runtime_signal
+      rationale: >
+        May restate existing canonical forbidden actions from governance matrix
+        and prompt-layering boundaries. Needs overlap review before any new
+        candidate extraction.
+      overlap_review_targets:
+        - SHADOWMAS-GOVERNANCE-MATRIX
+        - SHADOWMAS-PROMPT-LAYERING-CONTRACT
+        - P2-003 signal_field_zone readable_by/writable_by
+      next_action: human_overlap_review
+      must_not_do:
+        - do_not_duplicate_canonical_rules_under_new_name
+        - do_not_extract_before_overlap_review
+
+    - primitive_name: learnable_frontier_filter
+      working_disposition: reference_only
+      recommended_lane: P5_research_protocol
+      rationale: >
+        Coarser boolean pre-filter likely subsumed by learnable_frontier_record.
+        Keeping both as candidates would create near-duplicate surfaces.
+      next_action: preserve_source_pointer_only
+      must_not_do:
+        - do_not_register_alongside_learnable_frontier_record_without_review
+        - do_not_treat_boolean_filter_as_authority_gate
+
+    - primitive_name: learnable_frontier_record
+      working_disposition: defer_with_explicit_record
+      recommended_lane: P5_research_protocol
+      rationale: >
+        Anchor for governed exploration cluster, but overlaps residual_action_value,
+        signal_field_zone, and P1-001 residual_first_report.
+      next_action: defer_until_residual_and_frontier_decisions
+      must_not_do:
+        - do_not_treat_frontier_records_as_approved_shared_memory
+        - do_not_extract_before_residual_action_value_collision_review
+
+    - primitive_name: learning_progress_probe
+      working_disposition: defer_with_explicit_record
+      recommended_lane: P5_research_protocol
+      rationale: >
+        Probe-level exploration instrumentation; depends on frontier-object
+        decision and should not replace review_packet evidence.
+      next_action: defer_until_frontier_object_decision
+      must_not_do:
+        - do_not_let_probe_metrics_substitute_for_review_packet_evidence
+
+    - primitive_name: irreducible_noise_classifier
+      working_disposition: defer_with_explicit_record
+      recommended_lane: P5_research_protocol
+      rationale: >
+        Broader diagnostic classifier that overlaps field_poisoning_check on the
+        poisoned branch. Needs delimitation before future extraction.
+      overlap_review_targets:
+        - P2-006 field_poisoning_check
+      next_action: defer_with_collision_note
+      must_not_do:
+        - do_not_re_extract_P2_006_under_new_name
+        - do_not_let_classifier_lock_fields_without_review
+
+    - primitive_name: curiosity_budget_policy
+      working_disposition: reference_only
+      recommended_lane: P5_research_protocol
+      rationale: >
+        Primarily stop-condition vocabulary. Better preserved as reference input
+        to a future task_packet.stop_conditions vocabulary review than registered
+        as a standalone primitive.
+      overlap_review_targets:
+        - 02_packets/task_packet.v0.yaml stop_conditions
+        - task_packet worker_plan / fanout_limit / retry_limit semantics
+      next_action: preserve_for_future_stop_conditions_review
+      must_not_do:
+        - do_not_fragment_stop_conditions_across_two_canonical_surfaces
+        - do_not_let_budget_policy_authorise_blind_traversal
+
+    - primitive_name: frontier_exhaustion_report
+      working_disposition: defer_with_explicit_record
+      recommended_lane: P5_research_protocol
+      rationale: >
+        End-of-exploration report shape. decision_needed overlaps review_packet;
+        remaining_residuals overlaps P1-001 residual_first_report.
+      overlap_review_targets:
+        - review_packet.decision_needed
+        - P1-001 residual_first_report_minimum_shape
+      next_action: defer_until_frontier_and_residual_shape_decisions
+      must_not_do:
+        - do_not_redefine_review_packet_decision_needed
+        - do_not_extract_before_P1_001_residual_shape_is_decided
+
+  recommended_extract_order:
+    - shared_state_capability_check
+    - residual_action_value
+
+  held_or_reference_order:
+    - field_navigation_policy
+    - learnable_frontier_filter
+    - curiosity_budget_policy
+
+  deferred_p5_cluster:
+    - learnable_frontier_record
+    - learning_progress_probe
+    - irreducible_noise_classifier
+    - frontier_exhaustion_report
+
+  next_allowed_codex_tasks:
+    - prepare_shared_state_capability_check_candidate_review
+    - prepare_residual_action_value_candidate_review
+    - preserve_compact_0_7_and_0_9_navigation_es
+    - prepare_active_log_move_plan_after_human_approval
+
+  prohibited_followups_without_human_approval:
+    - assign_candidate_ids
+    - edit_candidate_registry
+    - edit_truth_files
+    - edit_packet_schemas
+    - implement_runtime
+    - move_active_log
+    - delete_active_log
 
 hard_boundaries:
   - do_not_promote_to_canonical_truth
