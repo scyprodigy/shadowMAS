@@ -1,0 +1,149 @@
+plan_name: active_design_log_move_plan
+status: non_canonical_move_plan
+execution_status: plan_only_not_executed
+source_file_current_path: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+source_file_status: non_canonical_design_evidence
+canonical_truth_changed: false
+registry_changed: false
+candidate_ids_assigned: false
+active_log_moved: false
+active_log_deleted: false
+
+basis:
+  coverage_ledger: 07_working/drafts/rationale/active_design_ledger.yaml
+  relevant_commits:
+    - e912e27 Add active design log coverage ledger
+    - bc1c751 Record active log disposition review
+    - 4ae599d Preserve active log navigation surfaces
+  preserved_before_move:
+    - direct schema primitive coverage
+    - working disposition review
+    - compact §0.7 consolidated primitive family index
+    - compact §0.9 promotion/change-impact queue
+
+recommended_target:
+  path: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+  rationale: >
+    Keep the active design log as non-canonical working/rationale evidence under
+    07_working instead of 01_truth. This reduces truth-surface confusion while
+    preserving provenance for audit and future extraction decisions.
+  target_status: working_draft_or_archived_rationale
+  delete_instead_of_move: false
+
+alternative_targets:
+  - path: 07_working/archive/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+    recommendation: possible_if_archive_convention_exists
+    note: use only if 07_working/archive already exists or is approved
+  - path: delete_file
+    recommendation: not_recommended_now
+    note: deletion requires separate explicit human approval after move/reference review
+
+reference_scan:
+  exact_filename_references:
+    - file: 07_working/drafts/rationale/active_design_ledger.yaml
+      line: 3
+      note: top-level source_file points to current active-log path
+    - file: 07_working/drafts/rationale/active_design_ledger.yaml
+      line: 266
+      note: compact_navigation_preservation source_file points to current active-log path
+    - file: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      line: 458
+      note: candidate provenance records active_log_path_as_read
+    - file: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      line: 891
+      note: candidate provenance records active_log_path_as_read
+    - file: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      line: 1279
+      note: candidate provenance records active_log_path_as_read
+  active_design_log_phrase_references:
+    - file: 07_working/drafts/rationale/active_design_ledger.yaml
+      line: 17
+      note: cleanup rationale mentions active design log provenance
+    - file: 07_working/drafts/rationale/active_design_ledger.yaml
+      line: 272
+      note: compact preservation purpose mentions moving active design log out of 01_truth
+    - file: 07_working/drafts/rationale/active_design_ledger.yaml
+      line: 822
+      note: note requires human decision before deleting or moving active design log
+    - file: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      line: 14
+      note: source file self-identifies as non-canonical active design log
+    - file: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+      line: null
+      note: many self-references exist inside the active design log; these are internal historical text, not external path references
+  registry_or_file_status_surfaces_found:
+    - file: 03_memory/registry/SHADOWMAS-FILE-STATUS-REGISTRY.v0.yaml
+      note: file-status registry exists; exact active-log path was not found in this registry during scan
+    - file: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      note: candidate registry contains active_log_path_as_read references and would need human-approved registry handling if path pointers must become current
+  no_references_found_notes:
+    - active_design_ledger filename search returned no additional references outside the ledger path itself
+
+anticipated_update_requirements_if_move_is_approved:
+  path_references_to_update:
+    - 07_working/drafts/rationale/active_design_ledger.yaml
+    - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+  likely_metadata_or_registry_updates:
+    - update any file-status/tracked-files registry if one exists
+    - update active_design_ledger source_file references if human wants path pointers current
+    - update any README or docs only if they directly reference the old active-log path
+  do_not_update_without_explicit_move_task:
+    - 01_truth files
+    - 02_packets files
+    - 03_memory candidate registry
+    - packet schemas
+    - truth files
+
+move_readiness:
+  ready_for_human_move_decision: true
+  ready_for_codex_move_execution: false
+  reason_not_ready_for_execution: >
+    This task only prepares the plan. Actual move requires explicit human
+    approval, target path confirmation, and an atomic move task.
+  blockers_before_move:
+    - human approves target path
+    - human confirms move rather than delete
+    - reference update list reviewed
+    - file-status registry impact reviewed
+  blockers_before_delete:
+    - active log moved or delete explicitly approved
+    - all old path references resolved
+    - human delete approval
+
+proposed_future_move_task:
+  if_human_approves_move:
+    steps:
+      - git status --short must be clean
+      - move file from current 01_truth path to approved 07_working path
+      - update exact path references identified in this plan
+      - update file-status/path classification if a registry exists and human approves
+      - validate repository status and diffs
+      - "commit with message: Move active design log out of truth surface"
+  prohibited_in_future_move_task_without_extra_approval:
+    - deleting the active log
+    - changing candidate registry semantics
+    - modifying packet schemas
+    - promoting active-log content to canonical truth
+    - assigning candidate IDs
+    - implementing runtime
+
+hard_boundaries:
+  - this_plan_does_not_execute_move
+  - do_not_delete_active_log
+  - do_not_promote_to_canonical_truth
+  - do_not_modify_registry
+  - do_not_modify_packet_schemas
+  - do_not_assign_candidate_ids
+  - do_not_implement_runtime
+
+human_decision_needed:
+  - "Approve move target path? choose-one: recommended_target / alternative_target / revise"
+  - "Approve move instead of delete? yes/no"
+  - "Approve updating old path references during move task? yes/no"
+  - "Approve file-status registry update if such registry exists? yes/no"
+  - "Approve that deletion remains out of scope for the move task? yes/no"
+
+notes:
+  - This is a plan-only artifact.
+  - Active design log remains unmoved after this task.
+  - Active design log remains non-canonical design evidence.
