@@ -261,6 +261,372 @@ navigation_surfaces_to_preserve:
     status: not_yet_mirrored
     preservation_need: P1..P5 batches, impacted surfaces, promotion conditions
 
+compact_navigation_preservation:
+  status: non_canonical_compact_preservation
+  source_file: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+  canonical_truth_changed: false
+  registry_changed: false
+  candidate_ids_assigned: false
+  purpose: >
+    Preserve the active-log navigation surfaces needed before moving the
+    non-canonical active design log out of 01_truth.
+
+  section_0_7_consolidated_primitive_family_index:
+    source_section: "§0.7"
+    preservation_status: compacted
+    families:
+      - family_name: packet_and_review_surfaces
+        family_status: primitive_candidate_family
+        representative_primitives:
+          - residual_first_report
+          - prediction_error_packet_field
+          - top_down_expectation_bottom_up_residual_contract
+          - precision_weighted_residual_score
+        first_canonical_candidate: residual_first_report
+        promotion_target: future_packet_schema_or_review_packet_shell
+        blocker_before_promotion:
+          - define minimum required fields
+          - verify no conflict with existing task_packet/memory_packet/review_packet rules
+          - decide whether residual scoring is enum-based or numeric-proxy-based
+        already_extracted_candidates:
+          - P1-001
+        unresolved_or_deferred_items:
+          - prediction_error_packet_field
+          - top_down_expectation_bottom_up_residual_contract
+          - precision_weighted_residual_score
+        must_not_do:
+          - do_not_treat_family_index_as_canonical_truth
+          - do_not_assign_candidate_ids_from_navigation_index
+      - family_name: runtime_signal_field_surfaces
+        family_status: active_candidate_runtime_family
+        representative_primitives:
+          - signal_field_event
+          - signal_field_zone
+          - field_audit_projection
+          - quorum_trigger
+          - field_poisoning_check
+          - learnable_frontier_record
+          - frontier_exhaustion_report
+        first_canonical_candidate: signal_field_event
+        promotion_target: future_R_layer_runtime_contract
+        blocker_before_promotion:
+          - shared writable state availability decision
+          - TTL/decay semantics
+          - write/read permission model
+          - anti-poisoning and audit projection requirements
+        already_extracted_candidates:
+          - P2-001
+          - P2-003
+          - P2-004
+          - P2-005
+          - P2-006
+        unresolved_or_deferred_items:
+          - learnable_frontier_record
+          - frontier_exhaustion_report
+          - shared writable state availability decision remains unresolved
+        must_not_do:
+          - do_not_treat_family_index_as_canonical_truth
+          - do_not_assign_candidate_ids_from_navigation_index
+      - family_name: capability_graph_and_variety_surfaces
+        family_status: active_design_family
+        representative_primitives:
+          - variety_coverage_audit
+          - capability_graph_record
+          - variety_connectivity_audit
+          - bridge_edge_record
+          - cross_domain_percolation_probe
+          - reasoning_graph_connectivity_probe
+          - bridge_trace_policy
+        first_canonical_candidate: variety_coverage_audit
+        promotion_target: routing_policy_and_runtime_capability_registry
+        blocker_before_promotion:
+          - define agent/module capability vocabulary
+          - define empirical p_c or bridge-success probe
+          - prevent all-to-all messaging from being treated as the default fix
+        already_extracted_candidates: []
+        unresolved_or_deferred_items:
+          - capability vocabulary not yet defined here
+          - empirical bridge-success probe not yet defined here
+        must_not_do:
+          - do_not_treat_family_index_as_canonical_truth
+          - do_not_assign_candidate_ids_from_navigation_index
+      - family_name: layer_compression_and_patch_budget_surfaces
+        family_status: active_design_family
+        representative_primitives:
+          - order_parameter_registry
+          - layer_composition_record
+          - compression_layer_check
+          - rg_layer_transform_check
+          - effective_rank_audit
+          - low_rank_patch_budget
+          - behavioral_attractor_fingerprint
+          - attractor_geometry_comparison
+        first_canonical_candidate: layer_composition_record
+        promotion_target: prompt_layering_contract_runtime_adapter_contract
+        blocker_before_promotion:
+          - define preserved/adapted/suppressed rule fields
+          - decide when compression is forbidden
+          - define rollback and validation surface for scoped patches
+        already_extracted_candidates: []
+        unresolved_or_deferred_items:
+          - compression boundaries not resolved here
+          - scoped patch rollback surface not resolved here
+        must_not_do:
+          - do_not_treat_family_index_as_canonical_truth
+          - do_not_assign_candidate_ids_from_navigation_index
+      - family_name: evaluation_and_recalibration_surfaces
+        family_status: active_candidate_review_family
+        representative_primitives:
+          - weak_signal_probe
+          - noise_budget_record
+          - sublinear_score_transform
+          - probabilistic_evaluation_integrity_check
+          - evaluation_stack_record
+          - reviewer_drift_monitor
+          - evaluation_commutativity_check
+          - recalibration_trigger
+          - objective_conflict_probe
+          - tradeoff_surface_record
+        first_canonical_candidate: reviewer_drift_monitor
+        promotion_target: review_policy_and_evaluation_governance
+        blocker_before_promotion:
+          - ban stochastic noise from binary/schema/canonical gates
+          - define independent quality surface
+          - define recalibration owner and trigger threshold
+          - separate score evidence from truth authority
+        already_extracted_candidates: []
+        unresolved_or_deferred_items:
+          - independent quality surface not defined here
+          - recalibration owner and trigger threshold not defined here
+        must_not_do:
+          - do_not_treat_family_index_as_canonical_truth
+          - do_not_assign_candidate_ids_from_navigation_index
+      - family_name: prompt_context_and_capability_channel_surfaces
+        family_status: active_candidate_prompt_family
+        representative_primitives:
+          - capability_channel_state_record
+          - open_closed_channel_contract
+          - attractor_depth_prompt_policy
+          - adapter_state_mark_record
+          - channel_expression_probe
+          - construction_frame_record
+          - prompt_construction_taxonomy
+          - fca_prompt_library_audit
+          - prompt_template_gap_redundancy_detector
+          - construction_channel_contract
+        first_canonical_candidate: open_closed_channel_contract
+        promotion_target: prompt_layering_contract_and_runtime_adapter_prompt_rules
+        blocker_before_promotion:
+          - distinguish base capability from context expression
+          - define which channels can be opened/closed by prompt only
+          - keep FCA/mechanistic probes as audit evidence, not authority
+        already_extracted_candidates: []
+        unresolved_or_deferred_items:
+          - context expression boundary not defined here
+          - prompt-opened channel authority not defined here
+        must_not_do:
+          - do_not_treat_family_index_as_canonical_truth
+          - do_not_assign_candidate_ids_from_navigation_index
+      - family_name: strategy_and_exploration_surfaces
+        family_status: active_candidate_strategy_family
+        representative_primitives:
+          - plateau_transition_probe
+          - parent_objective_design_record
+          - spandrel_capability_probe
+          - emergence_metric_audit
+          - bounded_plateau_intervention_policy
+          - controlled_fluctuation_probe
+          - annealed_exploration_record
+          - controlled_dissolution_protocol
+          - learning_progress_probe
+          - irreducible_noise_classifier
+          - curiosity_budget_policy
+        first_canonical_candidate: emergence_metric_audit
+        promotion_target: experimental_lane_policy_and_research_protocols
+        blocker_before_promotion:
+          - require behavioral probes before emergence claims
+          - define rollback for perturbation/dissolution lanes
+          - define exploration stop conditions
+          - prevent curiosity from authorizing blind repo traversal
+        already_extracted_candidates: []
+        unresolved_or_deferred_items:
+          - learning_progress_probe
+          - irreducible_noise_classifier
+          - curiosity_budget_policy
+          - exploration stop conditions not yet canonicalized
+        must_not_do:
+          - do_not_treat_family_index_as_canonical_truth
+          - do_not_assign_candidate_ids_from_navigation_index
+
+  section_0_9_promotion_change_impact_queue:
+    source_section: "§0.9"
+    preservation_status: compacted
+    queue_batches:
+      - batch_name: P0_do_not_promote_directly
+        batch_purpose: block direct promotion from non-canonical active design log
+        candidate_or_primitive_refs: []
+        impacted_surfaces:
+          - 01_truth
+          - candidate primitives
+          - runtime signal fields
+          - human authority
+        promotion_condition: []
+        already_landed_or_registered: []
+        unresolved_items:
+          - active design log remains non-canonical
+          - direct promotion remains prohibited
+        must_not_do:
+          - do_not_treat_queue_as_approval
+          - do_not_promote_without_human_review
+          - do_not_patch_impacted_surfaces_from_queue_alone
+      - batch_name: P1_first_canonical_proposal_batch
+        batch_purpose: first high-priority canonical proposal batch for review safety
+        candidate_or_primitive_refs:
+          - residual_first_report_minimum_shape
+          - layer_composition_record_minimum_shape
+          - variety_coverage_audit_minimum_shape
+          - reviewer_drift_monitor_minimum_shape
+        impacted_surfaces:
+          - SHADOWMAS-CURRENT-TRUTH.v0.en.md
+          - SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
+          - future_packet_schema_files_under_02_packets
+          - zh-TW human-facing single-source if explanation changes
+        promotion_condition:
+          - define minimum fields
+          - verify authority and truth boundaries
+          - update change-impact report
+          - human approval required
+        already_landed_or_registered:
+          - P1-001
+        unresolved_items:
+          - layer_composition_record_minimum_shape
+          - variety_coverage_audit_minimum_shape
+          - reviewer_drift_monitor_minimum_shape
+        must_not_do:
+          - do_not_treat_queue_as_approval
+          - do_not_promote_without_human_review
+          - do_not_patch_impacted_surfaces_from_queue_alone
+      - batch_name: P2_runtime_candidate_batch
+        batch_purpose: runtime candidate queue for future R-layer contract work
+        candidate_or_primitive_refs:
+          - signal_field_event
+          - field_audit_projection
+          - quorum_trigger_for_routing_only
+          - field_poisoning_check
+          - learnable_frontier_record
+        impacted_surfaces:
+          - future_R_layer_runtime_contract
+          - SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
+          - SHADOWMAS-CURRENT-TRUTH.v0.en.md
+          - memory-plane rules if persistence is introduced
+        promotion_condition:
+          - decide shared-state availability
+          - define TTL/decay and permissions
+          - prove field remains T4/T5 runtime signal, not T2/T3 truth
+        already_landed_or_registered:
+          - P2-001
+          - P2-004
+          - P2-005
+          - P2-006
+        unresolved_items:
+          - learnable_frontier_record
+          - shared-state availability decision
+          - TTL/decay and permissions
+        must_not_do:
+          - do_not_treat_queue_as_approval
+          - do_not_promote_without_human_review
+          - do_not_patch_impacted_surfaces_from_queue_alone
+      - batch_name: P3_evaluation_governance_batch
+        batch_purpose: sensitive evaluation governance queue
+        candidate_or_primitive_refs:
+          - evaluation_stack_record
+          - evaluation_commutativity_check
+          - recalibration_trigger
+          - objective_conflict_probe
+          - probabilistic_evaluation_integrity_check
+        impacted_surfaces:
+          - review policy
+          - packet review surface
+          - governance matrix
+          - human-facing explanation
+        promotion_condition:
+          - specify where noise is forbidden
+          - separate score/evidence/truth
+          - define reviewer drift owner and trigger
+        already_landed_or_registered: []
+        unresolved_items:
+          - noise boundary not specified here
+          - reviewer drift owner and trigger not specified here
+        must_not_do:
+          - do_not_treat_queue_as_approval
+          - do_not_promote_without_human_review
+          - do_not_patch_impacted_surfaces_from_queue_alone
+      - batch_name: P4_prompt_and_adapter_batch
+        batch_purpose: prompt and adapter proposal queue
+        candidate_or_primitive_refs:
+          - open_closed_channel_contract
+          - construction_frame_record
+          - prompt_construction_taxonomy
+          - adapter_state_mark_record
+          - low_rank_patch_budget
+        impacted_surfaces:
+          - SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
+          - runtime adapter prompt contracts
+          - zh-TW onboarding/rationale if human-facing
+        promotion_condition:
+          - distinguish context expression from base capability
+          - require prompt library audit only above complexity threshold
+          - keep adapters scoped and reversible
+        already_landed_or_registered: []
+        unresolved_items:
+          - context expression boundary not resolved here
+          - adapter reversibility surface not resolved here
+        must_not_do:
+          - do_not_treat_queue_as_approval
+          - do_not_promote_without_human_review
+          - do_not_patch_impacted_surfaces_from_queue_alone
+      - batch_name: P5_research_protocol_batch
+        batch_purpose: medium-low priority research protocol queue
+        candidate_or_primitive_refs:
+          - emergence_metric_audit
+          - controlled_dissolution_protocol
+          - curiosity_budget_policy
+          - frontier_exhaustion_report
+        impacted_surfaces:
+          - future research protocol docs
+          - runtime experimental lane docs
+          - not core v0 truth unless adopted as default process
+        promotion_condition:
+          - keep as experimental policy first
+          - require rollback and probe batteries
+          - no authority bypass
+        already_landed_or_registered: []
+        unresolved_items:
+          - curiosity_budget_policy
+          - frontier_exhaustion_report
+          - rollback and probe battery details
+        must_not_do:
+          - do_not_treat_queue_as_approval
+          - do_not_promote_without_human_review
+          - do_not_patch_impacted_surfaces_from_queue_alone
+
+  preservation_effect:
+    active_log_can_move_after_this_preservation: false
+    active_log_can_delete_after_this_preservation: false
+    reason: >
+      Compact §0.7 and §0.9 preservation reduces provenance risk, but moving or
+      deleting the active log still requires a separate human-approved move plan
+      and file-status/path review.
+    remaining_before_move:
+      - human review of this compact preservation
+      - active log move target approval
+      - file-status registry/path classification review
+      - explicit Codex move task
+    remaining_before_delete:
+      - active log already moved or explicitly approved for deletion
+      - no remaining references to old 01_truth path
+      - human delete approval
+
 deletion_or_move_readiness:
   can_delete_now: false
   recommended_before_delete_or_move:
