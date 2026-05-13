@@ -1,0 +1,285 @@
+ledger_name: active_design_log_extraction_coverage_ledger
+status: non_canonical_cleanup_ledger
+source_file: 01_truth/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+created_for: active_design_log_move_or_delete_readiness
+canonical_truth_changed: false
+registry_changed: false
+candidate_ids_assigned: false
+safe_to_delete_active_log_now: false
+
+coverage_summary:
+  total_direct_schema_primitives_found: 14
+  already_extracted: 5
+  not_yet_extracted: 9
+  ambiguous_or_derived: 1
+  reason_not_safe_to_delete: >
+    Remaining direct schema primitives and navigation/provenance surfaces are not yet
+    represented outside the active design log.
+
+already_extracted_mapping:
+  - candidate_id: P2-001
+    primitive_name: signal_field_event
+    source_section: "§17.9.1"
+    status: extracted
+  - candidate_id: P2-003
+    primitive_name: signal_field_zone
+    source_section: "§17.9.2"
+    status: extracted
+  - candidate_id: P2-005
+    primitive_name: quorum_trigger_for_routing_only
+    source_section: "§17.9.3"
+    status: extracted
+  - candidate_id: P2-004
+    primitive_name: field_audit_projection
+    source_section: "§17.9.4"
+    status: extracted
+  - candidate_id: P2-006
+    primitive_name: field_poisoning_check
+    source_section: "§19.9.3"
+    status: extracted
+  - candidate_id: P1-001
+    primitive_name: residual_first_report_minimum_shape
+    source_section: "§0.7 / §12.2"
+    status: extracted_or_ambiguous_reference
+
+remaining_schema_primitives:
+  - primitive_name: shared_state_capability_check
+    source_section: "§17.9.5"
+    field_count: 6
+    field_names:
+      - runtime
+      - shared_writable_state_available
+      - persistence_level
+      - auditability
+      - permission_model_defined
+      - fallback_if_false
+    current_status: not_extracted
+    provisional_disposition: requires_human_decision
+    suggested_lane: P4_hook_adapter
+    overlaps_or_dependencies:
+      - runtime_adapter_contracts
+      - permission_model_policy
+    must_not_do:
+      - imply_shared_state_is_required
+      - implement_runtime_behavior
+      - bypass_human_review
+  - primitive_name: residual_action_value
+    source_section: "§19.9.1"
+    field_count: 12
+    field_names:
+      - event_id
+      - zone
+      - residual_magnitude
+      - reducibility
+      - goal_relevance
+      - urgency
+      - confidence
+      - freshness
+      - risk_penalty
+      - authority_penalty
+      - expected_residual_reduction
+      - recommended_action
+    current_status: not_extracted
+    provisional_disposition: requires_human_decision
+    suggested_lane: P2_runtime_signal
+    overlaps_or_dependencies:
+      - signal_field_event
+      - signal_field_zone
+      - field_audit_projection
+    must_not_do:
+      - make_recommended_action_authoritative
+      - promote_runtime_signal_to_truth
+      - assign_candidate_id_here
+  - primitive_name: learnable_frontier_filter
+    source_section: "§19.9.2"
+    field_count: 8
+    field_names:
+      - candidate_zone
+      - high_residual
+      - reducible
+      - within_scope
+      - authority_allowed
+      - not_stale
+      - not_poisoned
+      - decision
+    current_status: not_extracted
+    provisional_disposition: requires_human_decision
+    suggested_lane: P2_runtime_signal_or_P5_research_protocol
+    overlaps_or_dependencies:
+      - field_poisoning_check
+      - residual_action_value
+      - human_authority_boundary
+    must_not_do:
+      - treat_filter_decision_as_approval
+      - skip_authority_boundary_review
+      - assign_candidate_id_here
+  - primitive_name: field_navigation_policy
+    source_section: "§19.9.4"
+    field_count: 6
+    field_names:
+      - agent_id
+      - readable_zones
+      - writable_zones
+      - selection_rule
+      - forbidden_actions
+      - fallback_when_no_valid_zone
+    current_status: not_extracted
+    provisional_disposition: requires_human_decision
+    suggested_lane: P2_runtime_signal
+    overlaps_or_dependencies:
+      - signal_field_zone
+      - shared_state_capability_check
+      - permission_model_policy
+    must_not_do:
+      - grant_write_authority_by_default
+      - define_runtime_permissions_here
+      - modify_packet_schema
+  - primitive_name: learnable_frontier_record
+    source_section: "§50.9.1"
+    field_count: 12
+    field_names:
+      - frontier_id
+      - zone
+      - residual_kind
+      - residual_level
+      - residual_delta_after_last_probe
+      - learnability_estimate
+      - reducibility_evidence
+      - scope_relevance
+      - authority_allowed
+      - safety_risk
+      - freshness
+      - decision
+    current_status: not_extracted
+    provisional_disposition: defer_with_record
+    suggested_lane: P5_research_protocol
+    overlaps_or_dependencies:
+      - learnable_frontier_filter
+      - residual_action_value
+      - research_protocol_governance
+    must_not_do:
+      - treat_research_record_as_truth
+      - promote_without_review
+      - create_memory_write_path
+  - primitive_name: learning_progress_probe
+    source_section: "§50.9.2"
+    field_count: 11
+    field_names:
+      - probe_id
+      - frontier_id
+      - baseline_residual
+      - probe_action
+      - expected_information_gain
+      - actual_information_gain
+      - validation_gain
+      - confidence_gain
+      - residual_after_probe
+      - learning_progress
+      - next_action
+    current_status: not_extracted
+    provisional_disposition: defer_with_record
+    suggested_lane: P5_research_protocol
+    overlaps_or_dependencies:
+      - learnable_frontier_record
+      - frontier_exhaustion_report
+      - research_validation_policy
+    must_not_do:
+      - execute_probe_as_runtime_action
+      - treat_next_action_as_authorized
+      - modify_runtime_files
+  - primitive_name: irreducible_noise_classifier
+    source_section: "§50.9.3"
+    field_count: 7
+    field_names:
+      - zone
+      - repeated_probe_count
+      - residual_delta_history
+      - evidence_gain_history
+      - suspected_noise_source
+      - classification
+      - mitigation
+    current_status: not_extracted
+    provisional_disposition: defer_with_record
+    suggested_lane: P5_research_protocol
+    overlaps_or_dependencies:
+      - learning_progress_probe
+      - frontier_exhaustion_report
+      - residual_classification_policy
+    must_not_do:
+      - hide_remaining_residuals
+      - mark_noise_as_resolved_truth
+      - delete_source_evidence
+  - primitive_name: curiosity_budget_policy
+    source_section: "§50.9.4"
+    field_count: 4
+    field_names:
+      - task_id
+      - exploration_budget
+      - budget_priority
+      - hard_stops
+    current_status: not_extracted
+    provisional_disposition: requires_human_decision
+    suggested_lane: P5_research_protocol
+    overlaps_or_dependencies:
+      - learning_progress_probe
+      - frontier_exhaustion_report
+      - runtime_safety_limits
+    must_not_do:
+      - allocate_runtime_budget_here
+      - override_hard_stops
+      - define_execution_policy
+  - primitive_name: frontier_exhaustion_report
+    source_section: "§50.9.5"
+    field_count: 7
+    field_names:
+      - task_id
+      - explored_frontiers
+      - exhausted_frontiers
+      - stopped_reasons
+      - remaining_residuals
+      - decision_needed
+      - truth_status
+    current_status: not_extracted
+    provisional_disposition: defer_with_record
+    suggested_lane: P5_research_protocol
+    overlaps_or_dependencies:
+      - learnable_frontier_record
+      - learning_progress_probe
+      - irreducible_noise_classifier
+    must_not_do:
+      - treat_exhaustion_report_as_final_decision
+      - erase_remaining_residuals
+      - promote_truth_status_without_review
+
+navigation_surfaces_to_preserve:
+  - section: "§0.7"
+    name: consolidated_primitive_family_index
+    status: not_yet_mirrored
+    preservation_need: seven primitive families, first canonical candidate, blockers, promotion targets
+  - section: "§0.9"
+    name: promotion_and_change_impact_queue
+    status: not_yet_mirrored
+    preservation_need: P1..P5 batches, impacted surfaces, promotion conditions
+
+deletion_or_move_readiness:
+  can_delete_now: false
+  recommended_before_delete_or_move:
+    - human review this ledger
+    - decide extract/defer/reference_only for each remaining primitive
+    - preserve §0.7 family index
+    - preserve §0.9 promotion queue
+  move_preferred_over_delete: true
+  reason: active log is non-canonical but still contains provenance and navigation evidence
+  do_not_move_in_this_task: true
+
+hard_boundaries:
+  - do_not_promote_to_canonical_truth
+  - do_not_modify_registry
+  - do_not_assign_candidate_ids
+  - do_not_modify_packet_schemas
+  - do_not_implement_runtime
+  - do_not_delete_or_move_active_log
+
+notes:
+  - This ledger is a cleanup support artifact only.
+  - Human decision is required before deleting or moving the active design log.
