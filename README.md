@@ -25,12 +25,21 @@ python3 tools/shadowmas_minimal_validator.py examples/demo_signal_governance.jso
 ### Expected output
 
 ```text
-PASS: runtime signal remains non-authoritative
-PASS: no T4/T5 to T2/T3 promotion
-PASS: no silent memory write
-PASS: audit projection has no approval authority
-PASS: recommended_action is advisory only
-PASS: human final authority preserved
+PASS: runtime_signal_truth_status_runtime_only - runtime signal truth_status remains runtime_signal_only
+PASS: runtime_signal_cannot_promote_truth_directly - runtime signal cannot promote truth directly
+PASS: runtime_signal_cannot_write_memory_directly - runtime signal cannot write memory directly
+PASS: runtime_signal_requires_human_review_for_promotion - runtime signal requires human review for promotion
+PASS: no_t4_t5_to_t2_t3_direct_promotion - T4/T5 signals cannot directly promote into T2/T3
+PASS: no_silent_memory_write - runtime signals cannot silently write memory
+PASS: audit_projection_is_read_only - audit projection is read-only
+PASS: audit_projection_has_no_approval_authority - audit projection has no approval authority
+PASS: audit_projection_has_no_truth_authority - audit projection has no truth authority
+PASS: recommended_action_is_advisory_only - recommended_action is advisory only
+PASS: recommended_action_cannot_authorize_runtime_action - recommended_action cannot authorize runtime action
+PASS: recommended_action_cannot_authorize_packet_change - recommended_action cannot authorize packet change
+PASS: recommended_action_cannot_promote_truth - recommended_action cannot promote truth
+PASS: dashboard_does_not_become_authority - dashboard does not become authority
+PASS: human_final_authority_preserved - human final authority is preserved
 ```
 
 This demo is not a runtime engine. It checks the shadowMAS governance boundary: runtime signals and audit projections may be visible as evidence, but must not silently become truth, memory, approval, or decision authority.
