@@ -1,0 +1,228 @@
+review_artifact_name: residual_action_value_candidate_review
+status: non_canonical_candidate_review_artifact
+candidate_id_assigned: false
+registry_changed: false
+canonical_truth_changed: false
+packet_schema_changed: false
+runtime_implemented: false
+
+source_basis:
+  active_design_log_path: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+  source_section: "§19.9.1"
+  ledger_path: 07_working/drafts/rationale/active_design_ledger.yaml
+  ledger_disposition: extract_candidate_next
+  source_status: non_canonical_design_evidence
+
+proposed_candidate:
+  provisional_label: candidate_unassigned_residual_action_value
+  proposed_lane: P2_runtime_signal
+  title: residual_action_value
+  change_type: runtime_residual_action_scoring_surface
+  target_surface:
+    - future_runtime_signal_field_contract
+    - P2_signal_field_family
+    - future_field_audit_projection_inputs
+  not_target_surface:
+    - canonical_truth
+    - approved_memory
+    - packet_schema
+    - review_packet
+    - runtime_authorization_layer
+    - human_approval_layer
+
+schema_shape:
+  field_count: 12
+  fields:
+    - name: event_id
+      role: signal_event_reference
+      allowed_values: null
+      notes: references a signal_field_event-like event
+    - name: zone
+      role: signal_field_zone_reference
+      allowed_values: null
+      notes: references a runtime signal zone
+    - name: residual_magnitude
+      role: residual_severity_score
+      allowed_values:
+        - low
+        - medium
+        - high
+        - blocker
+      notes: score only; not truth authority
+    - name: reducibility
+      role: residual_reducibility_estimate
+      allowed_values:
+        - unknown
+        - low
+        - medium
+        - high
+      notes: estimate only; not action authority
+    - name: goal_relevance
+      role: task_goal_relevance_score
+      allowed_values:
+        - low
+        - medium
+        - high
+      notes: score only
+    - name: urgency
+      role: runtime_attention_priority
+      allowed_values:
+        - low
+        - medium
+        - high
+        - critical
+      notes: priority signal only
+    - name: confidence
+      role: confidence_score
+      allowed_values:
+        - low
+        - medium
+        - high
+      notes: confidence is evidence quality, not approval
+    - name: freshness
+      role: temporal_validity_hint
+      allowed_values:
+        - fresh
+        - aging
+        - stale
+      notes: stale values must not authorize action
+    - name: risk_penalty
+      role: risk_adjustment_score
+      allowed_values:
+        - low
+        - medium
+        - high
+      notes: penalty score only
+    - name: authority_penalty
+      role: authority_boundary_penalty
+      allowed_values:
+        - none
+        - review_required
+        - human_only
+      notes: penalty or restriction, never a permission grant
+    - name: expected_residual_reduction
+      role: expected_value_score
+      allowed_values:
+        - low
+        - medium
+        - high
+      notes: expected reduction is not authorization
+    - name: recommended_action
+      role: advisory_action_recommendation
+      allowed_values:
+        - ignore
+        - explore
+        - validate
+        - converge
+        - reroute
+        - escalate
+        - human_review
+      notes: advisory-only; cannot authorize runtime action, packet change, memory write, or truth promotion
+
+authority_boundary:
+  summary: >
+    This primitive scores a residual and suggests an advisory action. It does
+    not authorize runtime action, packet changes, memory writes, truth
+    promotion, or human approval.
+  fixed_constraints:
+    - all scores are runtime evidence only
+    - recommended_action is advisory_only
+    - recommended_action cannot authorize runtime action by itself
+    - recommended_action cannot authorize packet changes
+    - recommended_action cannot write memory
+    - recommended_action cannot promote truth
+    - authority_penalty is a restriction signal, not a permission grant
+    - stale freshness must not authorize reactivation or promotion
+  must_not_do:
+    - do_not_let_recommended_action_imply_authorisation
+    - do_not_use_expected_residual_reduction_as_authority
+    - do_not_use_confidence_as_approval
+    - do_not_merge_into_P2_001_without_review
+    - do_not_promote_residual_scoring_into_P1_scope
+    - do_not_assign_candidate_id_from_this_artifact
+
+collision_and_overlap_check:
+  overlaps_with_existing_candidates:
+    - candidate_id: P2-001
+      primitive: signal_field_event
+      relationship: event_id and residual_magnitude are close peers; residual_action_value extends scoring around event-like residuals
+    - candidate_id: P2-003
+      primitive: signal_field_zone
+      relationship: zone references runtime signal-field zone but does not redefine zone shape
+    - candidate_id: P2-004
+      primitive: field_audit_projection
+      relationship: may feed top_residuals or recommended_action context but does not define audit projection
+    - candidate_id: P2-006
+      primitive: field_poisoning_check
+      relationship: risk_penalty / authority_penalty may consume poisoning or authority-risk signals but do not redefine poisoning check
+    - candidate_id: P1-001
+      primitive: residual_first_report_minimum_shape
+      relationship: residual semantics overlap; must not redefine residual report shape
+  possible_collisions:
+    - recommended_action semantics in demo governance validator
+    - review_packet decision_needed / human_review language
+    - future P5 learnable_frontier_record decision fields
+  collision_summary: >
+    Main collision risk is authority confusion around recommended_action and
+    residual scoring. This candidate should remain a P2 runtime signal scoring
+    surface and must not become a review decision, task authorization, truth
+    promotion path, or memory write path.
+
+change_impact_check:
+  impacted_now:
+    - none_registry_not_modified
+    - none_truth_not_modified
+    - none_packet_schema_not_modified
+    - none_runtime_not_implemented
+  impacted_if_later_registered:
+    - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+    - P2 signal-field family notes
+    - future runtime signal-field contract
+    - field_audit_projection input semantics if adopted later
+  requires_review_before_registration:
+    - confirm strict 12-field source shape
+    - confirm recommended_action advisory-only binding
+    - confirm collision with P2-001 residual fields
+    - confirm collision with P1-001 residual_first_report
+    - confirm no packet/review schema change is implied
+
+review_questions_for_human:
+  - "Approve P2_runtime_signal lane for residual_action_value? yes/no"
+  - "Approve candidate extraction after this review artifact? yes/no"
+  - "Mandate recommended_action as advisory_only with no authorization power? yes/no"
+  - "Confirm residual_action_value does not merge into P2-001 signal_field_event? yes/no"
+  - "Confirm this does not modify P1-001 residual_first_report scope? yes/no"
+  - "Require separate collision review with learnable_frontier_record before future promotion? yes/no"
+
+recommended_next_step:
+  if_approved: prepare_registry_candidate_patch_in_separate_task
+  if_not_approved: revise_review_artifact_or_mark_deferred
+  do_not_do_next:
+    - do_not_modify_registry_without_approval
+    - do_not_assign_candidate_id_without_approval
+    - do_not_implement_runtime
+    - do_not_modify_packet_schemas
+    - do_not_change_P2_001_or_P1_001
+
+source_verification_notes:
+  - "§19.9.1 located and field count verified as 12."
+  - "Source residual_magnitude values confirmed: low | medium | high | blocker."
+  - "Source reducibility values confirmed: unknown | low | medium | high."
+  - "Source goal_relevance values confirmed: low | medium | high."
+  - "Source urgency values confirmed: low | medium | high | critical."
+  - "Source confidence values confirmed: low | medium | high."
+  - "Source freshness values confirmed: fresh | aging | stale."
+  - "Source risk_penalty values confirmed: low | medium | high."
+  - "Source authority_penalty values confirmed: none | review_required | human_only."
+  - "Source expected_residual_reduction values confirmed: low | medium | high."
+  - "Source recommended_action values confirmed: ignore | explore | validate | converge | reroute | escalate | human_review."
+  - No source mismatch found against the expected field and enum shape.
+  - Ledger disposition confirmed as extract_candidate_next with recommended lane P2_runtime_signal.
+
+hard_boundaries:
+  - non_canonical_review_artifact_only
+  - no_registry_change
+  - no_truth_change
+  - no_packet_schema_change
+  - no_runtime_implementation
+  - no_candidate_id_assigned
