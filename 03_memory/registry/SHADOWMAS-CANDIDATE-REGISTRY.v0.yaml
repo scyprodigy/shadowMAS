@@ -419,7 +419,7 @@ candidates:
       - P2-004_field_audit_projection
       - P2-005_quorum_trigger_for_routing_only
       - P2-006_field_poisoning_check
-      - P2-007_learnable_frontier_record
+      - learnable_frontier_record_candidate_id_less_pending_future_review
 
     three_round_cadence_record:
       round_1_scope_identification: P2_lane_scope_identified
@@ -859,7 +859,7 @@ candidates:
       - P2-003_signal_field_zone_shape
       - P2-004_field_audit_projection
       - P2-006_field_poisoning_check
-      - P2-007_learnable_frontier_record
+      - learnable_frontier_record_candidate_id_less_pending_future_review
 
     three_round_cadence_record:
       round_1_scope_identification: dependency_topology_classified_blocker_questions_listed
@@ -1246,7 +1246,7 @@ candidates:
       - P2-002_zone_level_invalidation_block
       - P2-004_field_audit_projection
       - P2-006_field_poisoning_check
-      - P2-007_learnable_frontier_record
+      - learnable_frontier_record_candidate_id_less_pending_future_review
 
     three_round_cadence_record:
       round_1_scope_identification: classification_and_BQ_defaults_accepted
@@ -1610,7 +1610,7 @@ candidates:
     related_candidates_not_designed_in_this_round:
       - P2-002_zone_level_invalidation_block
       - P2-004_field_audit_projection
-      - P2-007_learnable_frontier_record
+      - learnable_frontier_record_candidate_id_less_pending_future_review
 
     three_round_cadence_record:
       round_1_scope_identification: field_poisoning_check_lane_identified
@@ -1954,7 +1954,7 @@ candidates:
       - P2-003_signal_field_zone_shape
       - P2-005_quorum_trigger_for_routing_only
       - P2-006_field_poisoning_check
-      - P2-007_learnable_frontier_record
+      - learnable_frontier_record_candidate_id_less_pending_future_review
 
     three_round_cadence_record:
       round_1_scope_identification: field_audit_projection_lane_identified
