@@ -3,3 +3,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Generated office/export artifacts
+*.pdf
+*.docx
+*.pptx
+
+# Private/generated working material
+07_working/drafts/proposals/**/exports/
+07_working/private/
