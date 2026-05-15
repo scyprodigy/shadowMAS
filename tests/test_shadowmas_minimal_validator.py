@@ -8,6 +8,41 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO_ROOT / "tools" / "shadowmas_minimal_validator.py"
 POSITIVE_FIXTURE = REPO_ROOT / "examples" / "demo_signal_governance.json"
 NEGATIVE_FIXTURE = REPO_ROOT / "examples" / "demo_signal_governance_violation.json"
+SINGLE_FLAG_DIR = REPO_ROOT / "examples" / "mutations" / "single_flag"
+PARTIAL_COMPLIANCE_DIR = REPO_ROOT / "examples" / "mutations" / "partial_compliance"
+L1_REPORT = REPO_ROOT / "07_working" / "drafts" / "rationale" / "l1_mutation_coverage_report.md"
+
+
+# Mapping from short fixture filename (without .json) to full invariant name.
+# Order mirrors the validator's invariant declaration order.
+MUTATION_MAPPING = [
+    ("truth_status",            "runtime_signal_truth_status_runtime_only"),
+    ("truth_promotion",         "runtime_signal_cannot_promote_truth_directly"),
+    ("memory_write",            "runtime_signal_cannot_write_memory_directly"),
+    ("review_required",         "runtime_signal_requires_human_review_for_promotion"),
+    ("layer_promotion",         "no_t4_t5_to_t2_t3_direct_promotion"),
+    ("silent_memory_write",     "no_silent_memory_write"),
+    ("audit_read_only",         "audit_projection_is_read_only"),
+    ("audit_approval",          "audit_projection_has_no_approval_authority"),
+    ("audit_truth",             "audit_projection_has_no_truth_authority"),
+    ("action_advisory",         "recommended_action_is_advisory_only"),
+    ("action_runtime_auth",     "recommended_action_cannot_authorize_runtime_action"),
+    ("action_packet_auth",      "recommended_action_cannot_authorize_packet_change"),
+    ("action_truth_promotion",  "recommended_action_cannot_promote_truth"),
+    ("dashboard_authority",     "dashboard_does_not_become_authority"),
+    ("human_authority",         "human_final_authority_preserved"),
+]
+
+
+def _parse_validator_output(stdout):
+    fails = []
+    passes = []
+    for line in stdout.splitlines():
+        if line.startswith("FAIL: "):
+            fails.append(line.split("FAIL: ", 1)[1].split(" - ", 1)[0])
+        elif line.startswith("PASS: "):
+            passes.append(line.split("PASS: ", 1)[1].split(" - ", 1)[0])
+    return fails, passes
 
 
 PASS_INVARIANTS = [
@@ -106,6 +141,66 @@ class ShadowmasMinimalValidatorTests(unittest.TestCase):
             any(signal in combined_output for signal in ["No such file", "not found", "error", "Error"]),
             msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+
+class L1MutationCorpusTests(unittest.TestCase):
+    def test_single_flag_mutation_corpus(self):
+        fixtures = sorted(SINGLE_FLAG_DIR.glob("*.json"))
+        short_names = {p.stem for p in fixtures}
+        expected_short = {short for short, _ in MUTATION_MAPPING}
+
+        self.assertEqual(len(fixtures), 15, "expected exactly 15 single_flag fixtures")
+        self.assertEqual(short_names, expected_short, "single_flag corpus must cover every invariant exactly once")
+
+        for short, invariant in MUTATION_MAPPING:
+            fixture = SINGLE_FLAG_DIR / f"{short}.json"
+            result = run_validator(fixture)
+            fails, passes = _parse_validator_output(result.stdout)
+
+            self.assertNotEqual(
+                result.returncode, 0,
+                msg=f"{fixture.name} should fail; stdout:\n{result.stdout}",
+            )
+            self.assertEqual(
+                fails, [invariant],
+                msg=f"{fixture.name} should fail exactly {invariant!r}; got fails={fails}",
+            )
+            self.assertEqual(
+                len(passes), 14,
+                msg=f"{fixture.name} should leave 14 invariants passing; got {len(passes)}",
+            )
+
+    def test_partial_compliance_traps(self):
+        fixtures = sorted(PARTIAL_COMPLIANCE_DIR.glob("*.json"))
+        short_names = {p.stem for p in fixtures}
+        expected_short = {short for short, _ in MUTATION_MAPPING}
+
+        self.assertEqual(len(fixtures), 15, "expected exactly 15 partial_compliance fixtures")
+        self.assertEqual(short_names, expected_short, "partial_compliance corpus must cover every invariant exactly once")
+
+        for short, invariant in MUTATION_MAPPING:
+            fixture = PARTIAL_COMPLIANCE_DIR / f"{short}.json"
+            result = run_validator(fixture)
+            fails, _ = _parse_validator_output(result.stdout)
+
+            self.assertNotEqual(
+                result.returncode, 0,
+                msg=f"{fixture.name} should fail; stdout:\n{result.stdout}",
+            )
+            self.assertIn(
+                invariant, fails,
+                msg=f"{fixture.name} should fail {invariant!r}; got fails={fails}",
+            )
+
+    def test_l1_mutation_coverage_report_exists(self):
+        self.assertTrue(L1_REPORT.exists(), f"L1 coverage report missing at {L1_REPORT}")
+        text = L1_REPORT.read_text(encoding="utf-8")
+        self.assertIn("mutation_detection_rate", text)
+        self.assertIn("30/30", text)
+        self.assertIn("partial_compliance_false_pass_rate", text)
+        self.assertIn("0/15", text)
+        for _, invariant in MUTATION_MAPPING:
+            self.assertIn(invariant, text, f"report must mention invariant {invariant!r}")
 
 
 if __name__ == "__main__":
