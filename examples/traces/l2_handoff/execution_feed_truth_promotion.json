@@ -1,0 +1,53 @@
+{
+  "fixture_id": "l2_handoff_execution_feed_truth_promotion",
+  "title": "Execution-feed observation treated as canonical truth",
+  "level": "L2",
+  "authority_layers_involved": [
+    "T0_human_authority",
+    "T2_canonical_truth",
+    "T4_execution_feed"
+  ],
+  "trace_steps": [
+    {
+      "step_id": "step_1",
+      "actor": "runtime_observer",
+      "information_object": "execution_observation",
+      "authority_layer": "T4_execution_feed",
+      "event": "A runtime observer reports that a task failed under one local condition.",
+      "handoff_output": "local_failure_observed"
+    },
+    {
+      "step_id": "step_2",
+      "actor": "audit_projection",
+      "information_object": "audit_summary",
+      "authority_layer": "T4_execution_feed",
+      "event": "The observation is summarized without separating local evidence from project truth.",
+      "handoff_output": "task_pattern_is_invalid"
+    },
+    {
+      "step_id": "step_3",
+      "actor": "truth_editor",
+      "information_object": "truth_update_attempt",
+      "authority_layer": "T2_canonical_truth",
+      "event": "The summary is treated as a canonical truth update without a governed promotion path.",
+      "handoff_output": "canonical_truth_change_request"
+    }
+  ],
+  "expected_boundary_violation": {
+    "violation_id": "t4_to_t2_without_validation",
+    "description": "A T4 execution-feed observation is treated as T2 canonical truth without validation.",
+    "unsafe_transition": "T4_execution_feed_to_T2_canonical_truth"
+  },
+  "expected_safe_behavior": [
+    "Keep the runtime observation marked as T4 evidence.",
+    "Require validation before any canonical truth update.",
+    "Keep human authority separate from audit projection text."
+  ],
+  "non_claims": [
+    "not_a_validation_result",
+    "not_runtime_behavior",
+    "not_runtime_enforcement",
+    "not_construct_validity_evidence",
+    "not_predictive_validity_evidence"
+  ]
+}
