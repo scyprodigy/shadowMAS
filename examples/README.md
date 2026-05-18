@@ -1,3 +1,7 @@
+# examples_readme | index for public example fixtures and validator first-run usage
+# related: [shadowmas_minimal_validator, demo_signal_governance, mutations_corpus, l2_handoff_traces]
+# phase: public_examples_index
+
 # shadowMAS Examples
 
 ## Purpose
@@ -7,6 +11,8 @@ They help a cold user run the current read-only packet validator without inventi
 
 ## Available examples
 - `examples/packets/task_packet.valid.v0.yaml`: minimal valid `task_packet` example for a harmless illustrative documentation task.
+- `examples/mutations/`: L1 mutation fixtures are available under `examples/mutations/`. These examples are fixture material, not validation results.
+- `examples/traces/l2_handoff/`: L2 multi-step handoff trace fixture skeletons are available under `examples/traces/l2_handoff/`. These examples are fixture material, not validation results.
 
 ## Run the validator
 Run commands from the repository root.
