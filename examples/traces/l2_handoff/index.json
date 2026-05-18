@@ -1,0 +1,28 @@
+{
+  "index_name": "l2_handoff_trace_fixture_index",
+  "level": "L2",
+  "fixture_directory": "examples/traces/l2_handoff",
+  "non_claims": [
+    "fixture_skeletons_only",
+    "not_validation_results",
+    "not_runtime_enforcement",
+    "not_formal_validation"
+  ],
+  "fixtures": [
+    {
+      "fixture_id": "l2_handoff_ephemeral_memory_promotion",
+      "file": "ephemeral_handoff_memory_promotion.json",
+      "theme": "Ephemeral handoff memory promoted without validation"
+    },
+    {
+      "fixture_id": "l2_handoff_execution_feed_truth_promotion",
+      "file": "execution_feed_truth_promotion.json",
+      "theme": "Execution-feed observation treated as canonical truth"
+    },
+    {
+      "fixture_id": "l2_handoff_partial_compliance_summary_violation",
+      "file": "partial_compliance_summary_violation.json",
+      "theme": "Partial compliance summary hiding an authority-boundary violation across steps"
+    }
+  ]
+}
