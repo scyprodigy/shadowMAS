@@ -50,6 +50,25 @@ class L2HandoffTraceFixtureTests(unittest.TestCase):
             self.assertTrue(REQUIRED_NON_CLAIMS.issubset(fixture["non_claims"]), path.name)
             self.assertIn("unsafe_transition", fixture["expected_boundary_violation"], path.name)
 
+    def test_l2_trace_fixture_authority_layer_consistency(self):
+        data = json.loads(INDEX.read_text(encoding="utf-8"))
+
+        for item in data["fixtures"]:
+            path = TRACE_DIR / item["file"]
+            fixture = json.loads(path.read_text(encoding="utf-8"))
+
+            declared = set(fixture["authority_layers_involved"])
+            step_layers = {step["authority_layer"] for step in fixture["trace_steps"]}
+
+            self.assertTrue(
+                step_layers.issubset(declared),
+                f"{path.name}: trace step layers {step_layers - declared} missing from authority_layers_involved",
+            )
+            self.assertTrue(
+                declared.issubset(step_layers),
+                f"{path.name}: authority_layers_involved {declared - step_layers} not present in any trace step",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
