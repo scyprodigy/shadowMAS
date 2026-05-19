@@ -35,7 +35,11 @@
   "expected_boundary_violation": {
     "violation_id": "t4_to_t2_without_validation",
     "description": "A T4 execution-feed observation is treated as T2 canonical truth without validation.",
-    "unsafe_transition": "T4_execution_feed_to_T2_canonical_truth"
+    "unsafe_transition": {
+      "source_layer": "T4_execution_feed",
+      "target_layer": "T2_canonical_truth",
+      "relation": "unsafe_promotion"
+    }
   },
   "expected_safe_behavior": [
     "Keep the runtime observation marked as T4 evidence.",

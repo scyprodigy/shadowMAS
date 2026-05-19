@@ -72,6 +72,8 @@ class L2HandoffTraceFixtureTests(unittest.TestCase):
     def test_l2_trace_fixture_unsafe_transition_consistency(self):
         data = json.loads(INDEX.read_text(encoding="utf-8"))
 
+        required_transition_keys = {"source_layer", "target_layer", "relation"}
+
         for item in data["fixtures"]:
             path = TRACE_DIR / item["file"]
             fixture = json.loads(path.read_text(encoding="utf-8"))
@@ -80,25 +82,32 @@ class L2HandoffTraceFixtureTests(unittest.TestCase):
             self.assertIn("unsafe_transition", violation, path.name)
 
             transition = violation["unsafe_transition"]
-            self.assertIsInstance(transition, str, path.name)
+            self.assertIsInstance(transition, dict, path.name)
             self.assertEqual(
-                transition.count("_to_"),
-                1,
-                f"{path.name}: unsafe_transition must contain exactly one '_to_' separator, got {transition!r}",
+                set(transition.keys()),
+                required_transition_keys,
+                f"{path.name}: unsafe_transition keys must be exactly {required_transition_keys}, got {set(transition.keys())}",
             )
 
-            source_layer, target_layer = transition.split("_to_")
+            self.assertEqual(
+                transition["relation"],
+                "unsafe_promotion",
+                f"{path.name}: unsafe_transition.relation must be 'unsafe_promotion'",
+            )
+
+            source_layer = transition["source_layer"]
+            target_layer = transition["target_layer"]
             step_layers = {step["authority_layer"] for step in fixture["trace_steps"]}
 
             self.assertIn(
                 source_layer,
                 step_layers,
-                f"{path.name}: unsafe_transition source layer {source_layer!r} not in trace_steps[].authority_layer",
+                f"{path.name}: unsafe_transition.source_layer {source_layer!r} not in trace_steps[].authority_layer",
             )
             self.assertIn(
                 target_layer,
                 step_layers,
-                f"{path.name}: unsafe_transition target layer {target_layer!r} not in trace_steps[].authority_layer",
+                f"{path.name}: unsafe_transition.target_layer {target_layer!r} not in trace_steps[].authority_layer",
             )
             self.assertNotEqual(
                 source_layer,
