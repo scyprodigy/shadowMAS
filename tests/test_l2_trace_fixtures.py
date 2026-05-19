@@ -69,6 +69,43 @@ class L2HandoffTraceFixtureTests(unittest.TestCase):
                 f"{path.name}: authority_layers_involved {declared - step_layers} not present in any trace step",
             )
 
+    def test_l2_trace_fixture_unsafe_transition_consistency(self):
+        data = json.loads(INDEX.read_text(encoding="utf-8"))
+
+        for item in data["fixtures"]:
+            path = TRACE_DIR / item["file"]
+            fixture = json.loads(path.read_text(encoding="utf-8"))
+
+            violation = fixture["expected_boundary_violation"]
+            self.assertIn("unsafe_transition", violation, path.name)
+
+            transition = violation["unsafe_transition"]
+            self.assertIsInstance(transition, str, path.name)
+            self.assertEqual(
+                transition.count("_to_"),
+                1,
+                f"{path.name}: unsafe_transition must contain exactly one '_to_' separator, got {transition!r}",
+            )
+
+            source_layer, target_layer = transition.split("_to_")
+            step_layers = {step["authority_layer"] for step in fixture["trace_steps"]}
+
+            self.assertIn(
+                source_layer,
+                step_layers,
+                f"{path.name}: unsafe_transition source layer {source_layer!r} not in trace_steps[].authority_layer",
+            )
+            self.assertIn(
+                target_layer,
+                step_layers,
+                f"{path.name}: unsafe_transition target layer {target_layer!r} not in trace_steps[].authority_layer",
+            )
+            self.assertNotEqual(
+                source_layer,
+                target_layer,
+                f"{path.name}: unsafe_transition source and target layers must differ",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
