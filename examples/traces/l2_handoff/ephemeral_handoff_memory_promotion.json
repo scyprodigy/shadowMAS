@@ -3,7 +3,6 @@
   "title": "Ephemeral handoff memory promoted without validation",
   "level": "L2",
   "authority_layers_involved": [
-    "T0_human_authority",
     "T3_approved_shared_memory",
     "T5_ephemeral_cache_session"
   ],

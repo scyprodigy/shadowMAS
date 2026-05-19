@@ -3,7 +3,6 @@
   "title": "Partial compliance summary hiding an authority-boundary violation across steps",
   "level": "L2",
   "authority_layers_involved": [
-    "T0_human_authority",
     "T1_delegated_bounded_authority",
     "T2_canonical_truth",
     "T4_execution_feed"

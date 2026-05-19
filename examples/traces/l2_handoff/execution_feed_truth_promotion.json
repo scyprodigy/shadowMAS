@@ -3,7 +3,6 @@
   "title": "Execution-feed observation treated as canonical truth",
   "level": "L2",
   "authority_layers_involved": [
-    "T0_human_authority",
     "T2_canonical_truth",
     "T4_execution_feed"
   ],
