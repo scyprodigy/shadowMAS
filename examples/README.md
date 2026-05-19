@@ -32,6 +32,18 @@ schema_version: v0
 checks: passed
 ```
 
+## Inspect an L2 fixture
+
+Inspect one L2 handoff trace fixture file with the minimal inspector:
+
+```bash
+python3 tools/inspect_l2_fixture.py examples/traces/l2_handoff/ephemeral_handoff_memory_promotion.json
+```
+
+The command reads one L2 fixture JSON file and prints a JSON report covering the fixture's `fixture_id`, `status`, checked rules, any violations, the parsed `unsafe_transition` object, and short English and zh-TW human summaries. Exit code is `0` when the fixture passes schema sanity checks and `1` otherwise.
+
+This is a local fixture inspection helper. It is not a runtime engine, not a production safeguard, and not a validator-claim layer.
+
 ## Boundary
 Example files are not truth files.
 
