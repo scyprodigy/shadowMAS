@@ -1,3 +1,7 @@
+# l2_handoff_trace_fixtures | public L2 multi-step handoff trace fixture skeletons
+# related: [examples_index, mutations_corpus, l2_trace_fixture_schema]
+# phase: public_fixture_skeletons
+
 # L2 Handoff Trace Fixtures
 
 ## Purpose
