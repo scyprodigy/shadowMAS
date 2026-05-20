@@ -30,6 +30,73 @@ read_order_for_p1_drafter:
 
 ---
 
+## Navigation: section index
+
+> purpose: line-anchored index so a multi-agent reader can load one section at a time instead of reading the whole ~14k-line file.
+> stability: section titles are the canonical anchors; line numbers are approximate at the time this index was generated and will drift as the document grows. To regenerate, run `grep -n '^## ' <this_file>`.
+
+| § | Approx line | Section title (use full `## N. Title` line as grep anchor) |
+|---|---|---|
+| TL;DR | 11 | TL;DR (read first, ≤60 sec) |
+| 0 | 33 | Why this document exists |
+| 1 | 1465 | Current strategic correction |
+| 2 | 1497 | Working position: hot adoption, not blind adoption |
+| 3 | 1535 | Key concept: KL divergence |
+| 4 | 1694 | Key concept: residual-first |
+| 5 | 1828 | Key concept: representation and state transfer |
+| 6 | 1983 | RecursiveMAS shock integration |
+| 7 | 2085 | WFGY as representation compiler candidate |
+| 8 | 2177 | Paper content captured in this session |
+| 9 | 2537 | v4 synthesis currently imported |
+| 10 | 2647 | Candidate design decisions from current session |
+| 11 | 2729 | ToT×MoE×CoT×LATS — current round snapshot |
+| 12 | 2834 | Proposed shadowMAS additions for future review |
+| 13 | 2921 | Current answer to the six user questions |
+| 14 | 2982 | Next sequence after this document |
+| 15 | 3013 | Round 2 — U-II Hierarchical Compression |
+| 16 | 3681 | Document self-optimization — ToT×MoE×CoT×LATS auditable pass |
+| 17 | 3831 | Round 3 — C-I Stigmergy × Quorum Sensing × Predictive Coding |
+| 18 | 4451 | Document self-optimization — second pass |
+| 19 | 4570 | Round 4 — M-I Pheromone Field = Externalized Free-Energy Landscape |
+| 20 | 5172 | Document self-optimization — third pass |
+| 21 | 5284 | Current document status after Round 4 |
+| 22 | 5299 | Round 5 — Q-I Ashby's Law × Percolation Theory |
+| 23 | 6088 | Document self-optimization — fourth pass |
+| 24 | 6187 | Current document status after Round 5 |
+| 25 | 6203 | Document self-optimization — fifth pass |
+| 26 | 6400 | Current document status after v0.6 document optimization |
+| 27 | 6429 | Round 6 — Q-II Information Geometry × Renormalization Group |
+| 28 | 7067 | Current document status after Round 6 |
+| 29 | 7095 | Round 7 — Q-III Stochastic Resonance × Weber-Fechner Law |
+| 30 | 7688 | Document self-optimization — sixth pass |
+| 31 | 7821 | Current document status after Round 7 |
+| 32 | 7852 | Round 8 — S-I Punctuated Equilibrium × Spandrel |
+| 33 | 8614 | Current document status after Round 8 |
+| 34 | 8645 | Document self-optimization — seventh pass |
+| 35 | 8824 | Current document status after v1.0 document optimization |
+| 36 | 8859 | Round 9 — C-II + M-II Three-Layer Evaluation × Static Reward Model Structural Defect |
+| 37 | 9478 | Current document status after R9 C-II/M-II content update |
+| 38 | 9516 | Round 10 — D-I Spin Glass Frustration × Synergetics |
+| 39 | 10104 | Current document status after R10 D-I content update |
+| 40 | 10142 | Round 11 — D-II + M-III Fluctuation Theorems × Metamorphosis × Attractor Geometry |
+| 41 | 10760 | Current document status after R11 D-II/M-III content update |
+| 42 | 10797 | Round 12 — D-III Predictive Coding, Precision Weighting, Attention, Active Inference |
+| 43 | 11487 | Current document status after R12 D-III content update |
+| 44 | 11525 | Round 13 — D-IV Epigenetic Landscape |
+| 45 | 12264 | Current document status after R13 D-IV content update |
+| 46 | 12302 | Round 14 — S-II Construction Grammar × Formal Concept Analysis × Epigenetics |
+| 47 | 13010 | Current document status after R14 S-II content update |
+| 48 | 13048 | Round 15 — M-IV CoT as Percolation Bridge-building |
+| 49 | 13682 | Current document status after R15 M-IV content update |
+| 50 | 13722 | Round 16 — M-V Curiosity = Learnable KL Frontier |
+| 51 | 14364 | Current document status after R16 M-V content update |
+| 52 | 14402 | Document self-optimization — eighth pass |
+| 53 | 14576 | Current document status after v1.9 document optimization |
+| 54 | 14619 | Document self-optimization — ninth pass |
+| 55 | 14760 | Final document status v2.2 |
+
+---
+
 ## 0. Why this document exists
 
 ### 0.1 Must-see active decision ledger
