@@ -12,6 +12,7 @@ Seeing a runtime signal is not the same as trusting it, storing it, promoting it
 
 - [Minimal demo](#minimal-demo)
 - [Expected output](#expected-output)
+- [Inspect an L2 fixture](#inspect-an-l2-fixture)
 - [Current status](#current-status)
 - [Repository map](#repository-map)
 - [What shadowMAS is not](#what-shadowmas-is-not)
@@ -42,7 +43,23 @@ PASS: dashboard_does_not_become_authority - dashboard does not become authority
 PASS: human_final_authority_preserved - human final authority is preserved
 ```
 
-This demo is not a runtime engine. It checks the shadowMAS governance boundary: runtime signals and audit projections may be visible as evidence, but must not silently become truth, memory, approval, or decision authority.
+This demo is not a runtime engine. It checks the shadowMAS authority-boundary contract: runtime signals and audit projections may be visible as evidence, but must not silently become truth, memory, approval, or decision authority.
+
+## Inspect an L2 fixture
+
+For L2 handoff trace fixture inspection, see `examples/README.md` or run:
+
+```bash
+python3 tools/inspect_l2_fixture.py examples/traces/l2_handoff/ephemeral_handoff_memory_promotion.json
+```
+
+This helper prints a JSON report for one fixture and does not make runtime or production-safety claims. Exit code is `0` on pass and `1` on fail.
+
+Run the full unit-test suite with:
+
+```bash
+python3 -m unittest discover
+```
 
 ## Current status
 
@@ -67,14 +84,14 @@ Not available yet:
 - `examples/` — runnable minimal examples
 - `tools/` — lightweight validators and utilities
 
-shadowMAS is a governance-oriented, memory-aware, human-AI collaboration system.
+shadowMAS is an authority-boundary evaluation construct and open testbed for multi-agent and multi-session work.
 
 It is not the product application itself.  
-It is a separate governance system for multi-agent and multi-session work.
+It is not a runtime engine, an agent framework, or a production safeguard.
 
-shadowMAS is not an agent framework. It is a local-first governance contract layer for multi-agent development work.
+shadowMAS is local-first, fixture-oriented evaluation material. It focuses on how authority-bounded interpretation is preserved across signals, traces, memory candidates, and audit projections.
 
-Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the packet, workspace, review, handoff, and promotion boundaries around that work.
+Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the packet, workspace, review, handoff, and promotion boundaries around that work as evaluation-oriented fixture material.
 
 Licensed under the Apache License 2.0. See `LICENSE`.
 
