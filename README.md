@@ -2,7 +2,7 @@
 
 ![cover](shadowMAS.png)
 
-shadowMAS is a governance research artifact and testbed for multi-agent AI systems.
+shadowMAS is an authority-boundary evaluation construct and open testbed for multi-agent AI systems.
 It is not yet a polished open-source agent framework.
 It does not replace agent orchestration frameworks.
 Its core problem is authority-bounded interpretation.
@@ -66,7 +66,7 @@ python3 -m unittest discover
 shadowMAS is currently in research/spec/testbed stage.
 
 Available now:
-- minimal governance validator
+- minimal authority-boundary validator
 - minimal demo JSON
 - candidate registry
 - packet and truth-boundary specifications
@@ -78,7 +78,7 @@ Not available yet:
 
 ## Repository map
 
-- `01_truth/` — canonical truth and governance boundaries
+- `01_truth/` — canonical truth and authority-boundary contracts
 - `02_packets/` — packet schemas and field definitions
 - `03_memory/` — candidate registry and memory-related artifacts
 - `examples/` — runnable minimal examples
@@ -103,7 +103,7 @@ shadowMAS exists to reduce five failure modes that become common once AI work gr
 - **truth confusion** — execution output, cache, and drafts being mistaken for canonical truth
 - **giant prompt collapse** — reusable rules, governance, project truth, and runtime-specific constraints being flattened into one blob
 - **intake chaos** — blind full-repo traversal instead of controlled entry and compiled intake
-- **mergeback contamination** — governance artifacts polluting product repos or overriding project-domain truth
+- **mergeback contamination** — authority-boundary artifacts spilling into product repos or overriding project-domain truth
 
 ## What shadowMAS is not
 
@@ -121,13 +121,13 @@ It can sit beside existing agent runtimes and focus on how their signals, traces
 
 ## Boundary model
 
-Governance outside, candidate work writable, promotion controlled.
+Authority boundary outside, candidate work writable, promotion controlled.
 
-The shadowMAS source repo contains the system contracts, docs, scripts, and governance surfaces.
+The shadowMAS source repo contains the system contracts, docs, scripts, and evaluation surfaces.
 
-An external shadowMAS workspace stores governance artifacts such as packets, reviews, handoffs, and runs.
+An external shadowMAS workspace stores authority-boundary artifacts such as packets, reviews, handoffs, and runs.
 
-shadowMAS governance artifacts should not be written into product repos by default. This includes packets, reviews, handoffs, runs, memory candidates, and raw governance state.
+shadowMAS authority-boundary artifacts should not be written into product repos by default. This includes packets, reviews, handoffs, runs, memory candidates, and raw authority-boundary state.
 
 Product repos may still receive product-owned outputs in controlled branches or worktrees as candidate changes. Product canonical branches should receive promoted changes only through human git review / merge decision.
 
@@ -219,7 +219,7 @@ Entry and navigation files for agents and humans.
 Use this layer to avoid blind repo traversal.
 
 ### `01_truth/`
-Formal truth drafts and promoted governance documents.
+Formal truth drafts and promoted authority-boundary documents.
 
 ### `02_packets/`
 Packet schemas, packet field definitions, and shared machine-stable exchange structures.
@@ -270,7 +270,7 @@ Human-facing documents.
 
 ### `07_working/`
 Working integration area for handoffs, merged drafts, temporary working files, and archive state.
-Files under `07_working/` are working-area materials such as drafts, intake rules, integration notes, and handoff support. They are not canonical truth unless later promoted through an explicit governance path.
+Files under `07_working/` are working-area materials such as drafts, intake rules, integration notes, and handoff support. They are not canonical truth unless later promoted through an explicit promotion path.
 
 ## Reading policy
 
