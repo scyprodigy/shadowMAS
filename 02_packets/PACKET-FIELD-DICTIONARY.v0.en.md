@@ -99,12 +99,12 @@ Rule:
 - required for validation compatibility
 - must not be omitted in machine-stable packets
 - parsers and validators must use this field, not the filename, as the authoritative contract version when this field exists
-- for SemVer-aligned contract versions, prefer `MAJOR.MINOR.PATCH` value form, for example `"0.0.0"`
-- current v0 packet schemas may use `schema_version: v0`; parsers must treat `v0` as major line 0 for current v0 artifacts
+- the v0 line uses the literal token `v0` as the only accepted in-artifact value; current v0 validators and packet schemas (`02_packets/packet_common_shell.v0.yaml`) treat `v0` as major line 0
+- `MAJOR.MINOR.PATCH` value form (e.g. `"0.0.0"`) is reserved for a future SemVer-aligned packet line and is NOT accepted by current v0 validators; do not emit `"0.0.0"` in v0 packet artifacts
 
 Example:
-- `"0.0.0"`
-- `v0`
+- `v0` (current v0 line; accepted now)
+- `"0.0.0"` (future SemVer-aligned line; not yet accepted)
 
 ### Packet contract versioning rules
 Filename `.vN` is a major-line mirror for human navigation, grep, and diff convenience only.
@@ -643,8 +643,12 @@ Meaning:
 Whether this memory is a candidate for promotion into a higher truth layer.
 
 Allowed direction:
-- `yes`
-- `no`
+- `"yes"`
+- `"no"`
+
+Rule:
+- enum values are explicit strings, not YAML boolean coercions
+- packet schemas and packet artifacts MUST quote these values to prevent YAML 1.1 booleans (`yes`/`no` → `true`/`false`) from masquerading as the enum
 
 ### `promotion_notes`
 Meaning:
