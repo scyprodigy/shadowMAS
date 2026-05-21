@@ -9,12 +9,20 @@ safe_to_delete_active_log_now: false
 
 coverage_summary:
   total_direct_schema_primitives_found: 14
-  already_extracted: 5
-  not_yet_extracted: 9
+  already_extracted: 7
+  not_yet_extracted: 7
   ambiguous_or_derived: 1
+  last_extraction_event:
+    - candidate_id: P2-007
+      primitive_name: residual_action_value
+      lane: P2_runtime_signal
+    - candidate_id: P4-001
+      primitive_name: shared_state_capability_check
+      lane: P4_hook_adapter
   reason_not_safe_to_delete: >
-    Remaining direct schema primitives and navigation/provenance surfaces are not yet
-    represented outside the active design log.
+    Even after P2-007 and P4-001 registration, remaining direct schema primitives
+    (P5 research-protocol cluster and reference-only items) and navigation/provenance
+    surfaces still depend on the active design log for source pointers and audit.
 
 already_extracted_mapping:
   - candidate_id: P2-001
@@ -41,55 +49,18 @@ already_extracted_mapping:
     primitive_name: residual_first_report_minimum_shape
     source_section: "§0.7 / §12.2"
     status: extracted_or_ambiguous_reference
+  - candidate_id: P2-007
+    primitive_name: residual_action_value
+    source_section: "§19.9.1"
+    status: extracted
+    note: registered in candidate registry; supersedes prior remaining_schema_primitives entry
+  - candidate_id: P4-001
+    primitive_name: shared_state_capability_check
+    source_section: "§17.9.5"
+    status: extracted
+    note: registered in candidate registry; supersedes prior remaining_schema_primitives entry
 
 remaining_schema_primitives:
-  - primitive_name: shared_state_capability_check
-    source_section: "§17.9.5"
-    field_count: 6
-    field_names:
-      - runtime
-      - shared_writable_state_available
-      - persistence_level
-      - auditability
-      - permission_model_defined
-      - fallback_if_false
-    current_status: not_extracted
-    provisional_disposition: requires_human_decision
-    suggested_lane: P4_hook_adapter
-    overlaps_or_dependencies:
-      - runtime_adapter_contracts
-      - permission_model_policy
-    must_not_do:
-      - imply_shared_state_is_required
-      - implement_runtime_behavior
-      - bypass_human_review
-  - primitive_name: residual_action_value
-    source_section: "§19.9.1"
-    field_count: 12
-    field_names:
-      - event_id
-      - zone
-      - residual_magnitude
-      - reducibility
-      - goal_relevance
-      - urgency
-      - confidence
-      - freshness
-      - risk_penalty
-      - authority_penalty
-      - expected_residual_reduction
-      - recommended_action
-    current_status: not_extracted
-    provisional_disposition: requires_human_decision
-    suggested_lane: P2_runtime_signal
-    overlaps_or_dependencies:
-      - signal_field_event
-      - signal_field_zone
-      - field_audit_projection
-    must_not_do:
-      - make_recommended_action_authoritative
-      - promote_runtime_signal_to_truth
-      - assign_candidate_id_here
   - primitive_name: learnable_frontier_filter
     source_section: "§19.9.2"
     field_count: 8
@@ -266,11 +237,11 @@ remaining_schema_primitives:
 navigation_surfaces_to_preserve:
   - section: "§0.7"
     name: consolidated_primitive_family_index
-    status: not_yet_mirrored
+    status: mirrored_in_compact_navigation_preservation
     preservation_need: seven primitive families, first canonical candidate, blockers, promotion targets
   - section: "§0.9"
     name: promotion_and_change_impact_queue
-    status: not_yet_mirrored
+    status: mirrored_in_compact_navigation_preservation
     preservation_need: P1..P5 batches, impacted surfaces, promotion conditions
 
 compact_navigation_preservation:
@@ -671,7 +642,8 @@ working_disposition_review:
 
   decisions:
     - primitive_name: shared_state_capability_check
-      working_disposition: extract_candidate_next
+      working_disposition: extracted
+      candidate_id: P4-001
       recommended_lane: P4_hook_adapter
       rationale: >
         Host/runtime capability probe and precondition for any deployable P2
@@ -679,14 +651,15 @@ working_disposition_review:
       authority_risk: >
         permission_model_defined and persistence_level must not be read as
         approval or truth authority.
-      next_action: prepare_candidate_review_later
+      next_action: completed_registered_in_candidate_registry
       must_not_do:
         - do_not_register_in_P2_lane
         - do_not_treat_persistence_level_as_truth_authority
-        - do_not_assign_candidate_id_from_this_ledger
+        - do_not_re_extract_under_a_different_candidate_id
 
     - primitive_name: residual_action_value
-      working_disposition: extract_candidate_next
+      working_disposition: extracted
+      candidate_id: P2-007
       recommended_lane: P2_runtime_signal
       rationale: >
         Closest peer of P2-001 signal_field_event; adds residual/action scoring.
@@ -695,11 +668,12 @@ working_disposition_review:
       authority_risk: >
         recommended_action must be advisory_only and must not authorize runtime
         action, packet changes, memory writes, or truth promotion.
-      next_action: prepare_candidate_review_later
+      next_action: completed_registered_in_candidate_registry
       must_not_do:
         - do_not_let_recommended_action_imply_authorisation
         - do_not_merge_into_P2_001_without_review
         - do_not_promote_residual_scoring_into_P1_scope
+        - do_not_reuse_P2_007_slot_for_learnable_frontier_record
 
     - primitive_name: field_navigation_policy
       working_disposition: reference_only
@@ -893,9 +867,12 @@ working_disposition_review:
         - do_not_treat_remaining_residuals_as_independent_P1_001_alternative
         - do_not_assign_candidate_id_from_this_ledger
 
-  recommended_extract_order:
-    - shared_state_capability_check
-    - residual_action_value
+  recommended_extract_order: []
+  recommended_extract_order_completed:
+    - candidate_id: P4-001
+      primitive_name: shared_state_capability_check
+    - candidate_id: P2-007
+      primitive_name: residual_action_value
 
   reference_only:
     - field_navigation_policy
@@ -909,10 +886,11 @@ working_disposition_review:
     - learning_progress_probe
 
   next_allowed_codex_tasks:
+    - prepare_active_log_move_plan_after_human_approval
+  next_allowed_codex_tasks_completed:
     - prepare_shared_state_capability_check_candidate_review
     - prepare_residual_action_value_candidate_review
     - preserve_compact_0_7_and_0_9_navigation_surfaces
-    - prepare_active_log_move_plan_after_human_approval
 
   prohibited_followups_without_human_approval:
     - assign_candidate_ids
