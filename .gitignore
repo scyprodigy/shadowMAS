@@ -12,3 +12,6 @@ __pycache__/
 # Private/generated working material
 07_working/drafts/proposals/**/exports/
 07_working/private/
+
+# Local agent harness settings (per-user allowlist; never tracked)
+.claude/settings.local.json
