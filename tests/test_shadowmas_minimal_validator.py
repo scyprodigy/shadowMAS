@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -126,6 +127,36 @@ class ShadowmasMinimalValidatorTests(unittest.TestCase):
                 result.stdout,
                 msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
+
+    def test_non_object_json_root_fails_every_invariant(self):
+        fh = tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False, encoding="utf-8"
+        )
+        try:
+            fh.write("[]")
+        finally:
+            fh.close()
+        tmp_path = Path(fh.name)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_validator(tmp_path)
+        fails, passes = _parse_validator_output(result.stdout)
+
+        self.assertNotEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertEqual(
+            len(fails),
+            len(MUTATION_MAPPING),
+            msg=f"expected every invariant to fail on non-object root; got fails={fails}",
+        )
+        self.assertEqual(
+            passes,
+            [],
+            msg=f"expected no passes on non-object root; got passes={passes}",
+        )
 
     def test_validator_missing_file_fails(self):
         missing_fixture = REPO_ROOT / "tests" / "definitely_missing_validator_fixture.json"
