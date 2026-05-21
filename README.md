@@ -10,12 +10,64 @@ Seeing a runtime signal is not the same as trusting it, storing it, promoting it
 
 ## Start here
 
+- [Controlled alpha quickstart](#controlled-alpha-quickstart)
 - [Minimal demo](#minimal-demo)
 - [Expected output](#expected-output)
 - [Inspect an L2 fixture](#inspect-an-l2-fixture)
 - [Current status](#current-status)
 - [Repository map](#repository-map)
 - [What shadowMAS is not](#what-shadowmas-is-not)
+
+## Controlled alpha quickstart
+
+shadowMAS is in controlled-alpha state. You can evaluate it locally as an authority-boundary fixture and inspection helper. It is not a mature package-level adoption path. When evaluating, pin to a specific commit so your local impressions stay reproducible.
+
+Clone shadowMAS into a directory parallel to your product repo, not inside it, for the first evaluation pass. Do not run the workspace tooling (`05_scripts/workspace/shadowmas_workspace.py`) against your product repo until after you have completed the steps below and decided that shadowMAS belongs in your workflow at all.
+
+1. Enter the shadowMAS repository directory.
+
+2. Run the test suite from the repository root.
+
+   ```bash
+   python3 -m unittest discover
+   ```
+
+   Expected: the run ends with `OK`.
+
+3. Run the L1 minimal validator on the positive and negative demo fixtures.
+
+   ```bash
+   python3 tools/shadowmas_minimal_validator.py examples/demo_signal_governance.json
+   python3 tools/shadowmas_minimal_validator.py examples/demo_signal_governance_violation.json
+   ```
+
+   The positive fixture should exit `0` and print only `PASS:` lines. The negative fixture is expected to fail the contract: it prints `FAIL:` lines and exits non-zero. A non-zero exit on the negative fixture is not a broken repo — it is the designed behavior that demonstrates the validator catches violations.
+
+4. Run the L2 inspector on at least one existing L2 handoff fixture.
+
+   ```bash
+   python3 tools/inspect_l2_fixture.py examples/traces/l2_handoff/ephemeral_handoff_memory_promotion.json
+   python3 tools/inspect_l2_fixture.py examples/traces/l2_handoff/execution_feed_truth_promotion.json
+   python3 tools/inspect_l2_fixture.py examples/traces/l2_handoff/partial_compliance_summary_violation.json
+   ```
+
+   Each command prints a JSON report. The inspector exits `0` on pass and `1` on fail per its documented contract.
+
+### Alpha claim boundary
+
+- shadowMAS does not automatically enforce policy inside downstream application runtimes; it is not a runtime enforcement layer.
+- shadowMAS does not protect a production system at runtime and is not a production safeguard. No guarantee of production safety is made.
+- Validator and inspector output is about the supplied fixture only. A passing fixture is not an automatic correctness claim about a running system.
+- shadowMAS does not replace your product repo's project-specific canonical truth. Your product repo remains the authority for its own domain facts.
+- Current shadowMAS is not a mature package-level adoption path. There is no installable package, no stable CLI, and no release tag contract.
+
+### Do not commit shadowMAS artifacts into your product repo
+
+Do not commit shadowMAS-generated or copied working artifacts into your product repo unless they have been intentionally reviewed and promoted by the product-repo owner. If you use a product repo for local experiments, keep any shadowMAS workspace artifacts ignored by the product repo's `.gitignore`. Exact ignore paths depend on where you place the shadowMAS workspace; if you are unsure, keep the shadowMAS workspace outside the product repo entirely. That keeps the alpha evaluation from leaving residue in product history.
+
+### Human decision point
+
+shadowMAS does not act on your product repo by itself. After the quickstart, the product-repo owner remains the sole authority for domain truth and for deciding whether any shadowMAS rule, fixture, or workflow pattern should be adopted into the product repo. shadowMAS provides material to inspect, not a verdict to apply.
 
 ## Minimal demo
 
