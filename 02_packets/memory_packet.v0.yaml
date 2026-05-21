@@ -43,8 +43,8 @@ required_fields:
     type: enum
     required: true
     allowed:
-      - yes
-      - no
+      - "yes"
+      - "no"
 
 required_shared_fields:
   - packet_uid
