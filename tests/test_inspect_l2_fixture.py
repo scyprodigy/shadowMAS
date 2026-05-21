@@ -22,6 +22,17 @@ def run_cli(*args):
 
 
 class InspectL2FixtureCLITests(unittest.TestCase):
+    _EXPECTED_ENVELOPE_KEYS = {
+        "fixture_id",
+        "title",
+        "status",
+        "checked_rules",
+        "violations",
+        "transition",
+        "human_summary_en",
+        "human_summary_zh",
+    }
+
     def _write_tmp(self, payload, *, suffix=".json"):
         fh = tempfile.NamedTemporaryFile(
             mode="w", suffix=suffix, delete=False, encoding="utf-8"
@@ -153,6 +164,43 @@ class InspectL2FixtureCLITests(unittest.TestCase):
             ),
             payload["violations"],
         )
+
+    def test_pass_report_envelope_shape(self):
+        result = run_cli(VALID_FIXTURE)
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        payload = json.loads(result.stdout)
+
+        self.assertEqual(set(payload.keys()), self._EXPECTED_ENVELOPE_KEYS)
+        self.assertEqual(payload["status"], "pass")
+        self.assertEqual(payload["violations"], [])
+        self.assertIsInstance(payload["checked_rules"], list)
+        self.assertGreater(len(payload["checked_rules"]), 0)
+        self.assertIsInstance(payload["transition"], dict)
+        self.assertIsInstance(payload["human_summary_en"], str)
+        self.assertGreater(len(payload["human_summary_en"]), 0)
+        self.assertIsInstance(payload["human_summary_zh"], str)
+        self.assertGreater(len(payload["human_summary_zh"]), 0)
+
+    def test_fail_report_envelope_shape(self):
+        fixture = self._load_valid_fixture_copy()
+        del fixture["non_claims"]
+        tmp_path = self._write_tmp(fixture)
+
+        result = run_cli(tmp_path)
+
+        self.assertEqual(result.returncode, 1, msg=result.stderr)
+        payload = json.loads(result.stdout)
+
+        self.assertEqual(set(payload.keys()), self._EXPECTED_ENVELOPE_KEYS)
+        self.assertEqual(payload["status"], "fail")
+        self.assertIsInstance(payload["violations"], list)
+        self.assertGreater(len(payload["violations"]), 0)
+        self.assertIsInstance(payload["checked_rules"], list)
+        self.assertIsInstance(payload["human_summary_en"], str)
+        self.assertGreater(len(payload["human_summary_en"]), 0)
+        self.assertIsInstance(payload["human_summary_zh"], str)
+        self.assertGreater(len(payload["human_summary_zh"]), 0)
 
 
 if __name__ == "__main__":
