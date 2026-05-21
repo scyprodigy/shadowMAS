@@ -52,7 +52,7 @@ LINE3=$(echo "$CONTENT" | sed -n '3p')
 
 # Legacy canonical filename-H1 form: e.g. "# SHADOWMAS-OPERATOR-GUIDE.v0.en.md"
 # Requires uppercase/digit name with at least one hyphen segment and at least one dot suffix.
-if echo "$LINE1" | grep -Pq '^# [A-Z][A-Z0-9]*(-[A-Z0-9]+)+(\.[a-zA-Z0-9]+)+$'; then
+if echo "$LINE1" | grep -Pq '^# [A-Z][A-Z0-9]*(-[A-Z0-9]+)+(\.[a-zA-Z0-9-]+)+$'; then
   exit 0
 fi
 
