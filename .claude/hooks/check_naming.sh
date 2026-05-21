@@ -270,8 +270,15 @@ if echo "$FILE_PATH" | grep -Eq '(^|/)05_scripts/'; then
   exit 2
 fi
 
-# Rule 11: examples/ - fixture lowercase (2-4 segments) or packet-dotted under packets/ subpath
+# Rule 11: examples/ - fixture lowercase (2-4 segments), packet-dotted under packets/,
+# or a per-directory `index.{json,yaml,yml}` manifest under examples/**.
 if echo "$FILE_PATH" | grep -Eq '(^|/)examples/'; then
+  # Allow well-known index manifests at any depth under examples/.
+  case "$BASENAME" in
+    index.json|index.yaml|index.yml)
+      exit 0
+      ;;
+  esac
   if match_fixture_lowercase "$NAME_NO_EXT"; then
     exit 0
   fi
@@ -281,7 +288,7 @@ if echo "$FILE_PATH" | grep -Eq '(^|/)examples/'; then
   if match_strict_three_segment "$NAME_NO_EXT"; then
     exit 0
   fi
-  echo "BLOCKED: examples/ filename must be lowercase 2-4 segment fixture or packet-dotted under packets/: $BASENAME" >&2
+  echo "BLOCKED: examples/ filename must be lowercase 2-4 segment fixture, packet-dotted under packets/, or an index manifest: $BASENAME" >&2
   exit 2
 fi
 
