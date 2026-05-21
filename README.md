@@ -136,6 +136,18 @@ Not available yet:
 - `examples/` — runnable minimal examples
 - `tools/` — lightweight validators and utilities
 
+## Validator and inspector orientation
+
+shadowMAS ships three small read-only command surfaces. Each handles a different artifact kind; pick by the artifact you have on hand.
+
+| Command | Artifact it accepts | What it checks | Exit codes |
+|---|---|---|---|
+| `python3 tools/shadowmas_minimal_validator.py <demo.json>` | One L1 governance demo JSON (see `examples/demo_signal_governance*.json` and `examples/mutations/`) | 15 authority-boundary invariants (runtime-signal / audit-projection / dashboard / human-final-authority) | `0` all PASS · `1` one or more FAIL |
+| `python3 tools/inspect_l2_fixture.py <l2_fixture.json>` | One L2 multi-step handoff trace JSON (see `examples/traces/l2_handoff/`) | Required top keys, `level: L2`, authority-layer / trace-step consistency, unsafe-transition shape | `0` pass · `1` fail (JSON report on stdout either way) |
+| `python3 05_scripts/validate/shadowmas_validate.py <packet-file>` | One YAML packet artifact (`task_packet` / `memory_packet` / `review_packet`) | Family-required fields, `schema_version: v0`, filename–schema major alignment, family status enum, `source_refs` / `artifact_refs` / `handoff` shape | `0` valid · `1` validation errors · `2` usage / input / parse failure |
+
+None of these run agents, write back to product repos, or promote artifacts into truth. They check shape and contract only. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
+
 shadowMAS is an authority-boundary evaluation construct and open testbed for multi-agent and multi-session work.
 
 It is not the product application itself.  
@@ -246,11 +258,36 @@ Current direction:
 - no DB-first design
 - hard-separated from product repos
 
-## First run
+## Workspace tool — after alpha evaluation
 
-Run commands from the repository root.
+This section is not the first alpha onboarding step. Complete the [Controlled alpha quickstart](#controlled-alpha-quickstart) first so you understand the fixture, inspection, and claim-boundary surfaces before running any workspace command. Workspace tooling is a local setup utility, not a runtime enforcement layer, not a production safeguard, and not an automatic correctness claim about any project.
 
-`<project-path>` must be an existing product project directory.
+Run commands from the repository root. `<project-path>` must be an existing product project directory.
+
+### What `init` writes on disk
+
+`python3 05_scripts/workspace/shadowmas_workspace.py init --project <project-path>` creates an external shadowMAS workspace in your user's platform-specific local data directory, not inside the product repo:
+
+- Linux / WSL: `${XDG_DATA_HOME:-~/.local/share}/shadowmas/workspaces/<project-id>/`
+- macOS: `~/Library/Application Support/shadowmas/workspaces/<project-id>/`
+- Windows: `%LOCALAPPDATA%\shadowmas\workspaces\<project-id>\`
+
+`<project-id>` is `<slugified-project-name>-<8-char-sha256-of-absolute-path>`.
+
+Inside the workspace it creates:
+
+- four empty subdirectories: `packets/`, `reviews/`, `handoffs/`, `runs/`
+- one `workspace.json` metadata file recording `schema_version: v0`, `workspace_kind: external_workspace`, `project_id`, `project_path`, `workspace_path`, `created_at`, `created_by`, and a `boundary` object asserting `writes_product_repo: false` and `governance_artifacts_external: true`
+
+The command reads `<project-path>` only to validate that it exists as a directory and to hash its absolute path into the workspace ID. It writes no files inside the product repo. If a workspace for the same project already exists, the command prints the path and exits without overwriting. Exit code is `0` on success, `1` on invalid project, `2` on filesystem error.
+
+`where` prints the workspace path for an existing workspace; `inspect` re-reads and validates `workspace.json` and prints `OK workspace metadata valid` on pass.
+
+### Caution
+
+Do not run `init` against a production product repository before reviewing the on-disk effects above. Prefer a disposable clone or a throwaway directory for your first workspace-tool experiment. Even though `init` writes nothing inside the product repo, confirm that behavior on your platform before pointing the command at a path you care about. The product-repo owner remains responsible for deciding whether any artifact later generated, copied, or referenced from the workspace should be committed into the product repo's history. shadowMAS does not replace your product repo's project-specific canonical truth.
+
+### Commands
 
 ```bash
 python3 05_scripts/workspace/shadowmas_workspace.py init --project <project-path>
@@ -258,9 +295,7 @@ python3 05_scripts/workspace/shadowmas_workspace.py inspect --project <project-p
 python3 05_scripts/validate/shadowmas_validate.py examples/packets/task_packet.valid.v0.yaml
 ```
 
-The workspace commands create and inspect an external shadowMAS workspace outside the product project directory.
-
-The validator command validates the non-canonical example packet under `examples/packets/`. The validator checks packet shape and contract rules; it does not execute tasks or run agents.
+The validator command validates the non-canonical example packet under `examples/packets/`. It checks packet shape and contract rules; it does not execute tasks, run agents, write back changes, or promote packet contents into truth.
 
 Examples under `examples/` are non-canonical illustrative examples. They are not truth files and not packet schemas.
 
