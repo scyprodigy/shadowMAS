@@ -182,6 +182,46 @@ class InspectL2FixtureCLITests(unittest.TestCase):
         self.assertIsInstance(payload["human_summary_zh"], str)
         self.assertGreater(len(payload["human_summary_zh"]), 0)
 
+    def test_multiple_violations_accumulate_in_one_report(self):
+        fixture = self._load_valid_fixture_copy()
+        fixture["level"] = "L3"
+        del fixture["non_claims"]
+        fixture["expected_boundary_violation"]["unsafe_transition"]["relation"] = (
+            "safe_promotion"
+        )
+        tmp_path = self._write_tmp(fixture)
+
+        result = run_cli(tmp_path)
+
+        self.assertEqual(result.returncode, 1, msg=result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "fail")
+        self.assertIsInstance(payload["violations"], list)
+        self.assertGreaterEqual(
+            len(payload["violations"]),
+            2,
+            msg=f"expected accumulated violations, got {payload['violations']}",
+        )
+
+        category_prefixes = (
+            "missing_required_keys",
+            "level_must_be_L2",
+            "relation_must_be_unsafe_promotion",
+        )
+        seen_categories = {
+            prefix
+            for prefix in category_prefixes
+            if any(v.startswith(prefix) for v in payload["violations"])
+        }
+        self.assertGreaterEqual(
+            len(seen_categories),
+            2,
+            msg=(
+                f"expected at least two distinct violation categories from "
+                f"{category_prefixes}; got violations={payload['violations']}"
+            ),
+        )
+
     def test_fail_report_envelope_shape(self):
         fixture = self._load_valid_fixture_copy()
         del fixture["non_claims"]
