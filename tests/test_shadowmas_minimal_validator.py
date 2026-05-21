@@ -187,9 +187,9 @@ class L1MutationCorpusTests(unittest.TestCase):
                 result.returncode, 0,
                 msg=f"{fixture.name} should fail; stdout:\n{result.stdout}",
             )
-            self.assertIn(
-                invariant, fails,
-                msg=f"{fixture.name} should fail {invariant!r}; got fails={fails}",
+            self.assertEqual(
+                fails, [invariant],
+                msg=f"{fixture.name} should fail exactly {invariant!r}; got fails={fails}",
             )
 
     def test_l1_mutation_coverage_report_exists(self):
