@@ -222,6 +222,17 @@ class InspectL2FixtureCLITests(unittest.TestCase):
             ),
         )
 
+    def test_non_object_json_root_returns_fail(self):
+        tmp_path = self._write_tmp([])
+
+        result = run_cli(tmp_path)
+
+        self.assertEqual(result.returncode, 1, msg=result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "fail")
+        self.assertIn("fixture_root_must_be_object", payload["violations"])
+        self.assertEqual(set(payload.keys()), self._EXPECTED_ENVELOPE_KEYS)
+
     def test_fail_report_envelope_shape(self):
         fixture = self._load_valid_fixture_copy()
         del fixture["non_claims"]
