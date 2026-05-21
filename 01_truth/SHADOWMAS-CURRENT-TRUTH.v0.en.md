@@ -7,13 +7,15 @@ It is not the final architecture book.
 It is the smallest stable truth that future files must follow.
 
 ## System Identity
-shadowMAS is a governance-oriented, memory-aware, human-AI collaboration system.
+shadowMAS is an authority-boundary evaluation construct and open testbed for memory-aware human-AI collaboration in multi-agent work.
+
+Within shadowMAS-governed workflows, governance is a mandatory internal authority-boundary discipline: information must not be promoted beyond the authority warranted by the T0–T5 layer model and its promotion path, and final authority remains human. This file does not claim that the current repository or testbed automatically enforces these boundaries inside downstream application runtimes or guarantees production safety.
 
 It exists to:
-- govern multi-agent work
-- control truth, memory, promotion, and invalidation boundaries
-- route work across layers
-- merge results back into project repos safely
+- specify and evaluate authority boundaries in multi-agent work
+- make truth, memory, promotion, and invalidation boundaries explicit, inspectable, and reviewable
+- describe how work is routed across layers
+- describe and evaluate merge-back / write-back boundaries into project repos
 - preserve human final authority
 
 shadowMAS is not:
@@ -32,7 +34,7 @@ shadowMAS exists to reduce five recurring failure modes in AI-assisted work:
 - blind intake / full-repo traversal by default
 - mergeback contamination between governance and product repos
 
-This problem profile explains why shadowMAS is governance-first, hard-separated, and machine-first at key boundaries.
+This problem profile explains why shadowMAS is authority-boundary-first, hard-separated, and machine-first at key boundaries.
 
 ## Hard Separation Rule
 shadowMAS must remain hard-separated from product systems.
