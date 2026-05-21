@@ -12,7 +12,7 @@ Its job is to help a new operator quickly tell:
 - what not to treat as source truth
 
 ## One-Sentence Positioning
-shadowMAS is a human-AI governance system.
+shadowMAS is an authority-boundary evaluation construct and open testbed for human-AI and multi-agent work.
 
 Its goal is not to flatten everything into one giant prompt.
 Its goal is to keep truth, memory, review, runtime, and write-back boundaries clear,

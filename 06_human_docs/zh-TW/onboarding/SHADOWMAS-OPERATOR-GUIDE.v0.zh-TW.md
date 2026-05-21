@@ -12,7 +12,7 @@
 - 不要亂動什麼
 
 ## 一句話定位
-shadowMAS 是一套人機協作治理系統。
+shadowMAS 是一個用於人類-AI 與多代理工作的 authority-boundary evaluation construct / open testbed。
 
 它的重點不是把所有東西塞進一個大 prompt，
 而是把 truth、memory、review、runtime、write-back 邊界切乾淨，
