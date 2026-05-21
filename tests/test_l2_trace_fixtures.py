@@ -28,6 +28,26 @@ REQUIRED_NON_CLAIMS = {
 
 
 class L2HandoffTraceFixtureTests(unittest.TestCase):
+    def test_required_top_keys_match_inspector_tool(self):
+        import importlib.util
+
+        tool_path = REPO_ROOT / "tools" / "inspect_l2_fixture.py"
+        spec = importlib.util.spec_from_file_location(
+            "_inspect_l2_fixture_for_sentinel", tool_path
+        )
+        self.assertIsNotNone(spec, f"could not build spec from {tool_path}")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        self.assertEqual(
+            set(module.REQUIRED_TOP_KEYS),
+            REQUIRED_KEYS,
+            msg=(
+                "REQUIRED_TOP_KEYS in tools/inspect_l2_fixture.py drifted from "
+                "REQUIRED_KEYS in tests/test_l2_trace_fixtures.py"
+            ),
+        )
+
     def test_index_lists_three_l2_handoff_fixtures(self):
         data = json.loads(INDEX.read_text(encoding="utf-8"))
         fixtures = data["fixtures"]
