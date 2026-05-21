@@ -23,8 +23,40 @@ if [ "$BASENAME" = "CLAUDE.md" ]; then
   exit 0
 fi
 
+# --- Exempt: machine-first canonical YAML surfaces (pure-data, no header convention) ---
+# These files predate the 3-line header rule and carry schema/registry payload on line 1.
+# The hook should not flag absent headers on them.
+case "$EXT" in
+  yaml|yml)
+    if echo "$FILE_PATH" | grep -Eq '(^|/)02_packets/[^/]+\.(yaml|yml)$'; then
+      exit 0
+    fi
+    if echo "$FILE_PATH" | grep -Eq '(^|/)03_memory/registry/[^/]+\.(yaml|yml)$'; then
+      exit 0
+    fi
+    if echo "$FILE_PATH" | grep -Eq '(^|/)07_working/drafts/rationale/[^/]+\.(yaml|yml)$'; then
+      exit 0
+    fi
+    if echo "$FILE_PATH" | grep -Eq '(^|/)examples/packets/[^/]+\.(yaml|yml)$'; then
+      exit 0
+    fi
+    if echo "$FILE_PATH" | grep -Eq '(^|/)07_working/drafts/packet/[^/]+\.(yaml|yml)$'; then
+      exit 0
+    fi
+    if echo "$FILE_PATH" | grep -Eq '(^|/)07_working/drafts/runtime_adapter/.*\.(yaml|yml)$'; then
+      exit 0
+    fi
+    ;;
+esac
+
 # --- Exempt: shadowMAS root README.md GitHub-facing landing page ---
 # This is intentionally project-specific; nested README.md files still require the 3-line header.
+# Use $CLAUDE_PROJECT_DIR so the hook is portable across clones.
+ROOT_README="${CLAUDE_PROJECT_DIR:-}/README.md"
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && [ "$FILE_PATH" = "$ROOT_README" ]; then
+  exit 0
+fi
+# Fallback: legacy hardcoded path for environments that don't set CLAUDE_PROJECT_DIR.
 if [ "$FILE_PATH" = "/home/scyhris/workspace/shadow-mas/README.md" ]; then
   exit 0
 fi
