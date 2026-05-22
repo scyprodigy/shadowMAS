@@ -97,6 +97,8 @@ PASS: human_final_authority_preserved - human final authority is preserved
 
 This demo is not a runtime engine. It checks the shadowMAS authority-boundary contract: runtime signals and audit projections may be visible as evidence, but must not silently become truth, memory, approval, or decision authority.
 
+For additional L1 stress fixtures, see `examples/mutations/`. Files there are mutation fixtures that exercise each authority-boundary invariant individually, mirror-paired under `single_flag/` and `partial_compliance/`. They are fixture material, not validation results, and they make no claim about project correctness or production safety. Run the positive and negative demos above before exploring them.
+
 ## Inspect an L2 fixture
 
 For L2 handoff trace fixture inspection, see `examples/README.md` or run:
