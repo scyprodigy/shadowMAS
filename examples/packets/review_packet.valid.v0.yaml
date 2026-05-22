@@ -1,0 +1,33 @@
+# This is a non-canonical illustrative example.
+# It is provided only for validator first-run usage.
+# It is not a packet schema.
+# It is not canonical truth.
+# Review recommendation is advisory only; the human reviewer remains the deciding authority.
+
+packet_uid: example-review-packet-valid-v0-001
+packet_type: review_packet
+schema_version: v0
+created_at: "2026-05-22T00:00:00Z"
+created_by: example_reviewer
+owner: example_owner
+supervision_mode: human_available_delegate
+risk: r0_trivial
+status: draft
+
+decision_needed: Decide whether the illustrative task described in the linked task packet should proceed as drafted.
+why_you_are_seeing_this: The linked task packet is in draft state and a first-pass review is requested before any human approval decision is made.
+change_summary: The linked task packet proposes a short illustrative status note based only on provided source material; no canonical files would change.
+risk_summary: Risk is r0_trivial; the linked task does not modify source files, schemas, scripts, or product-repo files, and it does not promote any output as truth.
+recommendation: defer
+
+source_refs:
+  - source_type: task_packet
+    source_id: example-task-packet-valid-v0-001
+    relation: reviews
+
+related_packets:
+  - example-task-packet-valid-v0-001
+
+minimal_checks:
+  must_read:
+    - examples/packets/task_packet.valid.v0.yaml
