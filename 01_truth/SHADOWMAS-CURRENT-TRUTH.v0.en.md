@@ -7,16 +7,17 @@ It is not the final architecture book.
 It is the smallest stable truth that future files must follow.
 
 ## System Identity
-shadowMAS is an authority-boundary evaluation construct and open testbed for memory-aware human-AI collaboration in multi-agent work.
-
-Within shadowMAS-governed workflows, governance is a mandatory internal authority-boundary discipline: information must not be promoted beyond the authority warranted by the T0–T5 layer model and its promotion path, and final authority remains human. This file does not claim that the current repository or testbed automatically enforces these boundaries inside downstream application runtimes or guarantees production safety.
+shadowMAS is an authority-bounded autonomous orchestration construct and open testbed for multi-agent AI work.
 
 It exists to:
-- specify and evaluate authority boundaries in multi-agent work
-- make truth, memory, promotion, and invalidation boundaries explicit, inspectable, and reviewable
-- describe how work is routed across layers
-- describe and evaluate merge-back / write-back boundaries into project repos
-- preserve human final authority
+- decompose scoped work into packets that can be delegated to agents or workers
+- route, dispatch, and resume work across authority layers while preserving task scope, stop conditions, and supervision mode
+- support autonomous execution when humans are away, including bounded retry, rollback, rework, and handoff continuity
+- capture execution lessons as memory candidates and surface review packets as compressed human review material
+- make truth, memory, promotion, invalidation, merge-back, and write-back boundaries explicit, inspectable, and reviewable
+- preserve human final authority over approval, rejection, revision, escalation, trust elevation, canonical truth, approved shared memory, and canonical product-branch promotion
+
+Within shadowMAS-governed workflows, governance is a mandatory internal authority-boundary discipline: information must not be promoted beyond the authority warranted by the T0–T5 layer model and its promotion path, and final authority remains human. This file does not claim that the current repository or testbed automatically enforces these boundaries inside downstream application runtimes or guarantees production safety. These responsibilities are the canonical design surface; the current shipped implementation covers only a subset, with items still pending tracked under `## Still Not Final`.
 
 shadowMAS is not:
 - the product application itself
