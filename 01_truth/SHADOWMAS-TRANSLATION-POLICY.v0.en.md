@@ -37,7 +37,7 @@ Use English for:
 - registry definitions
 - agent-facing rule files
 - machine-stable schemas
-- CLI/runtime/governance technical contracts
+- CLI/runtime/authority-boundary technical contracts
 
 ### zh-TW
 Use zh-TW for:
@@ -107,7 +107,7 @@ Examples:
 - `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
 
 ### Likely to need zh-TW companion later
-- governance overview
+- authority-boundary overview
 - packet explanation
 - memory-plane rationale
 - local model rationale
@@ -132,7 +132,7 @@ If no:
 
 ### When a zh-TW file changes
 Ask:
-1. Did the actual governance/truth change?
+1. Did the actual authority-boundary/truth change?
 2. Or is this only explanation/clarification?
 
 If only explanation changed:
@@ -185,7 +185,7 @@ Do not mirror every English file into zh-TW by default.
 
 New zh-TW files require justification such as:
 - onboarding value
-- governance explanation value
+- authority-boundary explanation value
 - high confusion risk without human explanation
 - major decision rationale value
 

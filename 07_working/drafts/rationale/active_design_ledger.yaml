@@ -680,8 +680,8 @@ working_disposition_review:
       recommended_lane: P2_runtime_signal
       rationale: >
         Read-only overlap review concluded that field_navigation_policy adds no new
-        normative governance content. forbidden_actions duplicate canonical
-        governance/prompt-layering rules; readable_zones and writable_zones are the
+        normative authority-boundary content. forbidden_actions duplicate canonical
+        authority-boundary/prompt-layering rules; readable_zones and writable_zones are the
         agent-side inverse of P2-003 signal_field_zone readable_by/writable_by; and
         selection_rule depends on residual_action_value/P2-007 if present.
       overlap_review_targets:
@@ -693,7 +693,7 @@ working_disposition_review:
         agent_id:
           maps_to: operational_agent_identifier
           canonical_owner: null
-          note: no standalone governance candidate required
+          note: no standalone authority-boundary candidate required
         readable_zones:
           maps_to: derived_inverse_of_P2_003_readable_by
           canonical_owner: P2-003_signal_field_zone
@@ -718,7 +718,7 @@ working_disposition_review:
           maps_to:
             - SHADOWMAS_GOVERNANCE_MATRIX_promotion_rules
             - SHADOWMAS_PROMPT_LAYERING_CONTRACT_layer_boundaries
-          canonical_owner: canonical_governance_and_prompt_layering_surfaces
+          canonical_owner: canonical_authority_boundary_and_prompt_layering_surfaces
           note: pointer to canonical rules, not a redefinition
           must_not_do:
             - do_not_duplicate_canonical_rules_under_new_name

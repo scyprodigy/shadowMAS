@@ -110,7 +110,7 @@ rules:
   - scope must be bounded
   - acceptance_criteria must be concrete
   - stop_conditions must exist for non-trivial work
-  - why_now, inputs, worker_plan, on_blocked, and deliverables are execution control aids, not governance authority replacement
+  - why_now, inputs, worker_plan, on_blocked, and deliverables are execution control aids, not authority replacement
   - inputs.required_context identifies blocking context; inputs.optional_context identifies useful but non-blocking context
   - worker_plan must stay minimal and actionable, not a giant essay
   - on_blocked must define constrained next-step behavior, not free-form improvisation

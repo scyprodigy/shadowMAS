@@ -2,7 +2,7 @@
 > authority: none
 > not canonical truth
 > not runtime implementation
-> not packet schema law unless later promoted through governance
+> not packet schema law unless later promoted through packet-boundary review
 > source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # PACKET-COMPATIBILITY-LAYER.v0
@@ -25,7 +25,7 @@ Runtime adapters adapt execution and do not redefine truth.
 - no validator, CI, or YAML diff implementation
 - no new canonical packet family
 - no final packet storage location
-- no full SemVer or version-governance edge-case resolution
+- no full SemVer or version-authority edge-case resolution
 
 ## Compatibility Levels
 Packet compatibility is not binary. It must preserve uncertainty and loss.
@@ -34,7 +34,7 @@ PC-levels are packet-compatibility maturity levels, not shadowMAS L-layer role/o
 - `PC0 raw_intake_evidence`: raw chat/doc/output/source; no direct routing; no promotion.
 - `PC1 adapter_wrapped_artifact`: raw source plus metadata; limited routing; no direct promotion.
 - `PC2 packet_candidate`: normalized packet-shaped object; may route after review; no direct canonical promotion.
-- `PC3 approved_packet`: reviewed packet; may route; promotion only through governed gate.
+- `PC3 approved_packet`: reviewed packet; may route; promotion only through approved packet/truth gate.
 
 ## Routing Permission by Level
 - `PC0`: may be inspected by a human or adapter, but should not be routed as a task packet
@@ -46,7 +46,7 @@ PC-levels are packet-compatibility maturity levels, not shadowMAS L-layer role/o
 - `PC0`: no promotion
 - `PC1`: no direct promotion; may become PC2 after normalization
 - `PC2`: no direct canonical promotion; may be reviewed for approval
-- `PC3`: promotion beyond packet handling still requires the governed truth gate
+- `PC3`: promotion beyond packet handling still requires the approved truth gate
 
 ## Minimum Contract Elements
 Each level record SHOULD include:
@@ -74,7 +74,7 @@ Packet contract remains logical; YAML is the v0 default codec.
 This draft does not replace canonical `02_packets` packet files.
 
 Rules:
-- canonical packet fields remain governed by `02_packets/`
+- canonical packet fields remain controlled by `02_packets/`
 - `packet_common_shell.PROPOSAL.v0.yaml` is proposal evidence only
 - adapter-wrapped artifacts may point toward packet shape, but they are not approved packets
 - compatibility levels describe intake maturity, not truth authority
@@ -94,7 +94,7 @@ Rules:
 
 ## Promotion Requirements
 Before promotion, this draft needs:
-- human governance review
+- human review through the packet promotion path
 - reconciliation with canonical packet dictionary and schemas
 - examples for all four levels
 - decision on storage and lifecycle

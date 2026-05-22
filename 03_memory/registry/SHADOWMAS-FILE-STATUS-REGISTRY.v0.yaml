@@ -107,7 +107,7 @@ tracked_files:
     owner: human_governance
     writable_by:
       - human_governance
-    notes: Layering contract for prompt/rule governance.
+    notes: Layering contract for prompt/rule authority boundaries.
 
   - path: 01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
     artifact_type: formal_truth

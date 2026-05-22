@@ -15,7 +15,7 @@ trigger_types:
 suggested_sink_values:
   - execution_patch
   - project_patch
-  - governance_candidate
+  - authority_boundary_candidate
   - no_action
 entries: []
 entry_schema:
@@ -25,7 +25,7 @@ entry_schema:
   short_summary: "string"
   impact: "low | medium | high | critical"
   repeat_count: "integer"
-  suggested_sink: "execution_patch | project_patch | governance_candidate | no_action"
+  suggested_sink: "execution_patch | project_patch | authority_boundary_candidate | no_action"
   source_refs:
     - source_type: "file | session_handoff | packet | repo_doc | external_reference"
       source_path: "string"
@@ -54,24 +54,24 @@ identified_gaps:
     status: draft_authored
     draft_path: "07_working/drafts/runtime_adapter/AGENT-JOIN-CONTRACT.v0.en.md"
     do_not_promote: true
-    reason: "runtime-adapter must not preempt version-governance lane"
+    reason: "runtime-adapter must not preempt version-authority lane"
   - id: PROJECT-INTAKE-CONTRACT
     status: draft_authored
     draft_path: "07_working/drafts/runtime_adapter/PROJECT-INTAKE-CONTRACT.v0.en.md"
     do_not_promote: true
-    reason: "runtime-adapter must not preempt version-governance lane"
+    reason: "runtime-adapter must not preempt version-authority lane"
   - id: LEGACY-INTAKE-NORMALIZATION
     status: draft_authored
     draft_path: "07_working/drafts/runtime_adapter/LEGACY-INTAKE-NORMALIZATION.v0.en.md"
     do_not_promote: true
-    reason: "runtime-adapter must not preempt version-governance lane"
+    reason: "runtime-adapter must not preempt version-authority lane"
   - id: PACKET-COMPATIBILITY-LAYER
     status: draft_authored
     draft_path: "07_working/drafts/packet/PACKET-COMPATIBILITY-LAYER.v0.en.md"
     do_not_promote: true
-    reason: "runtime-adapter must not preempt version-governance lane"
+    reason: "runtime-adapter must not preempt version-authority lane"
   - id: RUNTIME-ADAPTER-CONTRACT
     status: draft_authored
     draft_path: "07_working/drafts/runtime_adapter/RUNTIME-ADAPTER-CONTRACT.v0.en.md"
     do_not_promote: true
-    reason: "runtime-adapter must not preempt version-governance lane"
+    reason: "runtime-adapter must not preempt version-authority lane"
