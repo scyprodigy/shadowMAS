@@ -6,6 +6,6 @@
 
 This directory is declared by the shadowMAS v0 memory-plane structure (see `03_memory/MEMORY-PLANE-HARNESS.v0.en.md` and the Memory Direction section of `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`) but is intentionally unimplemented in v0.
 
-No backend, schema, or contract for this plane is canonical yet. Memory backend selection is an implementation detail deferred past v0. Any future content here still requires the standard governance and promotion path; it does not become canonical or shared memory by virtue of being placed in this folder. Cross-agent shared memory in particular is gated by the documented promotion boundary; nothing here is automatically shared.
+No backend, schema, or contract for this plane is canonical yet. Memory backend selection is an implementation detail deferred past v0. Any future content here still requires the standard packet review / promotion path; it does not become canonical or shared memory by virtue of being placed in this folder. Cross-agent shared memory in particular is gated by the documented promotion boundary; nothing here is automatically shared.
 
 This README exists so that the directory is tracked in git and so that an agent or human reader does not mistake an empty directory for a structural defect.

@@ -3,12 +3,15 @@
 ## Purpose
 This file defines the minimum memory-plane harness for shadowMAS v0.
 
+The memory plane is a shadow surface, not a memory database. It defines how memory-shaped packets, candidates, session traces, and reusable lessons remain inspectable, invalidatable, and below human-approved truth while the underlying memory backend may change.
+
 Its goal is to:
 - separate truth from memory
 - separate durable memory from temporary state
 - separate reusable knowledge from execution residue
 - define promotion and invalidation boundaries
 - provide a stable base for future packet and retrieval work
+- reduce future token cost and semantic drift without creating hidden authority
 
 This is a minimum harness, not a full memory platform.
 
@@ -80,7 +83,7 @@ Typical contents:
 - approved heuristics
 - recurring known-good patterns
 - stable interpretation notes
-- reusable governance knowledge
+- reusable authority-boundary knowledge
 - reusable tooling notes
 
 Properties:
@@ -96,7 +99,7 @@ Approved repo truth remains first truth source.
 
 That includes:
 - formal truth docs
-- approved governance docs
+- approved authority-boundary docs
 - approved packet definitions
 - approved project canonical docs when shadowMAS touches a project
 

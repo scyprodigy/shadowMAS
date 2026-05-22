@@ -100,7 +100,7 @@ Rules:
 Skills are runtime support material.
 
 Rules:
-- skills may provide reusable methods or task-specific workflows
+- skills may provide reusable methods or task-specific task procedures
 - skills must not become canonical truth by invocation
 - skill output must be reviewed like other execution feed
 - adapter-specific skill behavior requires host validation
@@ -129,7 +129,7 @@ Returned output SHOULD include:
 ## Protected Actions
 Protected actions include:
 - editing canonical truth layers
-- writing product repo files without governed task approval
+- writing product repo files without approved task-packet authorization
 - changing schema, auth, security, or architecture outside scope
 - creating hooks, validators, CI, `install.sh`, or `distribute.sh`
 - creating AGENTS.md symlinks
@@ -169,9 +169,9 @@ Runtime adapter evidence MAY support later canonical work, but it does not becom
 
 ## Promotion Requirements
 Before promotion, this draft needs:
-- human governance review
+- human review through the packet promotion path
 - host-specific validation for Claude Code, Cursor, Codex, Ollama, hooks, and skills
-- reconciliation with prompt layering and governance matrix truth
+- reconciliation with prompt layering and authority-boundary matrix truth
 - explicit decision on adapter manifest ownership
 - review of protected actions and write-back boundaries
 

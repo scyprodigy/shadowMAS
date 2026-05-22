@@ -109,7 +109,7 @@ This layer covers:
 
 This layer must not:
 - replace project canonical truth
-- replace shadowMAS governance
+- replace shadowMAS authority-boundary truth
 - redefine reusable shared-core rules
 - pretend to be the top authority
 
@@ -205,7 +205,7 @@ Layer 5 must not become:
 
 ### Project Execution may not
 - redefine reusable cross-project rules as if global
-- bypass shadowMAS governance for promotion/review/write-back control
+- bypass shadowMAS packet-boundary discipline for promotion/review/write-back control
 - claim authority over other project repos
 
 ### Runtime Adapter Prompt may

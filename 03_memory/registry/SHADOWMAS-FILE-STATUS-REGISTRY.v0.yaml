@@ -10,7 +10,7 @@ scope_invariant:
   - Explicit registry entries are required only for files whose authority, status, promotion meaning, or reuse risk must be machine-visible.
   - Folder defaults may classify repeated low-risk areas.
   - Examples are non-canonical illustrative material and must not be treated as truth files or packet schemas.
-  - Scripts are executable support surfaces, not governance truth, unless a specific script becomes governance-critical enough to require explicit status.
+  - Scripts are executable support surfaces, not authority-boundary truth, unless a specific script becomes boundary-critical enough to require explicit status.
   - Working drafts are working-only by default unless a specific draft becomes a promotion candidate or governed support artifact.
 
 status_definitions:
@@ -116,7 +116,7 @@ tracked_files:
     owner: human_governance
     writable_by:
       - human_governance
-    notes: Active governance matrix.
+    notes: Active authority-boundary and promotion matrix.
 
   - path: 01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md
     artifact_type: formal_truth
