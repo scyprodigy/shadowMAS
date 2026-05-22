@@ -97,6 +97,8 @@ STATUS_VALUES = {
     },
 }
 
+REVIEW_RECOMMENDATION_VALUES = {"approve", "reject", "revise", "defer", "escalate"}
+
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}
 
 
@@ -250,6 +252,24 @@ def validate_status(data: dict[str, Any], packet_type: str, file_name: str) -> l
                 "status",
                 "$.status",
                 f'status "{status}" is not allowed for {packet_type}; allowed: {allowed}',
+            )
+        ]
+    return []
+
+
+def validate_review_recommendation(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    recommendation = data.get("recommendation")
+    if recommendation is None:
+        return []
+    if recommendation not in REVIEW_RECOMMENDATION_VALUES:
+        allowed = ", ".join(sorted(REVIEW_RECOMMENDATION_VALUES))
+        return [
+            make_error(
+                "INVALID_RECOMMENDATION",
+                file_name,
+                "recommendation",
+                "$.recommendation",
+                f'recommendation "{recommendation}" is not allowed for review_packet; allowed: {allowed}',
             )
         ]
     return []
@@ -456,6 +476,8 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     errors.extend(validate_required(data, packet_type, file_name))
     errors.extend(validate_schema_version(data, path))
     errors.extend(validate_status(data, packet_type, file_name))
+    if packet_type == "review_packet":
+        errors.extend(validate_review_recommendation(data, file_name))
     errors.extend(validate_source_refs(data, file_name))
     errors.extend(validate_artifact_refs(data, file_name))
     errors.extend(validate_handoff(data, file_name))

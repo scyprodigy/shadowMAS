@@ -7,8 +7,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO_ROOT / "tools" / "shadowmas_minimal_validator.py"
+PACKET_VALIDATOR = REPO_ROOT / "05_scripts" / "validate" / "shadowmas_validate.py"
 POSITIVE_FIXTURE = REPO_ROOT / "examples" / "demo_signal_governance.json"
 NEGATIVE_FIXTURE = REPO_ROOT / "examples" / "demo_signal_governance_violation.json"
+VALID_REVIEW_PACKET = REPO_ROOT / "examples" / "packets" / "review_packet.valid.v0.yaml"
+VALID_TASK_PACKET = REPO_ROOT / "examples" / "packets" / "task_packet.valid.v0.yaml"
 SINGLE_FLAG_DIR = REPO_ROOT / "examples" / "mutations" / "single_flag"
 PARTIAL_COMPLIANCE_DIR = REPO_ROOT / "examples" / "mutations" / "partial_compliance"
 L1_REPORT = REPO_ROOT / "07_working" / "drafts" / "rationale" / "l1_mutation_coverage_report.md"
@@ -90,6 +93,26 @@ def run_validator(fixture_path):
         text=True,
         cwd=REPO_ROOT,
     )
+
+
+def run_packet_validator(packet_path):
+    return subprocess.run(
+        [sys.executable, str(PACKET_VALIDATOR), str(packet_path)],
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+
+def write_temp_packet(text):
+    fh = tempfile.NamedTemporaryFile(
+        mode="w", suffix=".v0.yaml", delete=False, encoding="utf-8"
+    )
+    try:
+        fh.write(text)
+    finally:
+        fh.close()
+    return Path(fh.name)
 
 
 class ShadowmasMinimalValidatorTests(unittest.TestCase):
@@ -232,6 +255,73 @@ class L1MutationCorpusTests(unittest.TestCase):
         self.assertIn("0/15", text)
         for _, invariant in MUTATION_MAPPING:
             self.assertIn(invariant, text, f"report must mention invariant {invariant!r}")
+
+
+class ShadowmasPacketValidatorTests(unittest.TestCase):
+    def test_review_packet_recommendation_enum_values_pass(self):
+        base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
+
+        for recommendation in ("approve", "reject", "revise", "defer", "escalate"):
+            with self.subTest(recommendation=recommendation):
+                tmp_path = write_temp_packet(
+                    base_text.replace("recommendation: defer", f"recommendation: {recommendation}")
+                )
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_review_packet_invalid_recommendation_fails(self):
+        base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text.replace("recommendation: defer", "recommendation: maybe")
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("ERROR INVALID_RECOMMENDATION", result.stdout)
+        self.assertIn("field: recommendation", result.stdout)
+        self.assertIn("path: $.recommendation", result.stdout)
+
+    def test_review_packet_missing_recommendation_still_uses_required_field_error(self):
+        lines = [
+            line
+            for line in VALID_REVIEW_PACKET.read_text(encoding="utf-8").splitlines()
+            if not line.startswith("recommendation:")
+        ]
+        tmp_path = write_temp_packet("\n".join(lines) + "\n")
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("ERROR REQUIRED_FIELD_MISSING", result.stdout)
+        self.assertIn("field: recommendation", result.stdout)
+        self.assertNotIn("ERROR INVALID_RECOMMENDATION", result.stdout)
+
+    def test_task_packet_validation_is_unaffected_by_recommendation_enum(self):
+        result = run_packet_validator(VALID_TASK_PACKET)
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
 
 
 if __name__ == "__main__":
