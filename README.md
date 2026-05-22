@@ -144,7 +144,7 @@ shadowMAS ships three small read-only command surfaces. Each handles a different
 
 | Command | Artifact it accepts | What it checks | Exit codes |
 |---|---|---|---|
-| `python3 tools/shadowmas_minimal_validator.py <demo.json>` | One L1 governance demo JSON (see `examples/demo_signal_governance*.json` and `examples/mutations/`) | 15 authority-boundary invariants (runtime-signal / audit-projection / dashboard / human-final-authority) | `0` all PASS · `1` one or more FAIL |
+| `python3 tools/shadowmas_minimal_validator.py <demo.json>` | One L1 authority-boundary demo JSON (see `examples/demo_signal_governance*.json` and `examples/mutations/`) | 15 authority-boundary invariants (runtime-signal / audit-projection / dashboard / human-final-authority) | `0` all PASS · `1` one or more FAIL |
 | `python3 tools/inspect_l2_fixture.py <l2_fixture.json>` | One L2 multi-step handoff trace JSON (see `examples/traces/l2_handoff/`) | Required top keys, `level: L2`, authority-layer / trace-step consistency, unsafe-transition shape | `0` pass · `1` fail (JSON report on stdout either way) |
 | `python3 05_scripts/validate/shadowmas_validate.py <packet-file>` | One YAML packet artifact (`task_packet` / `memory_packet` / `review_packet`) | Family-required fields, `schema_version: v0`, filename–schema major alignment, family status enum, `source_refs` / `artifact_refs` / `handoff` shape | `0` valid · `1` validation errors · `2` usage / input / parse failure |
 
@@ -167,7 +167,7 @@ shadowMAS exists to reduce five failure modes that become common once AI work gr
 
 - **authority confusion** — who may decide, who may execute, and who may promote results
 - **truth confusion** — execution output, cache, and drafts being mistaken for canonical truth
-- **giant prompt collapse** — reusable rules, governance, project truth, and runtime-specific constraints being flattened into one blob
+- **giant prompt collapse** — reusable rules, authority-boundary rules, project truth, and runtime-specific constraints being flattened into one blob
 - **intake chaos** — blind full-repo traversal instead of controlled entry and compiled intake
 - **mergeback contamination** — authority-boundary artifacts spilling into product repos or overriding project-domain truth
 - **semantic drift** — memory, lessons, reviews, and agent outputs changing meaning as projects, runtimes, and tools evolve

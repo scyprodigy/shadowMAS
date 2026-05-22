@@ -1,12 +1,12 @@
 # SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
 
 ## Purpose
-This file defines the layering contract for reusable system rules, shadowMAS coordination / governance-boundary rules, project-local execution rules, runtime-specific adapter prompts, and host-native opaque prompts.
+This file defines the layering contract for reusable system rules, shadowMAS coordination / authority-boundary rules, project-local execution rules, runtime-specific adapter prompts, and host-native opaque prompts.
 
 Its goal is to prevent:
 - giant prompt collapse
 - scope collision
-- governance overreach
+- authority overreach
 - project-truth overwrite
 - runtime-specific confusion
 - hidden host-prompt misunderstanding
@@ -51,12 +51,12 @@ This layer must not contain:
 
 ### Layer 2: shadowMAS Coordination / Governance Shadow
 Definition:
-Global coordination and governance-boundary layer for packet routing, memory, promotion, invalidation, indexing, review, lesson handling, registry, mergeback, and write-back boundaries.
+Global coordination and authority-boundary layer for packet routing, memory, promotion, invalidation, indexing, review, lesson handling, registry, mergeback, and write-back boundaries.
 
 This layer covers:
 - packet discipline
 - handoff discipline
-- memory-plane governance
+- memory-plane boundary discipline
 - promotion/invalidation
 - file-status logic
 - mergeback boundaries
@@ -78,7 +78,7 @@ This layer covers:
 - API contracts
 - field dictionary
 - ERD
-- schema/migration governance
+- schema/migration authority handling
 - implementation landing zones
 - project-specific role/scope rules
 
@@ -116,7 +116,7 @@ This layer must not:
 ### Runtime Skill Package Classification
 Runtime skill packages, including platform-native or `SKILL.md`-style skill folders, may be classified as Prompt Layer 4: Runtime Adapter Prompt helpers when used by an execution environment.
 
-They are execution helpers, not canonical truth, not packet families, not promotion gates, not governance authorities, and not human authority.
+They are execution helpers, not canonical truth, not packet families, not promotion gates, not authority-boundary sources, and not human authority.
 
 Skill output remains execution feed unless it is explicitly captured, reviewed, and promoted through shadowMAS packet / review / promotion boundaries.
 

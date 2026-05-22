@@ -19,7 +19,7 @@ Current intended use:
 - extraction support
 - context reduction support
 - structured summarization
-- simple governance-adjacent helper tasks
+- simple authority-boundary-adjacent helper tasks
 - not final human-authority decision making
 
 ### Embedding model
@@ -81,7 +81,7 @@ Best suited for:
 - helper-level transformation work
 
 Not intended for:
-- final governance authority
+- final authority-boundary decision authority
 - blind whole-repo reasoning
 - replacing project truth decisions
 - replacing human approval
@@ -191,7 +191,7 @@ Examples:
 - semantic lookup -> embedding lane
 - small text cleanup -> local small text model lane
 - schema validation -> rules/schema lane, not freeform text reasoning
-- final governance decision -> human or high-authority review lane
+- final authority-boundary decision -> human or high-authority review lane
 
 ### Prompt Compact Position
 Prompt/context compaction is already part of the design direction.

@@ -183,7 +183,7 @@ shadowMAS 自己的影子協調與邊界規則，例如：
 
 ### L-layer
 角色責任層
-- L1 Human + high-level governance
+- L1 Human + high-level authority review
 - L2 delegated planning
 - L3 execution
 - L4 mergeback / sync

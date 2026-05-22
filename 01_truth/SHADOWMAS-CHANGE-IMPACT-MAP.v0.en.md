@@ -198,7 +198,7 @@ Must review/update:
   - `06_human_docs/zh-TW/rationale/`
   - `06_human_docs/zh-TW/references/`
 
-Formal truth docs only need updating if the explanation reflects a true governance/truth change.
+Formal truth docs only need updating if the explanation reflects a true authority-boundary/truth change.
 
 ## 13. Rule for canonical vs human-doc update
 If a formal English truth file changes:

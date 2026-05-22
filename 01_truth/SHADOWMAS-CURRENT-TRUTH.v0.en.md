@@ -42,7 +42,7 @@ shadowMAS exists to reduce five recurring failure modes in AI-assisted work:
 - truth confusion
 - giant prompt collapse
 - blind intake / full-repo traversal by default
-- mergeback contamination between governance and product repos
+- mergeback contamination between authority-boundary artifacts and product repos
 - semantic drift across agents, memory, runtime adapters, lessons, and project-local truth
 
 This problem profile explains why shadowMAS is authority-boundary-first, hard-separated, and machine-first at key boundaries.
@@ -147,7 +147,7 @@ For:
 - review
 - explanation
 - onboarding
-- governance reasoning
+- authority-boundary reasoning
 - design rationale
 
 Language preference:

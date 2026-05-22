@@ -2,7 +2,7 @@
 > authority: none
 > not canonical truth
 > not runtime implementation
-> not packet schema law unless later promoted through governance
+> not packet schema law unless later promoted through packet-boundary review
 > source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # RUNTIME-ADAPTER-CONTRACT.v0
@@ -27,7 +27,7 @@ A runtime adapter adapts execution. It does not redefine truth.
 - no final runtime adapter architecture
 - no canonical promotion into `04_runtime/`
 - no product repo write-back
-- no resolution of version-governance edge cases
+- no resolution of version-authority edge cases
 
 ## Runtime Adapter Identity
 A draft runtime adapter identity SHOULD include:
@@ -73,7 +73,7 @@ Runtime adapter prompts are Layer 4 material.
 Rules:
 - prompts may compress or adapt layered rules for one host
 - prompts must not redefine Shared Core, shadowMAS Coordination / Governance Shadow, or Project Execution truth
-- prompt compression or adaptation must not drop must-see governance constraints
+- prompt compression or adaptation must not drop must-see authority-boundary constraints
 - generated prompt files are projections unless separately approved
 - prompt delivery paths remain draft until validated per host
 

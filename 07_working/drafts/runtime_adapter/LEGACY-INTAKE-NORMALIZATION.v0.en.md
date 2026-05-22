@@ -2,7 +2,7 @@
 > authority: none
 > not canonical truth
 > not runtime implementation
-> not packet schema law unless later promoted through governance
+> not packet schema law unless later promoted through packet-boundary review
 > source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # LEGACY-INTAKE-NORMALIZATION.v0

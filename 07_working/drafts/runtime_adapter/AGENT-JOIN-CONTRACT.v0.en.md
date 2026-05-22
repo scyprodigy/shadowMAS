@@ -2,7 +2,7 @@
 > authority: none
 > not canonical truth
 > not runtime implementation
-> not packet schema law unless later promoted through governance
+> not packet schema law unless later promoted through packet-boundary review
 > source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
 
 # AGENT-JOIN-CONTRACT.v0
@@ -56,7 +56,7 @@ Rules:
 - dynamic/self-claim role assignment remains disabled for v0 unless later approved
 - agents must not promote T4/T5 material directly into T2 truth
 - an agent join record is evidence for routing, not approval to modify canonical truth
-- runtime or host capability does not create governance authority or write permission
+- runtime or host capability does not create authority-boundary authority or write permission
 
 ## Required Intake Files
 Before joining work, an agent SHOULD receive or be pointed to:

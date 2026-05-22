@@ -113,7 +113,7 @@ It is not parser authority when `schema_version` exists.
 Rules:
 - filename major and in-artifact major should remain aligned
 - mismatch between filename `.vN` and `major(schema_version)` should be treated as a review-blocking condition
-- use SemVer-aligned PATCH / MINOR / MAJOR language as governance language only; this dictionary does not formalize full SemVer adoption
+- use SemVer-aligned PATCH / MINOR / MAJOR language as review language only; this dictionary does not formalize full SemVer adoption
 - strict full SemVer validation is not adopted by this patch
 - additive optional fields are normally backward-compatible if they do not change existing requiredness, type, meaning, default behavior, or allowed-value semantics
 - changes to requiredness, type, semantic meaning, default behavior, or wire-visible identifier names are breaking contract changes
@@ -473,7 +473,7 @@ Meaning:
 Which truth files, truth layers, or authority surfaces this task may affect.
 
 Rule:
-- critical for governance safety
+- critical for authority-boundary safety
 - required
 
 ### `worker_plan`
@@ -498,7 +498,7 @@ Why this task should be acted on now instead of later.
 
 Rule:
 - optional execution-scoping context
-- not governance authority by itself
+- not authority by itself
 
 ### `inputs`
 Meaning:
@@ -593,6 +593,9 @@ Examples:
 - `resolved_pattern`
 - `tooling_note`
 - `governance_note`
+
+Note:
+- `governance_note` is a historical allowed value name; interpret it as an authority-boundary note, not runtime ownership.
 
 ### `memory_scope`
 Meaning:
@@ -888,7 +891,7 @@ Do not confuse:
 - `source_ref` with approval
 - `artifact_ref` with promotion
 - `summary` with structured payload
-- `status` with governance tier
+- `status` with authority tier
 - `status` with `invalidation.current_state`
 - `validity` with authority
 - `source_hashes` with approval proof
