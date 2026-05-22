@@ -16,11 +16,11 @@ A change is not considered aligned until all impacted truth layers are checked.
 Not every impacted file must always be changed,
 but every impacted layer must be reviewed.
 
-## 1. Governance identity change
+## 1. System identity / authority-boundary change
 Examples:
 - redefining what shadowMAS is
 - changing hard separation rule
-- changing governance weight model
+- changing authority-boundary weight model
 - changing layer meanings
 
 Must review/update:
@@ -48,7 +48,7 @@ Must review/update:
 - `00_entry/SHADOWMAS-LAYERING-QUICKREF.v0.en.md`
 - `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
 
-## 3. Governance matrix change
+## 3. Authority-boundary matrix change
 Examples:
 - changing L-layer meaning
 - changing T-layer meaning
@@ -119,7 +119,7 @@ Examples:
 - changing text model
 - changing embedding model
 - changing Ollama deployment side
-- changing retrieval-first workflow
+- changing retrieval-first task flow
 - changing Chroma/Qdrant choice
 
 Must review/update:
@@ -231,4 +231,4 @@ The following may later refine this map:
 - final runtime-adapter file set
 - final ADR structure
 - final write-back contract docs
-- final normalization workflow for contaminated project repos
+- final normalization procedure for contaminated project repos

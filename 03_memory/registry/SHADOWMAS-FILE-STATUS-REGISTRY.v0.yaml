@@ -11,7 +11,7 @@ scope_invariant:
   - Folder defaults may classify repeated low-risk areas.
   - Examples are non-canonical illustrative material and must not be treated as truth files or packet schemas.
   - Scripts are executable support surfaces, not authority-boundary truth, unless a specific script becomes boundary-critical enough to require explicit status.
-  - Working drafts are working-only by default unless a specific draft becomes a promotion candidate or governed support artifact.
+  - Working drafts are working-only by default unless a specific draft becomes a promotion candidate or authority-boundary support artifact.
 
 status_definitions:
   handoff_only:
@@ -27,7 +27,7 @@ status_definitions:
     truth_level: pending_review
 
   approved_truth:
-    meaning: Approved canonical or governed truth artifact.
+    meaning: Approved canonical or authority-boundary truth artifact.
     truth_level: authoritative
 
   shared_memory_candidate:
@@ -59,7 +59,7 @@ authority_definitions:
     meaning: Formal source of truth.
 
   governed_support:
-    meaning: Important support artifact under governance, but not top canonical truth.
+    meaning: Historical status label for an important authority-boundary support artifact that is not top canonical truth.
 
   human_navigation:
     meaning: Human-facing explanation or navigation artifact.
@@ -236,11 +236,11 @@ folder_defaults:
 
 review_rules:
   - rule: approved_truth must not be overwritten by working_draft without explicit human review.
-  - rule: draft entry into 07_working/drafts/ is governed by 07_working/DRAFT-ENTRY-RULE.v0.en.md as working-area intake handling only; it does not create truth authority or change status/authority semantics.
+  - rule: draft entry into 07_working/drafts/ is controlled by 07_working/DRAFT-ENTRY-RULE.v0.en.md as working-area intake handling only; it does not create truth authority or change status/authority semantics.
   - rule: zh-TW human_navigation docs do not override English canonical truth.
   - rule: new or materially changed packet schema artifacts must be reviewed before promotion or continued retention as approved_truth.
   - rule: packet dictionary and packet schema artifacts remain approved canonical machine-contract surfaces when listed with status approved_truth and authority canonical.
-  - rule: materially changed packet schema artifacts require governance review for schema_version authority, filename-major alignment, optional additive compatibility, breaking changes, deprecation-before-removal, and retired identifier reuse.
+  - rule: materially changed packet schema artifacts require authority-boundary review for schema_version authority, filename-major alignment, optional additive compatibility, breaking changes, deprecation-before-removal, and retired identifier reuse.
   - rule: packet and registry review guidance does not reopen completed packet/registry reconciliation unless a concrete contradiction is found.
   - rule: handoff_only artifacts must not silently become canonical truth.
   - rule: source changed events must mark dependent shared memory or reusable artifacts as stale until revalidated.

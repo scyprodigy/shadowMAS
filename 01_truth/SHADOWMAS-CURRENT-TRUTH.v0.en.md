@@ -23,7 +23,7 @@ It exists to:
 - reduce long-run token cost, semantic friction, repeated rediscovery, and hidden correction cost across changing tools and projects
 - preserve human final authority over approval, rejection, revision, escalation, trust elevation, canonical truth, approved shared memory, and canonical product-branch promotion
 
-Within shadowMAS-shaped workflows, the governance shadow is a mandatory internal authority-boundary discipline: information must not be promoted beyond the authority warranted by the T0–T5 layer model and its promotion path, and final authority remains human. This file does not claim that the current repository automatically enforces these boundaries inside downstream application runtimes or guarantees production safety. These responsibilities are the canonical design surface; the current shipped implementation covers only a subset, with items still pending tracked under `## Still Not Final`.
+Within shadowMAS-shaped packet/task flows, the governance shadow is a mandatory internal authority-boundary discipline: information must not be promoted beyond the authority warranted by the T0–T5 layer model and its promotion path, and final authority remains human. This file does not claim that the current repository automatically enforces these boundaries inside downstream application runtimes or guarantees production safety. These responsibilities are the canonical design surface; the current shipped implementation covers only a subset, with items still pending tracked under `## Still Not Final`.
 
 shadowMAS is not:
 - the product application itself
@@ -84,7 +84,7 @@ Typical integration points:
 ## Shadow Boundary Weight Model
 Governance here means authority-boundary discipline, not runtime ownership.
 
-- governance highest: shadowMAS
+- authority-boundary highest: shadowMAS
 - business/domain highest: project canonical truth
 - shared core sits between them
 - shared core must not directly override project domain facts
@@ -103,7 +103,7 @@ Global shadow-boundary discipline for packet routing, memory, promotion, invalid
 ## Current Operational Layer Model
 
 ### Role / Operation Layer
-- `L1`: Human + high-level AI governance
+- `L1`: Human + high-level AI authority review
 - `L2`: Delegated decision / planning
 - `L3`: Execution / repo implementation
 - `L4`: Mergeback / sync
@@ -350,7 +350,7 @@ Do not hard-finalize yet:
 - final promotion gate semantics
 - final file-status registry schema
 - final DSL form
-- final git workflow
+- final git review / merge procedure
 - final bilingual sync lifecycle
 - final write-back automation contract
 
@@ -371,7 +371,7 @@ This means:
 - structured schema tasks should prefer structure-safe lanes
 - embedding/retrieval tasks should prefer embedding lanes
 - low-cost normalization tasks may prefer small local text models
-- final governance decisions must not be delegated to cheap helper models
+- final authority-boundary decisions must not be delegated to cheap helper models
 
 ### Machine-First Normalization Principle
 Files under machine-first layers must converge toward:

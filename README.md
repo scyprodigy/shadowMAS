@@ -22,7 +22,7 @@ Seeing a runtime signal is not the same as trusting it, storing it, promoting it
 
 shadowMAS is in controlled-alpha state. You can evaluate its current public surfaces locally through authority-boundary fixtures, packet validators, and inspection helpers. It is not a mature package-level adoption path. When evaluating, pin to a specific commit so your local impressions stay reproducible.
 
-Clone shadowMAS into a directory parallel to your product repo, not inside it, for the first evaluation pass. Do not run the workspace tooling (`05_scripts/workspace/shadowmas_workspace.py`) against your product repo until after you have completed the steps below and decided that shadowMAS belongs in your workflow at all.
+Clone shadowMAS into a directory parallel to your product repo, not inside it, for the first evaluation pass. Do not run the workspace tooling (`05_scripts/workspace/shadowmas_workspace.py`) against your product repo until after you have completed the steps below and decided that shadowMAS belongs in your working practice at all.
 
 1. Enter the shadowMAS repository directory.
 
@@ -67,7 +67,7 @@ Do not commit shadowMAS-generated or copied working artifacts into your product 
 
 ### Human decision point
 
-shadowMAS does not act on your product repo by itself. After the quickstart, the product-repo owner remains the sole authority for domain truth and for deciding whether any shadowMAS rule, fixture, or workflow pattern should be adopted into the product repo. shadowMAS provides material to inspect, not a verdict to apply.
+shadowMAS does not act on your product repo by itself. After the quickstart, the product-repo owner remains the sole authority for domain truth and for deciding whether any shadowMAS rule, fixture, or task-flow pattern should be adopted into the product repo. shadowMAS provides material to inspect, not a verdict to apply.
 
 ## Minimal demo
 
@@ -322,7 +322,7 @@ This walkthrough shows the smallest end-to-end path from workspace registration 
    python3 05_scripts/workspace/shadowmas_workspace.py inspect --project /tmp/shadowmas_attach_demo
    ```
 
-   A passing run prints `OK workspace metadata valid` and confirms that `boundary.writes_product_repo` is `false` and `boundary.governance_artifacts_external` is `true` — the workspace will not write into the product-repo-like directory, and governance artifacts live outside it.
+   A passing run prints `OK workspace metadata valid` and confirms that `boundary.writes_product_repo` is `false` and `boundary.governance_artifacts_external` is `true`. The field name is historical; it means authority-boundary artifacts live outside the product-repo-like directory, and the workspace will not write into that directory.
 
 5. Copy the existing example packet into the workspace's `packets/` subdirectory.
 
@@ -357,10 +357,10 @@ This walkthrough shows the smallest end-to-end path from workspace registration 
 What this loop does and does not assert:
 
 - In this attach loop, shadowMAS does not read inside your product repo: the workspace tool only checks that the directory exists and hashes its absolute path. It writes no files inside the product repo.
-- The current repo ships no daemon, file watcher, continuous monitor, or automatic repo scanner (for either your product repo or the workspace). Bounded repo reading or indexing belongs to the shadowMAS orchestration design only under explicit task scope authored or approved by the human; it is not blind full-repo traversal and not continuous watching.
+- The current repo ships no daemon, file watcher, continuous monitor, or automatic repo scanner (for either your product repo or the workspace). Bounded repo reading or indexing belongs to explicit packet-scoped task flow only when authored or approved by the human; it is not blind full-repo traversal and not continuous watching.
 - shadowMAS does not write back to your product repo in this loop. Future automated write-back, if enabled by a later contract, is limited to controlled candidate branches or worktrees; promotion to canonical product branches remains a human git review and merge decision.
-- In this attach loop, every workspace artifact is one you placed by hand. In future orchestrated flows, the orchestrator may emit draft packets, captured memory candidates, and review drafts; those remain draft or candidate material until human review passes them through the governed promotion path. Passing packet validation does not approve work or prove project correctness.
-- The product-repo owner decides whether any packet, artifact, or workflow should affect the product repo.
+- In this attach loop, every workspace artifact is one you placed by hand. In future packetized task flows, an external runtime or agent may emit draft packets, captured memory candidates, and review drafts; those remain draft or candidate material until human review passes them through the packet review / promotion path. Passing packet validation does not approve work or prove project correctness.
+- The product-repo owner decides whether any packet, artifact, or task flow should affect the product repo.
 
 After this loop you can also inspect the existing L2 fixtures (see Step 4 of the [Controlled alpha quickstart](#controlled-alpha-quickstart)) to compare authority-boundary traces, but those fixtures do not validate your product repo.
 
@@ -410,9 +410,9 @@ After the First attach loop, you have a workspace path from `where` and a valida
    - Exit `1` means validation errors were found.
    - Exit `2` means usage or parse failure.
 
-`review_packet` is a human approval-compression surface. It can be manually authored today, and in future orchestrated flows, shadowMAS may emit review packet drafts after delegated execution; this manual loop shows the shape those drafts must preserve.
+`review_packet` is a human approval-compression surface. It can be manually authored today, and in future packetized task flows, a runtime or agent may emit review packet drafts after delegated execution; this manual loop shows the shape those drafts must preserve.
 
-`recommendation` is advisory. The v0 schema lists `approve`, `reject`, `revise`, `defer`, and `escalate`; the current validator presence-checks `recommendation` but does not enforce the enum yet, so choose from the schema-listed values. `status` is a lifecycle field, not an enforcement gate; review packet status values are `draft`, `ready_for_human`, `under_review`, `approved`, `rejected`, `needs_revision`, and `closed`.
+`recommendation` is advisory. The v0 schema and validator allow `approve`, `reject`, `revise`, `defer`, and `escalate`. `status` is a lifecycle field, not an enforcement gate; review packet status values are `draft`, `ready_for_human`, `under_review`, `approved`, `rejected`, `needs_revision`, and `closed`.
 
 A passing review packet does not approve work, prove project correctness, enforce runtime policy, or provide production safety. A recommendation does not decide, `status` does not write back to the product repo, and nothing changes canonical truth automatically. The product-repo owner or human reviewer decides approval, rejection, revision, or escalation; review packet output is review material, not a command.
 
@@ -505,7 +505,7 @@ Current v0 intake pack:
 3. `01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md`
 4. `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
 
-For deeper governance review, also read:
+For deeper authority-boundary review, also read:
 - `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
 
 ## v0 design bias
@@ -519,7 +519,7 @@ For deeper governance review, also read:
 - bounded write-back
 
 <!-- SHADOWMAS_PRINCIPLES_PATCH:BEGIN -->
-## Core governance additions
+## Core authority-boundary additions
 - capability routing: do not route by model name alone; route by task shape and data shape
 - machine-first normalization: machine-first files must converge toward minimal, parseable, low-ambiguity structure
 - compiled intake: zero-memory intake should first be composed from existing canonical files; if a compact intake artifact is added later, it should be treated as a compiled artifact, not a new handwritten truth source

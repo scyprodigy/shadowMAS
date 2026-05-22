@@ -165,7 +165,7 @@ Layer 5 must be:
 
 Layer 5 must not become:
 - the canonical source of truth
-- a writable governance file
+- a writable authority-boundary file
 - an excuse to flatten the other layers
 
 ## Override and Boundary Rules
@@ -216,7 +216,7 @@ Layer 5 must not become:
 
 ### Runtime Adapter Prompt may not
 - redefine canonical truth
-- redefine governance boundaries
+- redefine authority-boundary rules
 - silently override project-domain facts
 - act as a hidden replacement constitution
 
@@ -225,7 +225,7 @@ Layer 5 must not become:
 
 ### Host Native / Opaque Prompt may not
 - be treated as maintainable shadowMAS truth
-- replace the explicit written governance layers
+- replace the explicit written authority-boundary layers
 - justify skipping formal source artifacts
 
 ## Conflict Resolution Rules
@@ -302,7 +302,7 @@ An agent must always ask:
 If uncertain:
 - do not guess
 - mark as unresolved
-- escalate for human or governance review
+- escalate for human or authority-boundary review
 
 ## Anti-Collapse Rule
 Do not flatten these five layers into one giant prompt or one giant truth file.
