@@ -2,11 +2,11 @@
 
 ![cover](shadowMAS.png)
 
-shadowMAS is an authority-bounded autonomous orchestration construct and open testbed for multi-agent AI work.
-It is not yet a polished open-source agent framework, and the full orchestration layer is not shipped yet — see [Current status](#current-status).
-It does not replace heavier agent orchestration frameworks; it is designed to sit beside them as a lightweight, authority-bounded coordinator.
-Its core problem is authority-bounded interpretation.
-Seeing a runtime signal is not the same as trusting it, storing it, promoting it, or acting on it.
+shadowMAS is a dynamic packetized shadow layer for agentic work.
+It defines the packet, memory, review, handoff, lesson, and authority-boundary surfaces that sit behind changing runtimes, agents, memory tools, automation tools, and project rules.
+It is not a general-purpose agent framework, memory database, workflow engine, or runtime governance engine.
+Its core problem is authority-bounded interpretation under change.
+Seeing a runtime signal is not the same as trusting it, storing it, promoting it, reusing it, or acting on it.
 
 ## Start here
 
@@ -20,7 +20,7 @@ Seeing a runtime signal is not the same as trusting it, storing it, promoting it
 
 ## Controlled alpha quickstart
 
-shadowMAS is in controlled-alpha state. You can evaluate it locally as an authority-boundary fixture and inspection helper. It is not a mature package-level adoption path. When evaluating, pin to a specific commit so your local impressions stay reproducible.
+shadowMAS is in controlled-alpha state. You can evaluate its current public surfaces locally through authority-boundary fixtures, packet validators, and inspection helpers. It is not a mature package-level adoption path. When evaluating, pin to a specific commit so your local impressions stay reproducible.
 
 Clone shadowMAS into a directory parallel to your product repo, not inside it, for the first evaluation pass. Do not run the workspace tooling (`05_scripts/workspace/shadowmas_workspace.py`) against your product repo until after you have completed the steps below and decided that shadowMAS belongs in your workflow at all.
 
@@ -117,7 +117,7 @@ python3 -m unittest discover
 
 ## Current status
 
-shadowMAS is currently in research/spec/testbed stage.
+shadowMAS is currently in early research/spec and packet-surface stage.
 
 Available now:
 - minimal authority-boundary validator
@@ -127,7 +127,7 @@ Available now:
 
 Not available yet:
 - production runtime engine
-- full agent orchestration layer
+- full dynamic shadow coordination implementation
 - stable public API
 
 ## Repository map
@@ -150,14 +150,14 @@ shadowMAS ships three small read-only command surfaces. Each handles a different
 
 None of these run agents, write back to product repos, or promote artifacts into truth. They check shape and contract only. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
 
-shadowMAS is an authority-bounded autonomous orchestration construct and open testbed for multi-agent and multi-session work.
+shadowMAS is a dynamic packetized shadow layer for multi-agent and multi-session work.
 
 It is not the product application itself.  
-It is not a runtime engine, an agent framework, or a production safeguard.
+It is not a runtime engine, an agent framework, a memory database, a workflow engine, or a production safeguard.
 
-Current shipped surfaces are local-first and fixture-oriented: they focus on how authority-bounded interpretation is preserved across signals, traces, memory candidates, and audit projections. The full orchestration design lives in canonical truth (`01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`).
+Current shipped surfaces are local-first and packet/fixture-oriented: they focus on how authority-bounded interpretation is preserved across signals, traces, memory candidates, packets, reviews, lessons, and audit projections. The full dynamic shadow-coordination design lives in canonical truth (`01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`).
 
-Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines and is designed to orchestrate the packet, workspace, review, handoff, and promotion boundaries around that work under explicit authority boundaries. Current shipped surfaces are controlled-alpha — fixtures, validators, inspectors, packet schemas, and the workspace registration tool — while the full orchestration layer is not yet implemented (see [Current status](#current-status)).
+Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the shadow packet surfaces around that work: task packets, memory candidates, review packets, handoffs, lessons, workspace boundaries, invalidation, and promotion paths. Current shipped surfaces are controlled-alpha — fixtures, validators, inspectors, packet schemas, and the workspace registration tool — while the full dynamic coordination layer is not yet implemented (see [Current status](#current-status)).
 
 Licensed under the Apache License 2.0. See `LICENSE`.
 
@@ -170,6 +170,7 @@ shadowMAS exists to reduce five failure modes that become common once AI work gr
 - **giant prompt collapse** — reusable rules, governance, project truth, and runtime-specific constraints being flattened into one blob
 - **intake chaos** — blind full-repo traversal instead of controlled entry and compiled intake
 - **mergeback contamination** — authority-boundary artifacts spilling into product repos or overriding project-domain truth
+- **semantic drift** — memory, lessons, reviews, and agent outputs changing meaning as projects, runtimes, and tools evolve
 
 ## What shadowMAS is not
 
@@ -180,10 +181,10 @@ shadowMAS is not:
 - a direct replacement for project-specific canonical truth
 - a UI-first platform
 - a DB-first platform
-- just another general-purpose agent framework
+- just another general-purpose agent framework, workflow engine, or memory database
 
 shadowMAS is not a replacement for LangGraph, CrewAI, Dapr, OpenAI Agents SDK, MCP, or A2A.
-It can sit beside existing agent runtimes and focus on how their signals, traces, memory candidates, and audit projections are interpreted, reviewed, and prevented from becoming hidden authority.
+It can sit behind or beside existing agent runtimes, memory systems, automation tools, and observability tools. Its role is to packetize the shadow surfaces around them so signals, traces, memory candidates, lessons, reviews, handoffs, and audit projections remain interpretable, reviewable, invalidatable, and prevented from becoming hidden authority.
 
 ## Boundary model
 
@@ -362,6 +363,58 @@ What this loop does and does not assert:
 - The product-repo owner decides whether any packet, artifact, or workflow should affect the product repo.
 
 After this loop you can also inspect the existing L2 fixtures (see Step 4 of the [Controlled alpha quickstart](#controlled-alpha-quickstart)) to compare authority-boundary traces, but those fixtures do not validate your product repo.
+
+### First review loop
+
+After the First attach loop, you have a workspace path from `where` and a validated task packet under `<workspace-path>/packets/`. This walkthrough adds the first manual review packet for that task.
+
+1. Copy the valid review packet example into the workspace reviews directory.
+
+   ```bash
+   cp examples/packets/review_packet.valid.v0.yaml <workspace-path>/reviews/first_review_packet.v0.yaml
+   ```
+
+   `<workspace-path>` is the path printed by the `where` command in the attach loop.
+
+2. Edit the copied review packet before validating. At minimum, change:
+
+   - `packet_uid`
+   - `created_at`
+   - `created_by`
+   - `owner`
+   - `decision_needed`
+   - `why_you_are_seeing_this`
+   - `change_summary`
+   - `risk_summary`
+   - `recommendation`
+   - `source_refs`
+
+3. Link the review packet back to the task packet. The v0 default linkage convention is:
+
+   ```yaml
+   source_refs:
+     - source_type: task_packet
+       source_id: <task packet_uid>
+       relation: reviews
+   ```
+
+   `<task packet_uid>` comes from the task packet under `<workspace-path>/packets/`.
+
+4. Validate the review packet.
+
+   ```bash
+   python3 05_scripts/validate/shadowmas_validate.py <workspace-path>/reviews/first_review_packet.v0.yaml
+   ```
+
+   - Exit `0` means the review packet shape satisfies the v0 packet contract.
+   - Exit `1` means validation errors were found.
+   - Exit `2` means usage or parse failure.
+
+`review_packet` is a human approval-compression surface. It can be manually authored today, and in future orchestrated flows, shadowMAS may emit review packet drafts after delegated execution; this manual loop shows the shape those drafts must preserve.
+
+`recommendation` is advisory. The v0 schema lists `approve`, `reject`, `revise`, `defer`, and `escalate`; the current validator presence-checks `recommendation` but does not enforce the enum yet, so choose from the schema-listed values. `status` is a lifecycle field, not an enforcement gate; review packet status values are `draft`, `ready_for_human`, `under_review`, `approved`, `rejected`, `needs_revision`, and `closed`.
+
+A passing review packet does not approve work, prove project correctness, enforce runtime policy, or provide production safety. A recommendation does not decide, `status` does not write back to the product repo, and nothing changes canonical truth automatically. The product-repo owner or human reviewer decides approval, rejection, revision, or escalation; review packet output is review material, not a command.
 
 ### Commands
 
