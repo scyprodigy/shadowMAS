@@ -72,7 +72,7 @@ Runtime adapter prompts are Layer 4 material.
 
 Rules:
 - prompts may compress or adapt layered rules for one host
-- prompts must not redefine Shared Core, shadowMAS Governance, or Project Execution truth
+- prompts must not redefine Shared Core, shadowMAS Coordination / Governance Shadow, or Project Execution truth
 - prompt compression or adaptation must not drop must-see governance constraints
 - generated prompt files are projections unless separately approved
 - prompt delivery paths remain draft until validated per host

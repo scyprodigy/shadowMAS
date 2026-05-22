@@ -7,6 +7,7 @@ It exists so that:
 - a human or agent can enter the system fast
 - layer ownership stays readable
 - source-of-truth boundaries stay explicit
+- the packetized shadow surfaces stay separable
 - runtime loading does not collapse into one giant prompt
 
 This is a quick reference, not a replacement for canonical truth files.
@@ -41,9 +42,11 @@ Current source surfaces:
 - `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
 - `README.md`
 
-### Layer 2: shadowMAS Governance
+### Layer 2: shadowMAS Coordination / Governance Shadow
 Meaning:
-Global governance for truth, memory, promotion, invalidation, review, routing, and write-back boundaries.
+Global shadow-boundary discipline for packets, truth, memory, lessons, promotion, invalidation, review, routing, and write-back boundaries.
+
+This layer does not mean shadowMAS owns the runtime or replaces project-domain truth. It means shadowMAS defines the packetized boundary record around work so later agents and humans can inspect, reuse, invalidate, promote, or reject it.
 
 Current source surfaces:
 - `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
@@ -132,6 +135,7 @@ A small set of direct, parseable, low-ambiguity entry files should be enough to 
 - which layer they are touching
 - what to read next
 - what not to treat as truth
+- which packetized shadow surface they are producing or consuming
 
 ## Non-Goals Of This File
 This file does not:

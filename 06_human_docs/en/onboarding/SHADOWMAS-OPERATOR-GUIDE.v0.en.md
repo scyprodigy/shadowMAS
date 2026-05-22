@@ -12,11 +12,11 @@ Its job is to help a new operator quickly tell:
 - what not to treat as source truth
 
 ## One-Sentence Positioning
-shadowMAS is an authority-boundary evaluation construct and open testbed for human-AI and multi-agent work.
+shadowMAS is a dynamic packetized shadow layer for human-AI and multi-agent work.
 
-Its goal is not to flatten everything into one giant prompt.
-Its goal is to keep truth, memory, review, runtime, and write-back boundaries clear,
-so humans and agents can take over work with minimal reading.
+Its goal is not to flatten everything into one giant prompt or replace the runtime, memory backend, or workflow engine.
+Its goal is to keep task, memory, review, lesson, runtime, and write-back surfaces packetized and boundary-aware,
+so humans and agents can take over work with minimal reading and lower semantic drift.
 
 ## Read These First
 Start here for human takeover:

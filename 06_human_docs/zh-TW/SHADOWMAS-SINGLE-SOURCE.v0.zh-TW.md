@@ -23,23 +23,26 @@
 
 ## 1. 一句話講 shadowMAS
 
-**shadowMAS 是一個與產品專案硬分離的治理／記憶／協作系統。**
+**shadowMAS 是一個與產品專案硬分離的動態封包化影子層。**
 
 它不是產品本體，  
-也不是 giant prompt，  
-而是用來管理：
+也不是 giant prompt、runtime、memory database 或 workflow engine，
+而是用來抽出各種 agentic work 背後的 shadow packet：
 
-- 多 agent / 多 session 協作
-- truth / draft / cache 的邊界
-- memory / promotion / invalidation
-- review / mergeback / write-back 邊界
+- 多 agent / 多 session 任務
+- runtime signal / execution feed
+- memory candidate / lesson
+- review / handoff / mergeback
+- truth-touching output / write-back boundary
 - machine-first packet / registry contract
+
+治理在 shadowMAS 裡不是單獨的 runtime 權力，而是這些影子封包上的 authority-boundary discipline：哪些能被看見、重用、失效、降級、升級，哪些必須回到 human review。
 
 ---
 
 ## 2. shadowMAS 在解什麼痛點
 
-shadowMAS 主要在解五種會隨著 AI 協作變大而失控的問題：
+shadowMAS 主要在解幾種會隨著 AI 協作變大而失控的問題：
 
 ### A. authority confusion
 誰能決定、誰只能執行、誰能 promotion、誰只能暫存，常常會混掉。
@@ -56,6 +59,9 @@ shared rule、governance、project truth、runtime adapter、host-native constra
 ### E. mergeback contamination
 治理系統和產品 repo 混在一起，最後不清楚哪個是 product truth、哪個是 governance truth。
 
+### F. semantic drift
+記憶、lesson、review、agent output 在不同 runtime、agent、專案階段之間流動後，語義慢慢變形，後續 token 成本、修正成本與多 agent 摩擦一起上升。
+
 ---
 
 ## 3. 它不是什麼
@@ -68,6 +74,9 @@ shadowMAS 不是：
 - 一定要先有 UI 的平台
 - 一定要先有 DB 的系統
 - 另一個泛用 agent framework 的包裝版本
+- runtime governance engine
+- memory database
+- workflow engine
 
 ---
 
@@ -138,11 +147,12 @@ shadowMAS 不只需要人類可讀，
 ### Project Execution
 單一專案自己的 repo truth、資料模型、API、命名、實作落點。
 
-### shadowMAS Governance
-shadowMAS 自己的治理規則，例如：
+### shadowMAS Coordination / Governance Shadow
+shadowMAS 自己的影子協調與邊界規則，例如：
 - packet
 - memory plane
 - promotion / invalidation
+- lesson
 - review
 - mergeback
 - write-back boundary
@@ -268,6 +278,7 @@ packet 的價值在於：
 - blind full-repo traversal 不可當作 default intake
 - machine-first packet / registry 是必要方向
 - human final authority 不可消失
+- shadowMAS 的穩定單位是 packet，不是某個固定 runtime、memory backend 或 workflow engine
 
 ### 還沒最終定死
 - R-layer 最終 runtime substrate

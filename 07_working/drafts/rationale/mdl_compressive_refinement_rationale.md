@@ -93,7 +93,7 @@ These public, current-repo examples illustrate the rationale. None of them is of
 - `tests/test_inspect_l2_fixture.py` pins the L2 inspector's JSON output envelope and the inspector's violation-accumulation behaviour. These tests expose contracts that were previously implicit in code.
 - `tests/test_shadowmas_minimal_validator.py::test_partial_compliance_traps` was tightened from "target invariant *in* fails" to "fails == [target_invariant]". The contract documented in `examples/mutations/README.md` was previously stricter than the test; the test now matches the documented promise.
 - `.claude/hooks/check_header.sh` declares one two-profile contract (3-line metadata header *or* legacy canonical filename-H1) instead of an implicit pile of file-by-file exceptions.
-- The README and onboarding-guide framing sweeps moved shadowMAS self-positioning from "governance system" to "authority-boundary evaluation construct and open testbed." That change is compressive in the parsimony sense: it removed an overclaim while keeping the description of what the repo actually is.
+- The README and onboarding-guide framing sweeps moved shadowMAS self-positioning from "governance system" to "dynamic packetized shadow layer." That change is compressive in the parsimony sense: it removed an overclaim while keeping the description of what the repo actually is.
 
 None of these examples shows that the refinement principles are correct in general. They show only that, in these specific cases, the resulting surface was easier to read or check.
 

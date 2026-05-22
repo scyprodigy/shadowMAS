@@ -1,7 +1,7 @@
 # SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
 
 ## Purpose
-This file defines the layering contract for reusable system rules, shadowMAS governance rules, project-local execution rules, runtime-specific adapter prompts, and host-native opaque prompts.
+This file defines the layering contract for reusable system rules, shadowMAS coordination / governance-boundary rules, project-local execution rules, runtime-specific adapter prompts, and host-native opaque prompts.
 
 Its goal is to prevent:
 - giant prompt collapse
@@ -16,7 +16,7 @@ A large multi-agent system cannot safely rely on one flattened mega-prompt.
 
 shadowMAS needs layered rule sources so that:
 - reusable rules stay reusable
-- governance stays above execution without corrupting project truth
+- shadow-boundary discipline stays above execution without corrupting project truth
 - project truth stays local
 - runtime-specific tool prompts remain isolated
 - opaque host/platform prompts are acknowledged but not mistaken for maintainable truth
@@ -49,9 +49,9 @@ This layer must not contain:
 - one-project naming rules
 - domain-specific API contracts
 
-### Layer 2: shadowMAS Governance
+### Layer 2: shadowMAS Coordination / Governance Shadow
 Definition:
-Global governance layer for routing, memory, promotion, invalidation, indexing, review, registry, mergeback, and write-back boundaries.
+Global coordination and governance-boundary layer for packet routing, memory, promotion, invalidation, indexing, review, lesson handling, registry, mergeback, and write-back boundaries.
 
 This layer covers:
 - packet discipline
@@ -62,10 +62,10 @@ This layer covers:
 - mergeback boundaries
 - write-back safety rules
 - cross-session integration discipline
-- routing/orchestration policy
+- packet routing and coordination policy
 - review gate logic
 
-This layer may govern process and structure above projects, but must not replace project-domain truth.
+This layer may define process and structure above projects, but must not replace project-domain truth or claim runtime ownership.
 
 ### Layer 3: Project Execution
 Definition:
@@ -87,7 +87,7 @@ This layer must be:
 - independently maintainable
 - authoritative for project-domain facts
 
-This layer must not be overridden by Shared Core or shadowMAS Governance for domain facts.
+This layer must not be overridden by Shared Core or shadowMAS Coordination / Governance Shadow for domain facts.
 
 ### Layer 4: Runtime Adapter Prompt
 Definition:
@@ -143,14 +143,14 @@ It must be documented as an external constraint, not treated as writable truth.
 Default reading order for an agent operating under shadowMAS:
 
 1. Shared Core
-2. shadowMAS Governance
+2. shadowMAS Coordination / Governance Shadow
 3. Project Execution
 4. Runtime Adapter Prompt
 5. Host Native / Opaque Prompt (acknowledged as external runtime context, not maintained source truth)
 
 ## Why this reading order
 - Shared Core gives baseline conduct
-- shadowMAS Governance gives global operating contract
+- shadowMAS Coordination / Governance Shadow gives the global packet and authority-boundary operating contract
 - Project Execution gives project-local truth
 - Runtime Adapter Prompt shapes execution for the current tool/runtime
 - Host Native / Opaque Prompt is treated as unavoidable runtime influence
@@ -183,18 +183,19 @@ Layer 5 must not become:
 - invent local project structures
 - override project field/API/domain truth
 
-### shadowMAS Governance may
+### shadowMAS Coordination / Governance Shadow may
 - define global coordination rules
 - define memory/promotion/write-back boundaries
 - define file-status and packet rules
 - define cross-session merge discipline
 - define routing and review policy
 
-### shadowMAS Governance may not
+### shadowMAS Coordination / Governance Shadow may not
 - rewrite project-domain facts by itself
 - replace project-local canonical truth
 - silently promote execution feed into approved truth
 - bypass human authority gates for protected truth layers
+- replace the runtime, memory backend, workflow engine, or observability tool it connects to
 
 ### Project Execution may
 - define business truth for that project
@@ -237,18 +238,18 @@ Resolution:
 - Project Execution wins for project-domain facts
 
 ### Conflict type B
-shadowMAS Governance vs Project Execution
+shadowMAS Coordination / Governance Shadow vs Project Execution
 
 Resolution:
-- shadowMAS Governance wins for process/governance/memory/write-back rules
+- shadowMAS Coordination / Governance Shadow wins for packet, promotion, memory-boundary, review, and write-back rules
 - Project Execution wins for project-domain truth
 
 ### Conflict type C
-Shared Core vs shadowMAS Governance
+Shared Core vs shadowMAS Coordination / Governance Shadow
 
 Resolution:
 - Shared Core remains the reusable behavioral floor
-- shadowMAS Governance adds governance-specific constraints without breaking shared-core principles
+- shadowMAS Coordination / Governance Shadow adds packet and authority-boundary constraints without breaking shared-core principles
 
 ### Conflict type D
 Runtime Adapter Prompt vs Project Execution
@@ -258,11 +259,11 @@ Resolution:
 - Project Execution wins for project-domain truth
 
 ### Conflict type E
-Runtime Adapter Prompt vs shadowMAS Governance
+Runtime Adapter Prompt vs shadowMAS Coordination / Governance Shadow
 
 Resolution:
 - Runtime Adapter Prompt may adapt runtime execution
-- shadowMAS Governance wins for governance process, memory, review, and write-back boundaries
+- shadowMAS Coordination / Governance Shadow wins for packet semantics, memory boundaries, review, promotion, and write-back boundaries
 
 ### Conflict type F
 Host Native / Opaque Prompt vs maintained source layers
@@ -286,8 +287,8 @@ An agent must always ask:
 1. Is this a reusable cross-project behavior rule?
    - if yes, Shared Core
 
-2. Is this a governance/routing/memory/review/write-back rule?
-   - if yes, shadowMAS Governance
+2. Is this a packet/routing/memory/review/write-back or authority-boundary rule?
+   - if yes, shadowMAS Coordination / Governance Shadow
 
 3. Is this a project-local business/domain/repo truth?
    - if yes, Project Execution
@@ -312,7 +313,7 @@ but they must remain separately maintainable as source artifacts where possible.
 ## Composition Rule
 A runtime may assemble a composed execution context from:
 - Shared Core
-- shadowMAS Governance
+- shadowMAS Coordination / Governance Shadow
 - Project Execution
 - Runtime Adapter Prompt
 
