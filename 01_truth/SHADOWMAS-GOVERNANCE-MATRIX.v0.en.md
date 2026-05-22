@@ -20,7 +20,7 @@ Its goal is to prevent:
 ## Layer Families
 
 ### Role / Operation Layer
-- `L1` Human + high-level AI governance
+- `L1` Human + high-level AI authority review
 - `L2` Delegated decision / planning
 - `L3` Execution / repo implementation
 - `L4` Mergeback / sync
@@ -52,10 +52,10 @@ These must not be collapsed into one axis.
 
 | Layer | Name | Primary Meaning | May Decide? | May Write? | May Promote? | Trust Level |
 |---|---|---|---|---|---|---|
-| T0 | Human Authority | Final human governance authority | Yes | Yes | Yes | Highest |
+| T0 | Human Authority | Final human authority over truth, promotion, and review | Yes | Yes | Yes | Highest |
 | T1 | Delegated Decision Authority | Bounded delegated decision layer | Yes, within scope | Yes, within scope | No direct final promotion without gate | High but bounded |
-| T2 | Approved Truth Artifacts | Approved canonical truth | No by itself | Yes, only through governed update | Already promoted truth | Canonical |
-| T3 | Approved Shared Memory | Reusable approved memory below canonical truth | No by itself | Yes, if allowed by workflow | May become T2 through gate | Stable but non-canonical |
+| T2 | Approved Truth Artifacts | Approved canonical truth | No by itself | Yes, only through approved truth update | Already promoted truth | Canonical |
+| T3 | Approved Shared Memory | Reusable approved memory below canonical truth | No by itself | Yes, if allowed by packet/task scope | May become T2 through gate | Stable but non-canonical |
 | T4 | Execution Feed | Outputs, evidence, working results, task flow | No final authority | Yes | No direct promotion | Unstable |
 | T5 | Ephemeral / Cache / Session State | Temporary memory, retrieval, cache, short-lived state | No | Yes, temporary only | Never directly | Lowest |
 
@@ -65,7 +65,7 @@ These must not be collapsed into one axis.
 
 | Role Layer | Name | Responsibility | Owns Final Authority? | Normal Output Type |
 |---|---|---|---|---|
-| L1 | Human + high-level AI governance | boundaries, decisions, promotion gates, final judgment | Yes, with human final control | governance decisions, approved directives |
+| L1 | Human + high-level AI authority review | boundaries, decisions, promotion gates, final judgment | Yes, with human final control | authority decisions, approved directives |
 | L2 | Delegated decision / planning | decomposition, bounded decisions, planning, routing suggestions | No | plans, scoped decisions, task packets |
 | L3 | Execution / repo implementation | implementation, evidence gathering, edits, retrieval assembly, tests | No | execution feed, patches, structured outputs |
 | L4 | Mergeback / sync | consolidation, summary, integration, unresolved-item surfacing | No | mergeback packages, review packets, sync outputs |
@@ -117,7 +117,7 @@ Meaning:
 
 Rules:
 - must be treated as source of truth
-- may only be changed through governed update
+- may only be changed through approved truth update
 - must not be overwritten by T4 or T5
 
 ### T3 Approved Shared Memory
@@ -168,7 +168,7 @@ Rules:
 
 | From Role | May Produce | Typical Target Truth Layer | Notes |
 |---|---|---|---|
-| L1 | governance decisions, promotion outcomes | T1 / T2 / T3 | final human boundary stays here |
+| L1 | authority decisions, promotion outcomes | T1 / T2 / T3 | final human boundary stays here |
 | L2 | task decisions, bounded plans, routing outputs | T1 or T4 | scoped only |
 | L3 | implementation outputs, evidence, patches | T4 | execution does not equal truth |
 | L4 | merge summaries, integration outputs, unresolved packs | T4, sometimes T3 candidates | mergeback prepares, not finalizes |

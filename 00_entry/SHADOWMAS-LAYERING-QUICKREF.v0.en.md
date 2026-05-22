@@ -139,7 +139,7 @@ A small set of direct, parseable, low-ambiguity entry files should be enough to 
 
 ## Non-Goals Of This File
 This file does not:
-- define full governance truth
+- define full authority-boundary truth
 - explain every runtime folder
 - replace operator guidance
 - define packet schemas

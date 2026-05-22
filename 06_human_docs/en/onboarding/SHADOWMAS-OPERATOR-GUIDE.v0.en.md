@@ -81,7 +81,7 @@ That means:
 
 ## What Working-Only Means
 Working-only material exists for:
-- current workflow
+- current task flow
 - temporary organization
 - human review staging
 - pre-promotion evaluation

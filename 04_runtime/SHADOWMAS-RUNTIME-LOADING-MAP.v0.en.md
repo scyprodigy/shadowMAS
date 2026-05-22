@@ -24,7 +24,7 @@ This file covers:
 - runtime-side loading boundaries
 
 This file does not replace:
-- governance truth
+- authority-boundary truth
 - project execution truth
 - operator onboarding guide
 - tool-native config docs
@@ -43,14 +43,14 @@ Use for:
 - repo understanding
 - read-only orientation
 
-### B. Governance review
+### B. Authority-boundary review
 Read zero-memory calibration pack, plus:
 - `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
 - `01_truth/SHADOWMAS-TRANSLATION-POLICY.v0.en.md`
 - any directly relevant truth file touched by the task
 
 Use for:
-- governance changes
+- authority-boundary changes
 - promotion/invalidation discussion
 - source-boundary review
 

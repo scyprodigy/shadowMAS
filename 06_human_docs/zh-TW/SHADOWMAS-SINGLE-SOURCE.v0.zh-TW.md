@@ -51,13 +51,13 @@ shadowMAS 主要在解幾種會隨著 AI 協作變大而失控的問題：
 執行輸出、暫存結果、快取、session 記憶，很容易被誤當成正式真相。
 
 ### C. giant prompt collapse
-shared rule、governance、project truth、runtime adapter、host-native constraints 被壓成一團，後面幾乎不可維護。
+shared rule、authority-boundary rule、project truth、runtime adapter、host-native constraints 被壓成一團，後面幾乎不可維護。
 
 ### D. intake chaos
 新 session / 0 記憶 agent 一上來就遍歷整個 repo，最後讀不完、讀不準、也不知道哪些才重要。
 
 ### E. mergeback contamination
-治理系統和產品 repo 混在一起，最後不清楚哪個是 product truth、哪個是 governance truth。
+影子邊界系統和產品 repo 混在一起，最後不清楚哪個是 product truth、哪個是 authority-boundary truth。
 
 ### F. semantic drift
 記憶、lesson、review、agent output 在不同 runtime、agent、專案階段之間流動後，語義慢慢變形，後續 token 成本、修正成本與多 agent 摩擦一起上升。
@@ -95,7 +95,7 @@ shadowMAS 不是：
 如果兩者混在一起，後面很容易出現：
 - 規則污染
 - 資料夾混亂
-- governance truth 與 project truth 混淆
+- authority-boundary truth 與 project truth 混淆
 - agent 誤把治理檔案當業務檔案
 
 ### 正確做法
