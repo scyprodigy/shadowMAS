@@ -3327,7 +3327,7 @@ Current shadowMAS already has prompt layers:
 
 ```text
 Shared Core
-shadowMAS Governance
+shadowMAS Coordination / Governance Shadow
 Project Execution
 Runtime Adapter Prompt
 Host Native / Opaque Prompt

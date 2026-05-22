@@ -12,11 +12,12 @@
 - 不要亂動什麼
 
 ## 一句話定位
-shadowMAS 是一個用於人類-AI 與多代理工作的 authority-boundary evaluation construct / open testbed。
+shadowMAS 是一個用於人類-AI 與多代理工作的 dynamic packetized shadow layer。
 
 它的重點不是把所有東西塞進一個大 prompt，
-而是把 truth、memory、review、runtime、write-back 邊界切乾淨，
-讓人和 agent 都能在最小讀取下接手工作。
+也不是取代 runtime、memory backend 或 workflow engine，
+而是把 task、memory、review、lesson、runtime、write-back 這些影子面封包化，
+讓人和 agent 都能在最小讀取、低語意漂移下接手工作。
 
 ## 先讀什麼
 人類接手時，先從這裡開始：

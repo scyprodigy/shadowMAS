@@ -7,17 +7,23 @@ It is not the final architecture book.
 It is the smallest stable truth that future files must follow.
 
 ## System Identity
-shadowMAS is an authority-bounded autonomous orchestration construct and open testbed for multi-agent AI work.
+shadowMAS is a dynamic packetized shadow layer for agentic work.
+
+It is designed to sit behind changing runtimes, agents, memory tools, automation tools, and project rules. The stable unit it defines is the packet: a bounded, inspectable artifact that records what happened, where it came from, which authority layer it belongs to, whether it can be reused, when it must be invalidated, whether it can be promoted, and when human review is required.
+
+Governance in shadowMAS means authority-boundary discipline across these shadow packets. It is not a claim that shadowMAS is itself a runtime governance engine, production safeguard, or replacement for project-specific truth.
 
 It exists to:
+- define the packetized shadow unit behind tasks, memory candidates, reviews, handoffs, lessons, runtime signals, and truth-touching outputs
 - decompose scoped work into packets that can be delegated to agents or workers
 - route, dispatch, and resume work across authority layers while preserving task scope, stop conditions, and supervision mode
-- support autonomous execution when humans are away, including bounded retry, rollback, rework, and handoff continuity
+- support autonomous execution only when paired with an explicit runtime or automation layer, including bounded retry, rollback, rework, and handoff continuity
 - capture execution lessons as memory candidates and surface review packets as compressed human review material
 - make truth, memory, promotion, invalidation, merge-back, and write-back boundaries explicit, inspectable, and reviewable
+- reduce long-run token cost, semantic friction, repeated rediscovery, and hidden correction cost across changing tools and projects
 - preserve human final authority over approval, rejection, revision, escalation, trust elevation, canonical truth, approved shared memory, and canonical product-branch promotion
 
-Within shadowMAS-governed workflows, governance is a mandatory internal authority-boundary discipline: information must not be promoted beyond the authority warranted by the T0–T5 layer model and its promotion path, and final authority remains human. This file does not claim that the current repository or testbed automatically enforces these boundaries inside downstream application runtimes or guarantees production safety. These responsibilities are the canonical design surface; the current shipped implementation covers only a subset, with items still pending tracked under `## Still Not Final`.
+Within shadowMAS-shaped workflows, the governance shadow is a mandatory internal authority-boundary discipline: information must not be promoted beyond the authority warranted by the T0–T5 layer model and its promotion path, and final authority remains human. This file does not claim that the current repository automatically enforces these boundaries inside downstream application runtimes or guarantees production safety. These responsibilities are the canonical design surface; the current shipped implementation covers only a subset, with items still pending tracked under `## Still Not Final`.
 
 shadowMAS is not:
 - the product application itself
@@ -25,6 +31,9 @@ shadowMAS is not:
 - a blind repo traversal bot
 - a direct replacement for project-specific canonical truth
 - a UI-first platform
+- a memory database
+- a workflow engine
+- a runtime governance engine
 
 ## Problem Profile
 shadowMAS exists to reduce five recurring failure modes in AI-assisted work:
@@ -34,6 +43,7 @@ shadowMAS exists to reduce five recurring failure modes in AI-assisted work:
 - giant prompt collapse
 - blind intake / full-repo traversal by default
 - mergeback contamination between governance and product repos
+- semantic drift across agents, memory, runtime adapters, lessons, and project-local truth
 
 This problem profile explains why shadowMAS is authority-boundary-first, hard-separated, and machine-first at key boundaries.
 
@@ -71,7 +81,9 @@ Typical integration points:
 - write-back suggestions
 - controlled scripts/hooks
 
-## Governance Weight Model
+## Shadow Boundary Weight Model
+Governance here means authority-boundary discipline, not runtime ownership.
+
 - governance highest: shadowMAS
 - business/domain highest: project canonical truth
 - shared core sits between them
@@ -85,8 +97,8 @@ Cross-project reusable rules.
 ### Project Execution
 Repo-local execution constraints and domain-specific truth.
 
-### shadowMAS Governance
-Global governance for routing, memory, promotion, indexing, review, and write-back boundaries.
+### shadowMAS Coordination / Governance Shadow
+Global shadow-boundary discipline for packet routing, memory, promotion, invalidation, indexing, review, lessons, mergeback, and write-back boundaries.
 
 ## Current Operational Layer Model
 
@@ -247,7 +259,7 @@ Rules:
 ## Memory Plane Principles
 Memory is a core shadowMAS design surface.
 
-Memory strategy is task-dependent. The memory plane should optimize semantic cleanliness, token economy, handoff continuity, and cross-agent reuse.
+Memory strategy is task-dependent. The memory plane should optimize semantic cleanliness, token economy, handoff continuity, lesson extraction, and cross-agent reuse.
 
 Memory backend selection is an implementation detail. Filesystem, vector, graph, and hybrid stores may all be valid R-layer implementations, but v0 does not select any canonical backend and does not implement a memory store.
 
