@@ -2,9 +2,9 @@
 
 ![cover](shadowMAS.png)
 
-shadowMAS is an authority-boundary evaluation construct and open testbed for multi-agent AI systems.
-It is not yet a polished open-source agent framework.
-It does not replace agent orchestration frameworks.
+shadowMAS is an authority-bounded autonomous orchestration construct and open testbed for multi-agent AI work.
+It is not yet a polished open-source agent framework, and the full orchestration layer is not shipped yet — see [Current status](#current-status).
+It does not replace heavier agent orchestration frameworks; it is designed to sit beside them as a lightweight, authority-bounded coordinator.
 Its core problem is authority-bounded interpretation.
 Seeing a runtime signal is not the same as trusting it, storing it, promoting it, or acting on it.
 
@@ -150,14 +150,14 @@ shadowMAS ships three small read-only command surfaces. Each handles a different
 
 None of these run agents, write back to product repos, or promote artifacts into truth. They check shape and contract only. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
 
-shadowMAS is an authority-boundary evaluation construct and open testbed for multi-agent and multi-session work.
+shadowMAS is an authority-bounded autonomous orchestration construct and open testbed for multi-agent and multi-session work.
 
 It is not the product application itself.  
 It is not a runtime engine, an agent framework, or a production safeguard.
 
-shadowMAS is local-first, fixture-oriented evaluation material. It focuses on how authority-bounded interpretation is preserved across signals, traces, memory candidates, and audit projections.
+Current shipped surfaces are local-first and fixture-oriented: they focus on how authority-bounded interpretation is preserved across signals, traces, memory candidates, and audit projections. The full orchestration design lives in canonical truth (`01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`).
 
-Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the packet, workspace, review, handoff, and promotion boundaries around that work as evaluation-oriented fixture material.
+Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines and is designed to orchestrate the packet, workspace, review, handoff, and promotion boundaries around that work under explicit authority boundaries. Current shipped surfaces are controlled-alpha — fixtures, validators, inspectors, packet schemas, and the workspace registration tool — while the full orchestration layer is not yet implemented (see [Current status](#current-status)).
 
 Licensed under the Apache License 2.0. See `LICENSE`.
 
@@ -355,10 +355,10 @@ This walkthrough shows the smallest end-to-end path from workspace registration 
 
 What this loop does and does not assert:
 
-- shadowMAS does not watch your product repo.
-- shadowMAS does not watch the workspace.
-- Every artifact under the workspace is one you placed there by hand.
-- Passing packet validation does not approve work, and it does not prove project correctness — it only confirms the packet's shape satisfies the v0 contract.
+- In this attach loop, shadowMAS does not read inside your product repo: the workspace tool only checks that the directory exists and hashes its absolute path. It writes no files inside the product repo.
+- The current repo ships no daemon, file watcher, continuous monitor, or automatic repo scanner (for either your product repo or the workspace). Bounded repo reading or indexing belongs to the shadowMAS orchestration design only under explicit task scope authored or approved by the human; it is not blind full-repo traversal and not continuous watching.
+- shadowMAS does not write back to your product repo in this loop. Future automated write-back, if enabled by a later contract, is limited to controlled candidate branches or worktrees; promotion to canonical product branches remains a human git review and merge decision.
+- In this attach loop, every workspace artifact is one you placed by hand. In future orchestrated flows, the orchestrator may emit draft packets, captured memory candidates, and review drafts; those remain draft or candidate material until human review passes them through the governed promotion path. Passing packet validation does not approve work or prove project correctness.
 - The product-repo owner decides whether any packet, artifact, or workflow should affect the product repo.
 
 After this loop you can also inspect the existing L2 fixtures (see Step 4 of the [Controlled alpha quickstart](#controlled-alpha-quickstart)) to compare authority-boundary traces, but those fixtures do not validate your product repo.
