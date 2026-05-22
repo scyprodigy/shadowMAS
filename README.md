@@ -289,6 +289,80 @@ The command reads `<project-path>` only to validate that it exists as a director
 
 Do not run `init` against a production product repository before reviewing the on-disk effects above. Prefer a disposable clone or a throwaway directory for your first workspace-tool experiment. Even though `init` writes nothing inside the product repo, confirm that behavior on your platform before pointing the command at a path you care about. The product-repo owner remains responsible for deciding whether any artifact later generated, copied, or referenced from the workspace should be committed into the product repo's history. shadowMAS does not replace your product repo's project-specific canonical truth.
 
+### First attach loop
+
+This walkthrough shows the smallest end-to-end path from workspace registration to a manually validated first packet. Use a throwaway directory for the first attempt, not your real product repo.
+
+1. Create a throwaway product-repo-like directory.
+
+   ```bash
+   mkdir -p /tmp/shadowmas_attach_demo
+   ```
+
+2. Register a shadowMAS external workspace for that directory.
+
+   ```bash
+   python3 05_scripts/workspace/shadowmas_workspace.py init --project /tmp/shadowmas_attach_demo
+   ```
+
+   `init` creates the workspace outside `/tmp/shadowmas_attach_demo`, under your platform-specific local data root (see the on-disk-effect block above). It writes no files inside the product-repo-like directory.
+
+3. Find the workspace path again.
+
+   ```bash
+   python3 05_scripts/workspace/shadowmas_workspace.py where --project /tmp/shadowmas_attach_demo
+   ```
+
+   Copy the printed path. Below, `<workspace-path>` refers to that string.
+
+4. Inspect the workspace metadata.
+
+   ```bash
+   python3 05_scripts/workspace/shadowmas_workspace.py inspect --project /tmp/shadowmas_attach_demo
+   ```
+
+   A passing run prints `OK workspace metadata valid` and confirms that `boundary.writes_product_repo` is `false` and `boundary.governance_artifacts_external` is `true` — the workspace will not write into the product-repo-like directory, and governance artifacts live outside it.
+
+5. Copy the existing example packet into the workspace's `packets/` subdirectory.
+
+   ```bash
+   cp examples/packets/task_packet.valid.v0.yaml <workspace-path>/packets/first_attach_packet.v0.yaml
+   ```
+
+   `<workspace-path>` is the path from Step 3.
+
+6. Edit the copied packet before validating. At minimum, change these fields to values that reflect a small task you would actually author:
+
+   - `packet_uid`
+   - `task_id`
+   - `goal`
+   - `scope`
+   - `created_at`
+   - `created_by`
+   - `owner`
+
+   Leave `packet_type`, `schema_version`, and the structural fields alone for this first pass.
+
+7. Validate the copied packet.
+
+   ```bash
+   python3 05_scripts/validate/shadowmas_validate.py <workspace-path>/packets/first_attach_packet.v0.yaml
+   ```
+
+   - Exit `0` means the packet shape satisfies the v0 packet contract (`OK <path>` and `checks: passed` are printed).
+   - Exit `1` means validation errors were found. The validator prints each error's code, file, field, JSON path, severity, and message.
+   - Exit `2` means usage or parse failure (input file missing, unreadable, or not valid YAML).
+
+What this loop does and does not assert:
+
+- shadowMAS does not watch your product repo.
+- shadowMAS does not watch the workspace.
+- Every artifact under the workspace is one you placed there by hand.
+- Passing packet validation does not approve work, and it does not prove project correctness — it only confirms the packet's shape satisfies the v0 contract.
+- The product-repo owner decides whether any packet, artifact, or workflow should affect the product repo.
+
+After this loop you can also inspect the existing L2 fixtures (see Step 4 of the [Controlled alpha quickstart](#controlled-alpha-quickstart)) to compare authority-boundary traces, but those fixtures do not validate your product repo.
+
 ### Commands
 
 ```bash
