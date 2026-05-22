@@ -48,7 +48,7 @@ A draft join record SHOULD include:
 
 ## Authority Boundary
 Agents may join dynamically, but no agent joins with undefined authority.
-Agents may be added during an active workflow through a governed hot-join process.
+Agents may be added during an active task flow through a packet-scoped hot-join process.
 Hot-join does not mean dynamic role assignment, self-claim authority, or automatic write permission.
 
 Rules:
@@ -72,12 +72,12 @@ Before joining work, an agent SHOULD receive or be pointed to:
 - `L4/T4`: mergeback packages, sync notes, unresolved questions
 - `R`: runtime signals, hook warnings, logs, tool capability metadata
 
-Outputs from T4 or T5 MAY become candidates only through governed review.
+Outputs from T4 or T5 MAY become candidates only through the packet review / promotion path.
 
 ## Writable Locations
 Draft default:
 - `07_working/drafts/` for runtime-adapter working drafts
-- task-scoped product repo paths only when separately authorized by a governed task
+- task-scoped product repo paths only when separately authorized by an approved task packet
 - temporary runtime state only when it is not represented as truth
 
 Agents must treat `01_truth/`, canonical `02_packets/`, canonical `03_memory/registry/`, and `04_runtime/` as non-writable for this draft lane.
@@ -127,8 +127,8 @@ Stop and escalate when:
 
 ## Promotion Requirements
 Before promotion, this draft needs:
-- human governance review
-- reconciliation with the canonical governance matrix
+- human review through the packet promotion path
+- reconciliation with the canonical authority-boundary matrix
 - validation against at least Claude Code, Codex, Cursor, and Ollama examples
 - approved registry schema or explicit decision not to use one
 - review of write-back and packet routing impacts

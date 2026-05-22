@@ -50,14 +50,14 @@ A draft project intake record SHOULD include:
 shadowMAS may assist any project, but project-domain truth remains project-local.
 
 Rules:
-- shadowMAS governance may structure work, review, memory, routing, and promotion boundaries
+- shadowMAS Coordination / Governance Shadow may structure work, review, memory, routing, and promotion boundaries
 - shadowMAS must not replace project domain facts, API contracts, schema decisions, or business rules
 - product repos must remain able to develop, implement, test, deploy, and operate without shadowMAS
-- runtime adapter drafts must not write back into product repos without explicit governed approval
+- runtime adapter drafts must not write back into product repos without explicit human-approved packet/task authorization
 
 ## Repo Traversal Policy
 No blind full-repo traversal by default.
-Curated entry files are preferred; broad traversal requires separate governed approval.
+Curated entry files are preferred; broad traversal requires separate scoped intake authorization.
 
 Allowed traversal MUST be:
 - scoped by task
@@ -69,7 +69,7 @@ Allowed traversal MUST be:
 Default write-back state is no write-back.
 Write-back must not be inferred from project intake.
 
-Write-back MAY occur only after separate governed approval and when a separate governed task declares:
+Write-back MAY occur only after separate human approval and when a separate approved task packet declares:
 - target repo
 - target paths
 - allowed changes
@@ -101,7 +101,7 @@ Stop and escalate when:
 - no project truth source can be identified
 - the requested action needs business truth not provided by the project
 - repo traversal would become broad or blind
-- write-back is requested without governed approval
+- write-back is requested without human-approved packet/task authorization
 - product repo independence would be weakened
 - runtime adapter evidence conflicts with project-local truth
 
@@ -121,10 +121,10 @@ Stop and escalate when:
 
 ## Promotion Requirements
 Before promotion, this draft needs:
-- human governance review
+- human review through the packet promotion path
 - examples across more than one project
 - alignment with future write-back contract files
-- review against prompt layering and governance matrix boundaries
+- review against prompt layering and authority-boundary matrix boundaries
 - explicit storage and lifecycle policy for intake records
 
 ## Do Not Promote Yet

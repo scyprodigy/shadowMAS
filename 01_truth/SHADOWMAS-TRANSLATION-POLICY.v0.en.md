@@ -67,13 +67,13 @@ Examples:
 - DTO / OpenAPI summaries
 - core process documentation
 - navigation / onboarding docs
-- major governance rationale
+- major authority-boundary rationale
 
 ### Category B: Selective bilingual
 These files may receive zh-TW support when the human value is high.
 
 Examples:
-- governance matrix summary
+- authority-boundary matrix summary
 - memory-plane explanation
 - local model baseline explanation
 - important change-impact explanation

@@ -1,11 +1,13 @@
 # SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md
 
 ## Purpose
-This file formalizes the current governance matrix of shadowMAS.
+This file formalizes the current authority-boundary and promotion matrix of shadowMAS.
+
+The filename keeps the historical `GOVERNANCE-MATRIX` label, but governance here means boundary discipline for packets, truth, memory, runtime feed, promotion, and human authority. It does not mean runtime ownership.
 
 It maps:
 - role/operation layers
-- truth/governance layers
+- truth/authority layers
 - runtime substrate concerns
 
 Its goal is to prevent:
@@ -23,7 +25,7 @@ Its goal is to prevent:
 - `L3` Execution / repo implementation
 - `L4` Mergeback / sync
 
-### Truth / Governance Layer
+### Truth / Authority Layer
 - `T0` Human Authority
 - `T1` Delegated Decision Authority
 - `T2` Approved Truth Artifacts
@@ -196,7 +198,7 @@ Tool-specific prompt adapters such as:
 - Cursor adapter prompts
 - GPT/Codex adapter prompts
 
-do not replace this governance matrix.
+do not replace this authority-boundary matrix.
 
 They are runtime-facing compiled layers, not the top truth source.
 

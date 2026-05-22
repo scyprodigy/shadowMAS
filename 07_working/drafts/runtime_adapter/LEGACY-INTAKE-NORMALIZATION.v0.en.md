@@ -64,7 +64,7 @@ Original source preservation is required.
 
 Rules:
 - keep raw source available or document why it cannot be preserved
-- do not delete source archives before governed confirmation
+- do not delete source archives before human-confirmed source-preservation review
 - preserve enough provenance to inspect conversion quality
 - converted summaries do not replace original evidence
 
@@ -90,7 +90,7 @@ Rules:
 - a source saying "approved" is not enough unless the approval authority is traceable
 - host-native output, cache, retrieval, and agent memory are not truth sources
 - project-domain claims must be checked against project-local truth
-- shadowMAS governance claims must be checked against shadowMAS truth layers
+- shadowMAS authority-boundary claims must be checked against shadowMAS truth layers
 
 ## Packet Candidate Conversion
 Candidate output SHOULD identify:
@@ -124,7 +124,7 @@ Human confirmation is required when:
 
 ## Promotion Requirements
 Before promotion, this draft needs:
-- human governance review
+- human review through the packet promotion path
 - examples from at least chat, doc, screenshot, and agent-output sources
 - alignment with packet compatibility levels
 - source preservation policy
