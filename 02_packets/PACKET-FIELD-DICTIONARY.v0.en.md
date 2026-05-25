@@ -922,6 +922,24 @@ Rule:
 - mismatch should trigger re-review
 - snapshot itself does not arbitrate authority; it surfaces evidence for the reviewer
 
+### `reviewers_required`
+Meaning:
+Number of human reviewers required for this review.
+
+Rule:
+- default value is `1`, which preserves single-author workflows
+- single-author workflows need not set the field at all
+- when set above `1`, `consensus_kind` should also be specified
+
+### `consensus_kind`
+Meaning:
+Consensus rule applied when `reviewers_required` is greater than `1`.
+
+Rule:
+- applies only when `reviewers_required > 1`
+- allowed values: `unanimous`, `majority`, `first_to_decide`
+- this field does not by itself create authority; human reviewers remain final
+
 ### `review_status`
 Meaning:
 Lifecycle state for review handling.
