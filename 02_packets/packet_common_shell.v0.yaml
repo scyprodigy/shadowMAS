@@ -104,6 +104,10 @@ optional_shared_fields:
     type: object
     meaning: optional cryptographic attestation; advisory in v0
 
+  data_class:
+    type: string
+    meaning: data classification tag (e.g. pii, regulated, public); advisory
+
 source_ref_shape:
   source_type: string
   source_id: string
@@ -153,3 +157,4 @@ rules:
   - cost_trace is advisory only and must not arbitrate authority or promotion
   - signed_by is optional; v0 validators MUST NOT enforce signature verification
   - handoff.delegation_depth is advisory; workflows MAY reject promotion when depth exceeds a workflow-defined bound
+  - data_class is advisory; routing or storage may use it for handling decisions but it is not by itself an authority change
