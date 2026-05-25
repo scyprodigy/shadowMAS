@@ -32,6 +32,7 @@ required_fields:
       - revise
       - defer
       - escalate
+      - unpromote
 
 required_shared_fields:
   - packet_uid
@@ -58,6 +59,13 @@ optional_fields:
     type: list[string]
     meaning: things the reviewer may safely skip
 
+  promotion_snapshot:
+    type: object
+    meaning: source state snapshot captured at promotion time; compared before write-back to detect TOCTOU drift
+    shape:
+      source_hashes: list[object]
+      snapshot_at: string
+
 allowed_status_values:
   - draft
   - ready_for_human
@@ -71,3 +79,7 @@ rules:
   - review packets must minimize reader overload
   - must_read should stay curated and small
   - recommendation is advisory, not final human authority
+  - unpromote recommendation should reference the previously-promoted artifact via source_refs or related_packets
+  - unpromote does not by itself reverse prior approval; human re-review is required
+  - promotion_snapshot when present should be compared against current source state before any write-back action
+  - mismatch between promotion_snapshot and current state should trigger re-review
