@@ -283,6 +283,15 @@ Rule:
 - when present, prefer fields: `signer_id`, `algorithm`, `signature_value`, `signed_at`
 - signature presence does not imply authority; T-layer rules still govern
 
+### `data_class`
+Meaning:
+Data classification tag for the packet payload.
+
+Rule:
+- advisory; routing or storage may use it for handling decisions
+- preferred values: `pii`, `regulated`, `public`
+- value is not by itself an authority change; T-layer rules still govern
+
 ---
 
 ## 2. Structured Reference Fields
@@ -555,6 +564,7 @@ Rule:
 Preferred subfields:
 - `inputs.required_context`
 - `inputs.optional_context`
+- `inputs.trust_class`
 
 ### `inputs.required_context`
 Meaning:
@@ -563,6 +573,15 @@ Context that should be read or loaded before normal execution.
 ### `inputs.optional_context`
 Meaning:
 Useful but non-blocking context that may improve execution quality.
+
+### `inputs.trust_class`
+Meaning:
+Trust classification for the inputs being passed into the task.
+
+Rule:
+- default value is `external`
+- allowed values: `trusted`, `external`, `adversarial_assumed`
+- advisory only; agents and hooks MAY use it to adjust handling but it is not by itself authority
 
 ### `acceptance_criteria`
 Meaning:

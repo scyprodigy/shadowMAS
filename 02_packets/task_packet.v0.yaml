@@ -72,6 +72,7 @@ optional_fields:
     shape:
       required_context: list[string]
       optional_context: list[string]
+      trust_class: string
 
   on_blocked:
     type: object
@@ -112,6 +113,7 @@ rules:
   - stop_conditions must exist for non-trivial work
   - why_now, inputs, worker_plan, on_blocked, and deliverables are execution control aids, not authority replacement
   - inputs.required_context identifies blocking context; inputs.optional_context identifies useful but non-blocking context
+  - inputs.trust_class defaults to "external"; allowed values are "trusted", "external", and "adversarial_assumed"; advisory only
   - worker_plan must stay minimal and actionable, not a giant essay
   - on_blocked must define constrained next-step behavior, not free-form improvisation
   - deliverables define expected output surface and do not imply automatic approval
