@@ -232,3 +232,19 @@ The following may later refine this map:
 - final ADR structure
 - final write-back contract docs
 - final normalization procedure for contaminated project repos
+
+## 17. Change-impact map self-modification
+Examples:
+- adding a new change type entry
+- editing the meaning of an existing change type
+- restructuring the change-impact map itself
+
+Must review/update:
+- treat as a governance identity change per §1
+- `01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md` itself
+- `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md` if the change is structural
+- `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md` if the change is visible to human navigation
+
+Rule:
+- modifying this file is itself a governance action and must follow §1 review
+- this file does not approve itself
