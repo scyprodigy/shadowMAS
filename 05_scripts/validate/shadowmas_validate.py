@@ -321,6 +321,90 @@ def validate_review_multi_reviewer_fields(
     return errors
 
 
+def validate_review_promotion_snapshot(
+    data: dict[str, Any], file_name: str
+) -> list[ValidationError]:
+    if "promotion_snapshot" not in data:
+        return []
+
+    promotion_snapshot = data["promotion_snapshot"]
+    if not isinstance(promotion_snapshot, dict):
+        return [
+            make_error(
+                "INVALID_PROMOTION_SNAPSHOT",
+                file_name,
+                "promotion_snapshot",
+                "$.promotion_snapshot",
+                "promotion_snapshot must be an object when present",
+            )
+        ]
+
+    errors: list[ValidationError] = []
+    for field in ("source_hashes", "snapshot_at"):
+        if field not in promotion_snapshot or promotion_snapshot[field] is None:
+            errors.append(
+                make_error(
+                    "INVALID_PROMOTION_SNAPSHOT",
+                    file_name,
+                    field,
+                    f"$.promotion_snapshot.{field}",
+                    f"promotion_snapshot requires {field}",
+                )
+            )
+
+    source_hashes = promotion_snapshot.get("source_hashes")
+    if source_hashes is not None:
+        if not isinstance(source_hashes, list):
+            errors.append(
+                make_error(
+                    "INVALID_PROMOTION_SNAPSHOT",
+                    file_name,
+                    "source_hashes",
+                    "$.promotion_snapshot.source_hashes",
+                    "promotion_snapshot.source_hashes must be a list of objects",
+                )
+            )
+        else:
+            for index, item in enumerate(source_hashes):
+                item_path = f"$.promotion_snapshot.source_hashes[{index}]"
+                if not isinstance(item, dict):
+                    errors.append(
+                        make_error(
+                            "INVALID_PROMOTION_SNAPSHOT",
+                            file_name,
+                            "source_hashes",
+                            item_path,
+                            "promotion_snapshot.source_hashes item must be an object",
+                        )
+                    )
+                    continue
+                for key, value in item.items():
+                    if not isinstance(value, str):
+                        errors.append(
+                            make_error(
+                                "INVALID_PROMOTION_SNAPSHOT",
+                                file_name,
+                                "source_hashes",
+                                f"{item_path}.{key}",
+                                "promotion_snapshot.source_hashes item values must be strings",
+                            )
+                        )
+
+    snapshot_at = promotion_snapshot.get("snapshot_at")
+    if snapshot_at is not None and not isinstance(snapshot_at, str):
+        errors.append(
+            make_error(
+                "INVALID_PROMOTION_SNAPSHOT",
+                file_name,
+                "snapshot_at",
+                "$.promotion_snapshot.snapshot_at",
+                "promotion_snapshot.snapshot_at must be a string",
+            )
+        )
+
+    return errors
+
+
 def validate_source_refs(data: dict[str, Any], file_name: str) -> list[ValidationError]:
     if "source_refs" not in data:
         return []
@@ -525,6 +609,7 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     if packet_type == "review_packet":
         errors.extend(validate_review_recommendation(data, file_name))
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
+        errors.extend(validate_review_promotion_snapshot(data, file_name))
     errors.extend(validate_source_refs(data, file_name))
     errors.extend(validate_artifact_refs(data, file_name))
     errors.extend(validate_handoff(data, file_name))

@@ -365,6 +365,128 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
                 self.assertIn("field: consensus_kind", result.stdout)
                 self.assertIn("path: $.consensus_kind", result.stdout)
 
+    def test_review_packet_promotion_snapshot_valid_values_pass(self):
+        cases = {
+            "one_source_hash": [
+                "promotion_snapshot:",
+                "  source_hashes:",
+                "    - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md",
+                "      hash: sha256:example-current-truth",
+                "  snapshot_at: \"2026-05-22T00:00:00Z\"",
+            ],
+            "multiple_source_hashes": [
+                "promotion_snapshot:",
+                "  source_hashes:",
+                "    - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md",
+                "      hash: sha256:example-current-truth",
+                "    - source_path: 00_entry/SHADOWMAS-LAYERING-QUICKREF.v0.en.md",
+                "      hash: sha256:example-quickref",
+                "  snapshot_at: \"2026-05-22T00:00:00Z\"",
+            ],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(self._review_packet_with_lines(*lines))
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_review_packet_promotion_snapshot_invalid_shapes_fail(self):
+        cases = {
+            "string": ["promotion_snapshot: not-a-snapshot"],
+            "list": ["promotion_snapshot: []"],
+            "boolean": ["promotion_snapshot: true"],
+            "missing_source_hashes": [
+                "promotion_snapshot:",
+                "  snapshot_at: \"2026-05-22T00:00:00Z\"",
+            ],
+            "missing_snapshot_at": [
+                "promotion_snapshot:",
+                "  source_hashes:",
+                "    - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md",
+                "      hash: sha256:example-current-truth",
+            ],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(self._review_packet_with_lines(*lines))
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_PROMOTION_SNAPSHOT", result.stdout)
+
+    def test_review_packet_promotion_snapshot_invalid_source_hashes_fail(self):
+        cases = {
+            "source_hashes_string": [
+                "promotion_snapshot:",
+                "  source_hashes: not-a-list",
+                "  snapshot_at: \"2026-05-22T00:00:00Z\"",
+            ],
+            "source_hashes_list_scalar_item": [
+                "promotion_snapshot:",
+                "  source_hashes:",
+                "    - not-an-object",
+                "  snapshot_at: \"2026-05-22T00:00:00Z\"",
+            ],
+            "source_hashes_non_string_value": [
+                "promotion_snapshot:",
+                "  source_hashes:",
+                "    - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md",
+                "      hash: 12345",
+                "  snapshot_at: \"2026-05-22T00:00:00Z\"",
+            ],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(self._review_packet_with_lines(*lines))
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_PROMOTION_SNAPSHOT", result.stdout)
+                self.assertIn("field: source_hashes", result.stdout)
+                self.assertIn("$.promotion_snapshot.source_hashes", result.stdout)
+
+    def test_review_packet_promotion_snapshot_invalid_snapshot_at_fails(self):
+        tmp_path = write_temp_packet(
+            self._review_packet_with_lines(
+                "promotion_snapshot:",
+                "  source_hashes:",
+                "    - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md",
+                "      hash: sha256:example-current-truth",
+                "  snapshot_at: 20260522",
+            )
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("ERROR INVALID_PROMOTION_SNAPSHOT", result.stdout)
+        self.assertIn("field: snapshot_at", result.stdout)
+        self.assertIn("path: $.promotion_snapshot.snapshot_at", result.stdout)
+
     def test_review_packet_invalid_recommendation_fails(self):
         base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
         tmp_path = write_temp_packet(
@@ -427,6 +549,21 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
             msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_task_packet_validation_is_unaffected_by_promotion_snapshot(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text + "\npromotion_snapshot: invalid-for-review-packet\n"
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_memory_packet_validation_is_unaffected_by_multi_reviewer_fields(self):
         memory_packet = """\
 packet_uid: example-memory-packet-valid-v0-001
@@ -453,6 +590,43 @@ confidence: 0.5
 promotion_candidate: "no"
 reviewers_required: true
 consensus_kind: quorum
+"""
+        tmp_path = write_temp_packet(memory_packet)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_memory_packet_validation_is_unaffected_by_promotion_snapshot(self):
+        memory_packet = """\
+packet_uid: example-memory-packet-valid-v0-001
+packet_type: memory_packet
+schema_version: v0
+created_at: "2026-05-22T00:00:00Z"
+created_by: example_author
+owner: example_owner
+supervision_mode: human_available_delegate
+risk: r0_trivial
+status: candidate
+memory_kind: tooling_note
+memory_scope: session_local
+summary: Example memory packet for validator scope testing.
+structured_payload:
+  note: promotion_snapshot is not a memory_packet field.
+source_refs:
+  - source_type: file
+    source_path: examples/packets/review_packet.valid.v0.yaml
+    relation: read_from
+invalidation_triggers:
+  - source file changes
+confidence: 0.5
+promotion_candidate: "no"
+promotion_snapshot: invalid-for-review-packet
 """
         tmp_path = write_temp_packet(memory_packet)
         self.addCleanup(tmp_path.unlink, missing_ok=True)
