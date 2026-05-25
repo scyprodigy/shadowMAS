@@ -15,15 +15,15 @@ risk: r0_trivial
 status: draft
 
 decision_needed: Decide whether the illustrative task described in the linked task packet should proceed as drafted.
-why_you_are_seeing_this: The linked task packet is in draft state and a first-pass review is requested before any human approval decision is made.
-change_summary: The linked task packet proposes a short illustrative status note based only on provided source material; no canonical files would change.
-risk_summary: Risk is r0_trivial; the linked task does not modify source files, schemas, scripts, or product-repo files, and it does not promote any output as truth.
+why_you_are_seeing_this: The linked task packet is in draft state and a first-pass review is requested because recommendation defer needs human context, not automatic approval.
+change_summary: The linked task packet proposes a short illustrative status note based only on provided source material; no canonical files would change, and no output would be promoted as truth.
+risk_summary: Risk is r0_trivial because the linked task is read-only, source-bounded, and excludes source-file, schema, script, and product-repo edits.
 recommendation: defer
 
 source_refs:
   - source_type: task_packet
     source_id: example-task-packet-valid-v0-001
-    relation: reviews
+    relation: reviews_defer_basis
 
 related_packets:
   - example-task-packet-valid-v0-001
