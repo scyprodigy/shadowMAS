@@ -258,6 +258,10 @@ class L1MutationCorpusTests(unittest.TestCase):
 
 
 class ShadowmasPacketValidatorTests(unittest.TestCase):
+    def _review_packet_with_lines(self, *lines):
+        base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
+        return base_text.replace("recommendation: defer", "recommendation: defer\n" + "\n".join(lines))
+
     def test_review_packet_recommendation_enum_values_pass(self):
         base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
 
@@ -275,6 +279,91 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
                     0,
                     msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
                 )
+
+    def test_review_packet_reviewers_required_valid_values_pass(self):
+        for reviewers_required in (1, 2):
+            with self.subTest(reviewers_required=reviewers_required):
+                tmp_path = write_temp_packet(
+                    self._review_packet_with_lines(f"reviewers_required: {reviewers_required}")
+                )
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_review_packet_reviewers_required_invalid_values_fail(self):
+        cases = {
+            "zero": "0",
+            "negative": "-1",
+            "string": '"2"',
+            "boolean": "true",
+            "float": "1.5",
+            "list": "[]",
+            "map": "{}",
+        }
+        for name, value in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(
+                    self._review_packet_with_lines(f"reviewers_required: {value}")
+                )
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_REVIEWERS_REQUIRED", result.stdout)
+                self.assertIn("field: reviewers_required", result.stdout)
+                self.assertIn("path: $.reviewers_required", result.stdout)
+
+    def test_review_packet_consensus_kind_valid_values_pass(self):
+        for consensus_kind in ("unanimous", "majority", "first_to_decide"):
+            with self.subTest(consensus_kind=consensus_kind):
+                tmp_path = write_temp_packet(
+                    self._review_packet_with_lines(f"consensus_kind: {consensus_kind}")
+                )
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_review_packet_consensus_kind_invalid_values_fail(self):
+        cases = {
+            "unknown": "quorum",
+            "integer": "2",
+            "boolean": "true",
+            "list": "[]",
+        }
+        for name, value in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(
+                    self._review_packet_with_lines(f"consensus_kind: {value}")
+                )
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_CONSENSUS_KIND", result.stdout)
+                self.assertIn("field: consensus_kind", result.stdout)
+                self.assertIn("path: $.consensus_kind", result.stdout)
 
     def test_review_packet_invalid_recommendation_fails(self):
         base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
@@ -316,6 +405,59 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
 
     def test_task_packet_validation_is_unaffected_by_recommendation_enum(self):
         result = run_packet_validator(VALID_TASK_PACKET)
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_task_packet_validation_is_unaffected_by_multi_reviewer_fields(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text + "\nreviewers_required: true\nconsensus_kind: quorum\n"
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_memory_packet_validation_is_unaffected_by_multi_reviewer_fields(self):
+        memory_packet = """\
+packet_uid: example-memory-packet-valid-v0-001
+packet_type: memory_packet
+schema_version: v0
+created_at: "2026-05-22T00:00:00Z"
+created_by: example_author
+owner: example_owner
+supervision_mode: human_available_delegate
+risk: r0_trivial
+status: candidate
+memory_kind: tooling_note
+memory_scope: session_local
+summary: Example memory packet for validator scope testing.
+structured_payload:
+  note: Multi-reviewer fields are not memory_packet fields.
+source_refs:
+  - source_type: file
+    source_path: examples/packets/review_packet.valid.v0.yaml
+    relation: read_from
+invalidation_triggers:
+  - source file changes
+confidence: 0.5
+promotion_candidate: "no"
+reviewers_required: true
+consensus_kind: quorum
+"""
+        tmp_path = write_temp_packet(memory_packet)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
 
         self.assertEqual(
             result.returncode,

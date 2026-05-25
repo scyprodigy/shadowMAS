@@ -98,6 +98,7 @@ STATUS_VALUES = {
 }
 
 REVIEW_RECOMMENDATION_VALUES = {"approve", "reject", "revise", "defer", "escalate", "unpromote"}
+REVIEW_CONSENSUS_KIND_VALUES = {"unanimous", "majority", "first_to_decide"}
 
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}
 
@@ -273,6 +274,51 @@ def validate_review_recommendation(data: dict[str, Any], file_name: str) -> list
             )
         ]
     return []
+
+
+def validate_review_multi_reviewer_fields(
+    data: dict[str, Any], file_name: str
+) -> list[ValidationError]:
+    errors: list[ValidationError] = []
+
+    if "reviewers_required" in data:
+        reviewers_required = data["reviewers_required"]
+        if isinstance(reviewers_required, bool) or not isinstance(reviewers_required, int):
+            errors.append(
+                make_error(
+                    "INVALID_REVIEWERS_REQUIRED",
+                    file_name,
+                    "reviewers_required",
+                    "$.reviewers_required",
+                    "reviewers_required must be an integer greater than or equal to 1",
+                )
+            )
+        elif reviewers_required < 1:
+            errors.append(
+                make_error(
+                    "INVALID_REVIEWERS_REQUIRED",
+                    file_name,
+                    "reviewers_required",
+                    "$.reviewers_required",
+                    "reviewers_required must be greater than or equal to 1",
+                )
+            )
+
+    if "consensus_kind" in data:
+        consensus_kind = data["consensus_kind"]
+        if not isinstance(consensus_kind, str) or consensus_kind not in REVIEW_CONSENSUS_KIND_VALUES:
+            allowed = ", ".join(sorted(REVIEW_CONSENSUS_KIND_VALUES))
+            errors.append(
+                make_error(
+                    "INVALID_CONSENSUS_KIND",
+                    file_name,
+                    "consensus_kind",
+                    "$.consensus_kind",
+                    f"consensus_kind must be one of: {allowed}",
+                )
+            )
+
+    return errors
 
 
 def validate_source_refs(data: dict[str, Any], file_name: str) -> list[ValidationError]:
@@ -478,6 +524,7 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     errors.extend(validate_status(data, packet_type, file_name))
     if packet_type == "review_packet":
         errors.extend(validate_review_recommendation(data, file_name))
+        errors.extend(validate_review_multi_reviewer_fields(data, file_name))
     errors.extend(validate_source_refs(data, file_name))
     errors.extend(validate_artifact_refs(data, file_name))
     errors.extend(validate_handoff(data, file_name))
