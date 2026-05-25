@@ -97,7 +97,7 @@ STATUS_VALUES = {
     },
 }
 
-REVIEW_RECOMMENDATION_VALUES = {"approve", "reject", "revise", "defer", "escalate"}
+REVIEW_RECOMMENDATION_VALUES = {"approve", "reject", "revise", "defer", "escalate", "unpromote"}
 
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}
 

@@ -261,7 +261,7 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
     def test_review_packet_recommendation_enum_values_pass(self):
         base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
 
-        for recommendation in ("approve", "reject", "revise", "defer", "escalate"):
+        for recommendation in ("approve", "reject", "revise", "defer", "escalate", "unpromote"):
             with self.subTest(recommendation=recommendation):
                 tmp_path = write_temp_packet(
                     base_text.replace("recommendation: defer", f"recommendation: {recommendation}")

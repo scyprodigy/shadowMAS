@@ -903,6 +903,7 @@ Rule:
 - producer-layer recommendation only
 - should stay compact
 - should not become essay-style persuasion
+- `unpromote` recommendation should reference the previously-promoted artifact via `source_refs` or `related_packets`; it does not by itself reverse prior approval
 
 Examples:
 - approve
@@ -910,6 +911,16 @@ Examples:
 - revise
 - defer
 - escalate
+- unpromote
+
+### `promotion_snapshot`
+Meaning:
+Optional source state snapshot captured at promotion time, used later to detect TOCTOU drift before write-back.
+
+Rule:
+- when present, should be compared against current source state before any write-back action
+- mismatch should trigger re-review
+- snapshot itself does not arbitrate authority; it surfaces evidence for the reviewer
 
 ### `review_status`
 Meaning:
