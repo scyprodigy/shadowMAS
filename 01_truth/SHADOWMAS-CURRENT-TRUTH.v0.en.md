@@ -97,7 +97,7 @@ Cross-project reusable rules.
 ### Project Execution
 Repo-local execution constraints and domain-specific truth.
 
-### shadowMAS Coordination / Governance Shadow
+### shadowMAS Authority-Boundary Orchestration
 Global shadow-boundary discipline for packet routing, memory, promotion, invalidation, indexing, review, lessons, mergeback, and write-back boundaries.
 
 ## Current Operational Layer Model
@@ -108,7 +108,7 @@ Global shadow-boundary discipline for packet routing, memory, promotion, invalid
 - `L3`: Execution / repo implementation
 - `L4`: Mergeback / sync
 
-### Truth / Governance Layer
+### Truth / Authority Layer
 - `T0`: Human Authority
 - `T1`: Delegated Decision Authority
 - `T2`: Approved Truth Artifacts
