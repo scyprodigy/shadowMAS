@@ -145,6 +145,15 @@ tracked_files:
       - human_governance
     notes: Minimum memory-plane harness.
 
+  - path: 03_memory/session_log/SESSION-LOG-INTEGRITY.v0.en.md
+    artifact_type: formal_truth
+    status: truth_candidate
+    authority: governed_support
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Hash-chain integrity spec for the session_log memory plane; spec only, not implementation.
+
   - path: 03_memory/registry/SHADOWMAS-FILE-STATUS-REGISTRY.v0.yaml
     artifact_type: registry
     status: approved_truth
