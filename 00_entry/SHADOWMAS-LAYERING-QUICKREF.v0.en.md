@@ -42,7 +42,7 @@ Current source surfaces:
 - `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
 - `README.md`
 
-### Layer 2: shadowMAS Coordination / Governance Shadow
+### Layer 2: shadowMAS Authority-Boundary Orchestration
 Meaning:
 Global shadow-boundary discipline for packets, truth, memory, lessons, promotion, invalidation, review, routing, and write-back boundaries.
 
@@ -65,7 +65,7 @@ but project-domain truth remains local to that project repo.
 
 Current source surface inside shadowMAS:
 - no project repo is canonicalized here
-- only governance-facing references, handoffs, or write-back boundaries may appear
+- only authority-boundary references, handoffs, or write-back boundaries may appear
 
 ### Layer 4: Runtime Adapter Prompt
 Meaning:
