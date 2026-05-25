@@ -66,6 +66,14 @@ optional_fields:
       source_hashes: list[object]
       snapshot_at: string
 
+  reviewers_required:
+    type: integer
+    meaning: number of human reviewers required; default 1 preserves single-author flow
+
+  consensus_kind:
+    type: string
+    meaning: consensus rule when reviewers_required > 1; allowed unanimous, majority, first_to_decide
+
 allowed_status_values:
   - draft
   - ready_for_human
@@ -83,3 +91,5 @@ rules:
   - unpromote does not by itself reverse prior approval; human re-review is required
   - promotion_snapshot when present should be compared against current source state before any write-back action
   - mismatch between promotion_snapshot and current state should trigger re-review
+  - reviewers_required defaults to 1; single-author workflows need not set it
+  - consensus_kind applies only when reviewers_required > 1; allowed values are unanimous, majority, first_to_decide
