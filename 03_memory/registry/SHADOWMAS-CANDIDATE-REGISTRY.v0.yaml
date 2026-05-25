@@ -2504,6 +2504,88 @@ candidates:
       - do_not_promote_to_truth
       - do_not_modify_packet_schemas
 
+  - candidate_id: P5-001
+    p_lane: P5
+    title: negative_audit_cycle_2026_packet_shell_extensions
+    status: approved_for_patch
+    source_basis:
+      - in_session_negative_audit_cycle_2026
+      - SHADOWMAS-CURRENT-TRUTH_authority_boundary_principles
+      - PACKET-FIELD-DICTIONARY_existing_forbidden_confusions
+      - rationale_evaluation_drift
+      - active_design_log_excerpts
+    target_surfaces:
+      primary: 02_packets/packet_common_shell.v0.yaml
+      secondary:
+        - 02_packets/task_packet.v0.yaml
+        - 02_packets/review_packet.v0.yaml
+        - 02_packets/PACKET-FIELD-DICTIONARY.v0.en.md
+        - 05_scripts/validate/shadowmas_validate.py
+        - tests/test_shadowmas_minimal_validator.py
+        - tools/check_translation_drift.py
+        - 03_memory/session_log/SESSION-LOG-INTEGRITY.v0.en.md
+        - 03_memory/registry/SHADOWMAS-FILE-STATUS-REGISTRY.v0.yaml
+        - 07_working/drafts/rationale/calibration_framework_note.md
+        - 01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md
+    change_type: packet_field_change_plus_advisory_tooling
+    proposed_minimum_shape:
+      registration_kind: retrospective_record_of_landed_changes
+      landed_changes:
+        - payload_repr_optional_shared_field_for_cross_paradigm_payload_tagging
+        - cost_trace_optional_advisory_resource_consumption_record
+        - signed_by_optional_cryptographic_attestation_block_advisory_in_v0
+        - handoff_delegation_depth_integer_bound_for_delegation_chain
+        - inputs_trust_class_for_task_input_trust_classification_default_external
+        - data_class_optional_payload_data_classification_tag
+        - recommendation_unpromote_enum_extension_on_review_packet
+        - promotion_snapshot_source_state_snapshot_for_TOCTOU_detection
+        - reviewers_required_and_consensus_kind_optional_multi_reviewer_fields
+        - check_translation_drift_advisory_embedding_based_zh_tw_drift_checker
+        - SESSION_LOG_INTEGRITY_v0_hash_chain_integrity_spec_for_session_log
+        - calibration_framework_note_working_rationale_for_distributional_calibration
+        - CHANGE_IMPACT_MAP_section_17_self_modification_rule
+      all_changes: optional_or_advisory_unless_otherwise_noted
+      single_author_default_preserved: true
+    collision_check:
+      status: confirmed_by_test_suite_pass_across_all_rounds
+      validators_unchanged_or_extended_in_compatible_way: true
+      twenty_eight_unit_tests_pass_after_each_round: true
+      example_fixtures_unchanged_by_optional_fields: true
+    governance_boundary:
+      human_approval_required: true_per_round_landed
+      registry_entry_is_retrospective_record_not_promotion_authority: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+    change_impact_check:
+      reviewed_per_round:
+        - 02_packets_fields_synced_with_PACKET-FIELD-DICTIONARY
+        - 05_scripts_validate_extended_for_unpromote
+        - tests_updated_for_new_enum_value
+        - 03_memory_registry_FILE_STATUS_REGISTRY_records_session_log_integrity_spec
+        - 07_working_drafts_rationale_index_updated_for_calibration_note
+        - 01_truth_CHANGE_IMPACT_MAP_section_17_added
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+    reviewer_decision:
+      decision: approved_per_round_by_human
+      decided_by: human_via_session
+      decided_at: null
+      notes:
+        - approved_payload_repr_for_cross_paradigm_compat
+        - approved_advisory_metadata_fields_with_authority_boundary_preserved
+        - approved_review_packet_extension_for_unpromote_and_multi_reviewer
+        - approved_translation_drift_advisory_tooling
+        - approved_session_log_integrity_spec_as_truth_candidate
+        - approved_calibration_framework_as_working_draft
+        - approved_change_impact_map_self_modification_clause
+        - declined_packet_signature_enforcement_in_v0
+        - declined_meta_governance_separate_doc_user_is_sole_T0
+    next_action: monitor_for_real_jepa_or_signing_or_multi_reviewer_use_cases_before_further_formalization
+
 notes:
   - this_registry_is_not_canonical_truth
   - this_registry_is_not_approval_authority
