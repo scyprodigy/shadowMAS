@@ -100,6 +100,10 @@ optional_shared_fields:
     type: object
     meaning: advisory record of resources consumed; not authority
 
+  signed_by:
+    type: object
+    meaning: optional cryptographic attestation; advisory in v0
+
 source_ref_shape:
   source_type: string
   source_id: string
@@ -124,6 +128,13 @@ handoff_shape:
   reason: string
   resume_from: list[string]
   blockers: list[string]
+  delegation_depth: integer
+
+signed_by_shape:
+  signer_id: string
+  algorithm: string
+  signature_value: string
+  signed_at: string
 
 rules:
   - shared field meaning must remain stable across packet families
@@ -140,3 +151,5 @@ rules:
   - payload_repr defaults to "text" and preserves v0 semantics; unknown values must be accepted and preserved verbatim by routing agents
   - review_packet must always carry a text projection regardless of payload_repr
   - cost_trace is advisory only and must not arbitrate authority or promotion
+  - signed_by is optional; v0 validators MUST NOT enforce signature verification
+  - handoff.delegation_depth is advisory; workflows MAY reject promotion when depth exceeds a workflow-defined bound
