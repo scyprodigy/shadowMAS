@@ -92,6 +92,14 @@ optional_shared_fields:
   handoff:
     type: object
 
+  payload_repr:
+    type: string
+    meaning: representation tag for payload form; default "text" preserves v0 semantics
+
+  cost_trace:
+    type: object
+    meaning: advisory record of resources consumed; not authority
+
 source_ref_shape:
   source_type: string
   source_id: string
@@ -129,3 +137,6 @@ rules:
   - handoff.to_role carries next responsible role semantics
   - handoff.reason carries handoff reason semantics
   - handoff.resume_from carries minimal resume points for zero-memory continuation
+  - payload_repr defaults to "text" and preserves v0 semantics; unknown values must be accepted and preserved verbatim by routing agents
+  - review_packet must always carry a text projection regardless of payload_repr
+  - cost_trace is advisory only and must not arbitrate authority or promotion

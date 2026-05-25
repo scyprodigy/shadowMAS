@@ -248,6 +248,32 @@ Rule:
 - should not turn into a giant unstructured note dump
 - should carry only machine-stable resume information, not session-only scratch notes
 
+### `payload_repr`
+Meaning:
+Representation tag for the packet payload form.
+
+Rule:
+- default value is `text`, which preserves existing v0 textual or structured semantics
+- other values (for example `latent:vN` or `multimodal:vN`) identify alternative representations carried by adapters
+- validators MUST NOT reject unknown values
+- routing agents MUST preserve the value verbatim
+- review surfaces MUST always carry a text projection regardless of `payload_repr`
+
+Example:
+- `text`
+- `latent:v1`
+- `multimodal:v1`
+
+### `cost_trace`
+Meaning:
+Advisory record of resources consumed by the packet's execution context.
+
+Rule:
+- advisory only
+- must not arbitrate authority or promotion
+- preferred subfields are `tokens`, `wall_time_seconds`, `currency_amount`, and `currency_code`
+- absence is allowed; presence does not imply approval
+
 ---
 
 ## 2. Structured Reference Fields
