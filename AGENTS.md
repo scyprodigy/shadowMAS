@@ -13,7 +13,7 @@ This file gives public-safe instructions for AI coding agents and human contribu
 1. `README.md` for project identity and first-run commands.
 2. `00_entry/SHADOWMAS-LAYERING-QUICKREF.v0.en.md` for the layer model.
 3. `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md` for the current minimum truth.
-4. Other files under `01_truth/` only if the task touches governance, prompt layering, change impact, or translation policy.
+4. Other files under `01_truth/` only if the task touches authority-boundary policy, prompt layering, change impact, or translation policy.
 
 Do not perform blind full-repo traversal. Load files on demand by task shape.
 
@@ -25,7 +25,7 @@ Do not perform blind full-repo traversal. Load files on demand by task shape.
 - `04_runtime/` contains runtime-facing design surfaces. Do not change runtime contracts unless explicitly allowed.
 - `00_entry/`, `06_human_docs/`: established entry and human-facing surfaces. Treat as semi-canonical.
 - `05_scripts/`, `tools/`, `tests/`, `examples/`: machine-facing surfaces. Keep names and structure stable.
-- `07_working/` contains drafts, rationale, proposals, and working material. Inclusion in `07_working/` does not make a file canonical truth. Promotion to a higher layer requires explicit human governance review.
+- `07_working/` contains drafts, rationale, proposals, and working material. Inclusion in `07_working/` does not make a file canonical truth. Promotion to a higher layer requires explicit human authority-boundary review.
 
 ## Public/private boundary
 
@@ -122,4 +122,4 @@ This file does not:
 - specify branch strategy beyond the public/private boundary stated above;
 - enumerate every validation command; the per-task command set depends on the paths touched.
 
-For deeper governance and packet semantics, follow the reading order at the top of this file and the change-impact map referenced above.
+For deeper authority-boundary and packet semantics, follow the reading order at the top of this file and the change-impact map referenced above.
