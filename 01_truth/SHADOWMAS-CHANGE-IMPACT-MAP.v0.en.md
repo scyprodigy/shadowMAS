@@ -36,7 +36,7 @@ May also require:
 ## 2. Prompt layering change
 Examples:
 - changing Shared Core meaning
-- changing shadowMAS Coordination / Governance Shadow scope
+- changing shadowMAS Authority-Boundary Orchestration scope
 - changing Project Execution boundary
 - adding/modifying Runtime Adapter Prompt rules
 - recognizing new host-native prompt constraints

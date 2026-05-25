@@ -49,7 +49,7 @@ This layer must not contain:
 - one-project naming rules
 - domain-specific API contracts
 
-### Layer 2: shadowMAS Coordination / Governance Shadow
+### Layer 2: shadowMAS Authority-Boundary Orchestration
 Definition:
 Global coordination and authority-boundary layer for packet routing, memory, promotion, invalidation, indexing, review, lesson handling, registry, mergeback, and write-back boundaries.
 
@@ -87,7 +87,7 @@ This layer must be:
 - independently maintainable
 - authoritative for project-domain facts
 
-This layer must not be overridden by Shared Core or shadowMAS Coordination / Governance Shadow for domain facts.
+This layer must not be overridden by Shared Core or shadowMAS Authority-Boundary Orchestration for domain facts.
 
 ### Layer 4: Runtime Adapter Prompt
 Definition:
@@ -143,14 +143,14 @@ It must be documented as an external constraint, not treated as writable truth.
 Default reading order for an agent operating under shadowMAS:
 
 1. Shared Core
-2. shadowMAS Coordination / Governance Shadow
+2. shadowMAS Authority-Boundary Orchestration
 3. Project Execution
 4. Runtime Adapter Prompt
 5. Host Native / Opaque Prompt (acknowledged as external runtime context, not maintained source truth)
 
 ## Why this reading order
 - Shared Core gives baseline conduct
-- shadowMAS Coordination / Governance Shadow gives the global packet and authority-boundary operating contract
+- shadowMAS Authority-Boundary Orchestration gives the global packet and authority-boundary operating contract
 - Project Execution gives project-local truth
 - Runtime Adapter Prompt shapes execution for the current tool/runtime
 - Host Native / Opaque Prompt is treated as unavoidable runtime influence
@@ -183,14 +183,14 @@ Layer 5 must not become:
 - invent local project structures
 - override project field/API/domain truth
 
-### shadowMAS Coordination / Governance Shadow may
+### shadowMAS Authority-Boundary Orchestration may
 - define global coordination rules
 - define memory/promotion/write-back boundaries
 - define file-status and packet rules
 - define cross-session merge discipline
 - define routing and review policy
 
-### shadowMAS Coordination / Governance Shadow may not
+### shadowMAS Authority-Boundary Orchestration may not
 - rewrite project-domain facts by itself
 - replace project-local canonical truth
 - silently promote execution feed into approved truth
@@ -238,18 +238,18 @@ Resolution:
 - Project Execution wins for project-domain facts
 
 ### Conflict type B
-shadowMAS Coordination / Governance Shadow vs Project Execution
+shadowMAS Authority-Boundary Orchestration vs Project Execution
 
 Resolution:
-- shadowMAS Coordination / Governance Shadow wins for packet, promotion, memory-boundary, review, and write-back rules
+- shadowMAS Authority-Boundary Orchestration wins for packet, promotion, memory-boundary, review, and write-back rules
 - Project Execution wins for project-domain truth
 
 ### Conflict type C
-Shared Core vs shadowMAS Coordination / Governance Shadow
+Shared Core vs shadowMAS Authority-Boundary Orchestration
 
 Resolution:
 - Shared Core remains the reusable behavioral floor
-- shadowMAS Coordination / Governance Shadow adds packet and authority-boundary constraints without breaking shared-core principles
+- shadowMAS Authority-Boundary Orchestration adds packet and authority-boundary constraints without breaking shared-core principles
 
 ### Conflict type D
 Runtime Adapter Prompt vs Project Execution
@@ -259,11 +259,11 @@ Resolution:
 - Project Execution wins for project-domain truth
 
 ### Conflict type E
-Runtime Adapter Prompt vs shadowMAS Coordination / Governance Shadow
+Runtime Adapter Prompt vs shadowMAS Authority-Boundary Orchestration
 
 Resolution:
 - Runtime Adapter Prompt may adapt runtime execution
-- shadowMAS Coordination / Governance Shadow wins for packet semantics, memory boundaries, review, promotion, and write-back boundaries
+- shadowMAS Authority-Boundary Orchestration wins for packet semantics, memory boundaries, review, promotion, and write-back boundaries
 
 ### Conflict type F
 Host Native / Opaque Prompt vs maintained source layers
@@ -288,7 +288,7 @@ An agent must always ask:
    - if yes, Shared Core
 
 2. Is this a packet/routing/memory/review/write-back or authority-boundary rule?
-   - if yes, shadowMAS Coordination / Governance Shadow
+   - if yes, shadowMAS Authority-Boundary Orchestration
 
 3. Is this a project-local business/domain/repo truth?
    - if yes, Project Execution
@@ -313,7 +313,7 @@ but they must remain separately maintainable as source artifacts where possible.
 ## Composition Rule
 A runtime may assemble a composed execution context from:
 - Shared Core
-- shadowMAS Coordination / Governance Shadow
+- shadowMAS Authority-Boundary Orchestration
 - Project Execution
 - Runtime Adapter Prompt
 
