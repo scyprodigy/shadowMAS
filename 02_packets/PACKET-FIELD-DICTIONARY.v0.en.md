@@ -274,6 +274,15 @@ Rule:
 - preferred subfields are `tokens`, `wall_time_seconds`, `currency_amount`, and `currency_code`
 - absence is allowed; presence does not imply approval
 
+### `signed_by`
+Meaning:
+Optional cryptographic attestation block for packet integrity.
+
+Rule:
+- advisory in v0; validators MUST NOT enforce signature verification
+- when present, prefer fields: `signer_id`, `algorithm`, `signature_value`, `signed_at`
+- signature presence does not imply authority; T-layer rules still govern
+
 ---
 
 ## 2. Structured Reference Fields
@@ -465,6 +474,15 @@ Examples:
 - `read task scope and acceptance criteria`
 - `re-open changed files listed in artifact_refs`
 - `start from unresolved blocker 2`
+
+### `handoff.delegation_depth`
+Meaning:
+Number of delegation hops between root authority and this handoff.
+
+Rule:
+- root handoff is depth `0`; each downstream handoff increments by 1
+- workflows MAY reject promotion when depth exceeds a workflow-defined bound
+- depth is advisory metadata, not by itself an authority change
 
 ---
 
