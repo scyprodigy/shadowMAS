@@ -17,14 +17,14 @@ task_id: example-illustrative-status-note
 goal: Create a short illustrative status note from provided source material.
 scope:
   - Read the provided source material only.
-  - Summarize current status in a short note.
+  - Summarize current status in a short note; the r0_trivial risk label is based on this read-only, source-bounded scope.
   - Keep the output generic and non-canonical.
 out_of_scope:
   - Do not modify source files.
   - Do not make governance decisions.
   - Do not promote the note as truth.
 truth_touchpoints:
-  - No canonical truth files are changed by this illustrative example.
+  - No canonical truth files are changed or promoted by this illustrative example; this is the evidence basis for the compact risk value.
 worker_plan:
   preferred_worker: documentation_helper
   fallback_worker: human_reviewer
@@ -37,4 +37,4 @@ acceptance_criteria:
   - No product-specific project is referenced.
 stop_conditions:
   - Stop if source material is missing.
-  - Stop if the task would require editing canonical truth, schemas, scripts, or product repo files.
+  - Stop if the scoped evidence no longer supports r0_trivial, including any need to edit canonical truth, schemas, scripts, or product repo files.
