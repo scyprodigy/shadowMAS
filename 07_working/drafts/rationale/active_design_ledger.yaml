@@ -530,7 +530,7 @@ compact_navigation_preservation:
         impacted_surfaces:
           - review policy
           - packet review surface
-          - governance matrix
+          - authority-boundary matrix
           - human-facing explanation
         promotion_condition:
           - specify where noise is forbidden

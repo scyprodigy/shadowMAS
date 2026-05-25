@@ -970,7 +970,7 @@ promotion_queue:
     impacted_surfaces:
       - review policy
       - packet review surface
-      - governance matrix
+      - authority-boundary matrix
       - human-facing explanation
     promotion_condition:
       - specify where noise is forbidden
@@ -1450,7 +1450,7 @@ canonical_proposal_packet_example:
       - residuals              # the gap, broken into typed sub-fields (see § 12.2)
       - validation_gap         # what was not yet checked
       - truth_conflicts        # explicit conflicts with canonical truth files
-      - decision_needed        # human/governance decision required to proceed
+      - decision_needed        # human/authority-boundary decision required to proceed
       - stop_condition_status  # whether a stop condition was met or escalated
     non_goals:
       - this is NOT a new packet family
@@ -1579,13 +1579,13 @@ If research signals are only reviewed after shadowMAS is finalized, they can no 
 
 Reason:
 
-External papers can inspire architecture, but cannot automatically override shadowMAS governance truth, human authority, auditability, or promotion boundaries.
+External papers can inspire architecture, but cannot automatically override shadowMAS authority-boundary truth, human authority, auditability, or promotion boundaries.
 
 #### Rejected: clone external systems blindly
 
 Reason:
 
-RecursiveMAS, WFGY, predictive coding, free energy, or information geometry may provide powerful design signals, but shadowMAS has its own identity: governance, truth control, review, promotion, memory boundary, runtime boundary, and mergeback safety.
+RecursiveMAS, WFGY, predictive coding, free energy, or information geometry may provide powerful design signals, but shadowMAS has its own identity: packetized shadow coordination, truth control, review, promotion, memory boundary, runtime boundary, and mergeback safety.
 
 ### 2.3 Accepted lane
 
@@ -2388,7 +2388,7 @@ In the model:
 shadowMAS mapping:
 
 ```text
-higher governance layer sends expected task / artifact / scope shape
+higher authority-boundary layer sends expected task / artifact / scope shape
 execution layer returns residual, not just full raw output
 ```
 
@@ -2893,7 +2893,7 @@ best_node:
     - avoids impossible latent requirement
     - preserves auditability through visible projection
     - supports recursive runtime design without cloning RecursiveMAS
-    - keeps KL as first design grammar without erasing governance boundaries
+    - keeps KL as first design grammar without erasing authority-boundary rules
 ```
 
 ---
@@ -3489,7 +3489,7 @@ adapter_change_principle:
     - explicit projection notes
   avoid:
     - rewriting base truth for runtime convenience
-    - modifying project-domain truth from governance layer
+    - modifying project-domain truth from the authority-boundary layer
     - full-system rule churn for local runtime needs
 ```
 
@@ -3561,7 +3561,7 @@ tot_branches:
 moe_votes:
   CEO:
     vote: accept C + D
-    reason: shadowMAS needs a stronger identity: not file layers, but controlled hierarchical governance compression.
+    reason: shadowMAS needs a stronger identity: not file layers, but controlled hierarchical authority-boundary compression.
     risk: too much category theory can slow productization.
 
   CTO:
@@ -3728,7 +3728,7 @@ impacted_surfaces:
   prompt_layering_contract:
     reason: composition record may formalize runtime context assembly
 
-  governance_matrix:
+  authority_boundary_matrix:
     reason: order parameters may affect role/truth/runtime layer interpretation
 
   packet_schema_future:
@@ -4303,7 +4303,7 @@ tot_branches:
 moe_votes:
   CEO:
     vote: accept C + E + K
-    reason: signal field gives shadowMAS a serious MAS coordination substrate, but cannot replace governance authority.
+    reason: signal field gives shadowMAS a serious MAS coordination substrate, but cannot replace authority-boundary review.
     risk: over-automation could blur who decides.
 
   CTO:
@@ -4318,7 +4318,7 @@ moe_votes:
 
   CSO:
     vote: accept C
-    reason: “shared signal field” is a strong differentiator from simple task orchestration.
+    reason: “shared signal field” is a strong differentiator from simple task routing.
     risk: if too abstract, it becomes decorative theory.
 
   CFO:
@@ -4343,7 +4343,7 @@ lats_result:
       - integrates Round 1 residual-first logic
       - connects to Round 2 runtime/convergence layer thinking
       - remains implementable without model latent access
-      - preserves governance matrix boundaries
+      - preserves authority-boundary matrix rules
 
   accepted:
     - signal_field_as_runtime_coordination_lane
@@ -4510,7 +4510,7 @@ Change-impact warning:
 
 ```text
 Do not update canonical truth yet. This round creates an active candidate kernel.
-Formal adoption would affect runtime, packet, memory-plane, governance matrix, and human-facing explanation.
+Formal adoption would affect runtime, packet, memory-plane, authority-boundary matrix, and human-facing explanation.
 ```
 
 ---
@@ -5028,11 +5028,11 @@ tot_branches:
 
   I_field_with_audit_projection_and_poisoning_check:
     decision: accepted
-    reason: necessary for security and governance.
+    reason: necessary for security and authority-boundary review.
 
   J_numeric_free_energy_required:
     decision: rejected_for_v0
-    reason: many shadowMAS tasks are symbolic/governance tasks without formal probabilistic model.
+    reason: many shadowMAS tasks are symbolic/authority-boundary tasks without formal probabilistic model.
 
   K_semantic_free_energy_proxy:
     decision: accepted
@@ -5509,7 +5509,7 @@ Engineering translation:
 ```yaml
 variety_coverage:
   V_env: distinct task/environment states that require meaningfully different responses
-  V_ctrl: distinct response states the system can actually deploy under governance constraints
+  V_ctrl: distinct response states the system can actually deploy under authority-boundary constraints
   condition: V_ctrl >= V_env
 ```
 
@@ -5824,7 +5824,7 @@ tot_branches:
 
   H_selective_bridge_connectivity:
     decision: accepted
-    reason: increase p_eff where task dependencies require composition while preserving governance boundaries
+    reason: increase p_eff where task dependencies require composition while preserving authority-boundary rules
 
   I_make_signal_field_the_universal_connectivity_layer:
     decision: rejected
@@ -5866,7 +5866,7 @@ moe_votes:
 
   CSO:
     vote: accept D
-    reason: “coverage + connectivity” is a clean product-level explanation for why shadowMAS is more than orchestration.
+    reason: “coverage + connectivity” is a clean product-level explanation for why shadowMAS is more than task routing.
     warning: avoid making this sound like abstract math unless it produces concrete routing tests.
 
   CFO:
@@ -5891,7 +5891,7 @@ lats_result:
       - gives a diagnostic path for multi-agent failures
       - integrates naturally with signal field, state capsule, and routing design
       - avoids both all-to-all chatter and shallow agent-count thinking
-      - preserves governance boundaries by treating connectivity as permissioned edges
+      - preserves authority-boundary rules by treating connectivity as permissioned edges
 
   accepted:
     - variety_coverage_constraint
@@ -6110,7 +6110,7 @@ Change-impact warning:
 
 ```text
 Do not update canonical truth yet. This is an active design kernel.
-Formal adoption requires governance matrix, runtime, packet, memory-plane,
+Formal adoption requires authority-boundary matrix, runtime, packet, memory-plane,
 security, and human-facing explanation impact review.
 ```
 
@@ -6607,7 +6607,7 @@ Current treatment:
 shadowMAS_import_status:
   accept_as_design_kernel: true
   reject_as_literal_v0_math_requirement: true
-  reason: many shadowMAS artifacts are symbolic/governance objects, not directly differentiable statistical manifolds
+  reason: many shadowMAS artifacts are symbolic/authority-boundary objects, not directly differentiable statistical manifolds
 ```
 
 ---
@@ -7756,7 +7756,7 @@ truth promotion semantics without governance-matrix review.
 
 > status: document design review pass 6  
 > object under review: same single active design log after adding Round 7  
-> goal: prevent Q-III from being misread as broad permission for stochastic governance and keep the expanding one-file document navigable.
+> goal: prevent Q-III from being misread as broad permission for stochastic authority decisions and keep the expanding one-file document navigable.
 
 ---
 
@@ -8644,7 +8644,7 @@ Change-impact warning:
 
 ```text
 Do not update canonical truth yet. Round 8 creates an active candidate strategy kernel.
-Formal adoption would require review of current truth, governance matrix, runtime future, packet future, and human-facing explanation.
+Formal adoption would require review of current truth, authority-boundary matrix, runtime future, packet future, and human-facing explanation.
 ```
 
 ---
@@ -9069,7 +9069,7 @@ evaluation_difference_check:
 Accepted insight:
 
 ```text
-Review should focus on differences that change governance state, not cosmetic deltas.
+Review should focus on differences that change authority-boundary state, not cosmetic deltas.
 ```
 
 ---
@@ -9229,7 +9229,7 @@ A recalibration trigger should not be one-size-fits-all. It should first diagnos
 
 ### 36.5 shadowMAS interpretation
 
-Round 9 creates an evaluation governance layer:
+Round 9 creates an evaluation shadow layer:
 
 ```yaml
 second_order_evaluation_kernel_candidate:
@@ -9248,7 +9248,7 @@ relations_to_existing_kernels:
     relation: evaluation residuals must report what changed decision state, not just summarize score
 
   R2_Hierarchy_Convergence:
-    relation: evaluation layers become explicit hierarchy; evaluator drift is a slow-mode governance concern
+    relation: evaluation layers become explicit hierarchy; evaluator drift is a slow-mode authority-boundary concern
 
   R7_Stochastic_Resonance_Log_Scale_Evaluation:
     relation: log/noise scoring can improve sensitivity, but cannot replace second-order drift monitoring
@@ -9312,7 +9312,7 @@ tot_branches:
 moe_votes:
   CEO:
     vote: accept B + D + E
-    reason: shadowMAS cannot let a static reviewer become hidden governance authority.
+    reason: shadowMAS cannot let a static reviewer become hidden authority.
     risk: too much evaluation machinery may slow normal low-risk work.
 
   CTO:
@@ -9327,7 +9327,7 @@ moe_votes:
 
   CSO:
     vote: accept second_order_evaluation_kernel
-    reason: this gives shadowMAS a strong differentiator: governance over reviewers, not just workers.
+    reason: this gives shadowMAS a strong differentiator: authority-boundary review over reviewers, not just workers.
     risk: explain simply or future maintainers will call it theory decoration.
 
   CFO:
@@ -9523,7 +9523,7 @@ Change-impact warning:
 
 ```text
 Do not update canonical truth yet. R9 creates an active candidate evaluation kernel.
-Formal adoption would affect review packet design, governance matrix interpretation,
+Formal adoption would affect review packet design, authority-boundary matrix interpretation,
 runtime evaluator monitoring, and human-facing reviewer guidance.
 ```
 
@@ -9835,7 +9835,7 @@ multi_objective_review_rule:
 Accepted insight:
 
 ```text
-When objectives conflict, scalarization is a governance decision, not a neutral math operation.
+When objectives conflict, scalarization is an authority-boundary decision, not a neutral math operation.
 ```
 
 ---
@@ -10529,7 +10529,7 @@ tot_branches:
 
   C_controlled_perturbation_with_probe_and_rollback:
     decision: accepted
-    reason: preserves exploration value while maintaining governance safety
+    reason: preserves exploration value while maintaining authority-boundary safety
 
   D_use_one_aggressive_run_as_proof:
     decision: rejected
@@ -10549,15 +10549,15 @@ tot_branches:
 
   H_metamorphosis_as_license_to_destroy_truth:
     decision: rejected
-    reason: canonical truth and protected governance boundaries cannot be dissolved by runtime exploration
+    reason: canonical truth and protected authority boundaries cannot be dissolved by runtime exploration
 
   I_controlled_dissolution_as_high_risk_runtime_lane:
     decision: accepted_with_boundary
-    reason: useful for stuck systems, but only as governed experimental lane, not default production behavior
+    reason: useful for stuck systems, but only as an approved experimental lane, not default production behavior
 
   J_literal_thermodynamic_free_energy_metric_for_shadowMAS_v0:
     decision: rejected_for_v0
-    reason: symbolic/governance tasks lack the required physical/probabilistic substrate
+    reason: symbolic/authority-boundary tasks lack the required physical/probabilistic substrate
 
   K_semantic_nonequilibrium_escape_protocol:
     decision: accepted
@@ -11204,7 +11204,7 @@ active_inference_caution:
     - residual_routing_lens
   do_not_use_as:
     - total explanation of all agent behavior
-    - replacement for governance authority
+    - replacement for authority-boundary review
     - proof that every action should minimize local surprise
 ```
 
@@ -12290,7 +12290,7 @@ Change-impact warning:
 ```text
 Do not update canonical truth yet.
 This round creates an active candidate kernel and several candidate primitives.
-Promotion would require review of prompt-layering, governance matrix, current truth,
+Promotion would require review of prompt-layering, authority-boundary matrix, current truth,
 runtime adapter contracts, packet fields, and zh-TW human explanation.
 ```
 
@@ -12500,7 +12500,7 @@ Round 14 treatment:
 ```yaml
 accepted_as_design_lens: yes
 accepted_as_production_schema_now: no
-main_reason: useful for prompt-library governance, but measurement method must stay empirical and bounded
+main_reason: useful for prompt-library authority boundaries, but measurement method must stay empirical and bounded
 ```
 
 ---
@@ -12759,7 +12759,7 @@ tot_branches:
 
   J_hidden_activation_as_truth:
     decision: rejected
-    reason: internal activation may guide diagnosis but cannot become canonical truth or governance authority
+    reason: internal activation may guide diagnosis but cannot become canonical truth or authority
 ```
 
 ---
@@ -12770,7 +12770,7 @@ tot_branches:
 moe_votes:
   CEO:
     vote: accept B + C + H
-    reason: prompt library governance is a strategic necessity if shadowMAS will use multiple agents, runtimes, and task frames.
+    reason: prompt library authority boundaries are a strategic necessity if shadowMAS will use multiple agents, runtimes, and task frames.
     risk: do not turn prompt design into academic linguistics for its own sake.
 
   CTO:
@@ -13035,7 +13035,7 @@ Change-impact warning:
 ```text
 Do not update canonical truth yet.
 This round creates an active candidate kernel and prompt-library primitives.
-Promotion would require review of prompt layering, governance matrix, current truth,
+Promotion would require review of prompt layering, authority-boundary matrix, current truth,
 runtime adapter contracts, packet references, memory handling, and zh-TW explanation.
 ```
 
@@ -13792,7 +13792,7 @@ document_status:
 > theme: M-V · curiosity as greedy reduction of reducible KL / learnable frontier  
 > method: 3 full-read targets + 2 comparison scans, with ToT×MoE×CoT×LATS可審查版  
 > note: CoT remains internal; this section records inspectable reasoning outputs, candidate branches, votes, and decisions.  
-> access honesty: Schmidhuber 1991, Oudeyer/Kaplan/Hafner 2007, and Pathak et al. 2017 were treated as the three main read targets. Burda et al. 2019 and Ecoffet et al. 2021 were used as comparison scans. The round does not claim that all intrinsic motivation methods are mathematically identical; it extracts the shared design constraint relevant to shadowMAS: exploration value is not raw novelty or raw surprise, but expected reducible learning progress under governance boundaries.
+> access honesty: Schmidhuber 1991, Oudeyer/Kaplan/Hafner 2007, and Pathak et al. 2017 were treated as the three main read targets. Burda et al. 2019 and Ecoffet et al. 2021 were used as comparison scans. The round does not claim that all intrinsic motivation methods are mathematically identical; it extracts the shared design constraint relevant to shadowMAS: exploration value is not raw novelty or raw surprise, but expected reducible learning progress under authority boundaries.
 
 ---
 
@@ -13867,7 +13867,7 @@ shadowMAS translation:
 ```text
 Agents should not chase every hot residual.
 They should prioritize zones where residual is high enough, reducible, relevant, fresh,
-and safe under governance boundaries.
+and safe under authority boundaries.
 ```
 
 ---
@@ -14032,7 +14032,7 @@ Why this matters as comparison:
 
 ```text
 RND shows a scalable novelty/prediction-error bonus can work,
-but shadowMAS cannot blindly import novelty bonus as governance policy.
+but shadowMAS cannot blindly import novelty bonus as authority-boundary policy.
 ```
 
 shadowMAS mapping:
