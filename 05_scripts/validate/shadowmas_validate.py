@@ -103,6 +103,7 @@ REVIEW_CONSENSUS_KIND_VALUES = {"unanimous", "majority", "first_to_decide"}
 SUPERVISION_MODE_VALUES = {"human_live_pair", "human_available_delegate", "human_away_autonomous"}
 RISK_VALUES = {"r0_trivial", "r1_routine", "r2_guarded", "r3_sensitive", "r4_human_only"}
 RFC3339_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
+PROMOTION_CANDIDATE_VALUES = {"yes", "no"}
 
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}
 
@@ -640,6 +641,23 @@ def validate_packet_uid(data: dict[str, Any], file_name: str) -> list[Validation
     return []
 
 
+def validate_promotion_candidate(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    value = data.get("promotion_candidate")
+    if value is None:
+        return []
+    if not isinstance(value, str) or value not in PROMOTION_CANDIDATE_VALUES:
+        return [
+            make_error(
+                "INVALID_PROMOTION_CANDIDATE",
+                file_name,
+                "promotion_candidate",
+                "$.promotion_candidate",
+                f'promotion_candidate must be the string "yes" or "no" (quoted; unquoted yes/no may be coerced to boolean by YAML 1.1 parsers); got {value!r}',
+            )
+        ]
+    return []
+
+
 def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str | None]:
     file_name = str(path)
     if not isinstance(data, dict):
@@ -688,6 +706,8 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
         errors.extend(validate_review_recommendation(data, file_name))
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
         errors.extend(validate_review_promotion_snapshot(data, file_name))
+    if packet_type == "memory_packet":
+        errors.extend(validate_promotion_candidate(data, file_name))
     errors.extend(validate_source_refs(data, file_name))
     errors.extend(validate_artifact_refs(data, file_name))
     errors.extend(validate_handoff(data, file_name))
