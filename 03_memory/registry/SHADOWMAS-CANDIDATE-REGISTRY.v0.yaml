@@ -2586,6 +2586,128 @@ candidates:
         - declined_meta_governance_separate_doc_user_is_sole_T0
     next_action: monitor_for_real_jepa_or_signing_or_multi_reviewer_use_cases_before_further_formalization
 
+  - candidate_id: P5-002
+    p_lane: P5
+    title: negative_audit_cycle_2026_privacy_and_validator_hardening
+    status: approved_for_patch
+    source_basis:
+      - in_session_second_negative_audit_cycle_2026_05
+      - R8b_history_pollution_scan_findings
+      - validator_schema_drift_observation_from_R10_R11_hand_sync
+      - candidate_registry_lacks_self_validation_finding
+      - missing_memory_packet_valid_fixture_finding
+      - empty_zh_tw_subdirs_structural_finding
+      - history_rewrite_deferred_to_release_phase_decision
+    target_surfaces:
+      primary:
+        - 05_scripts/validate/shadowmas_validate.py
+        - tools/check_no_pollution.py
+        - tools/check_candidate_registry.py
+        - tools/check_validator_drift.py
+        - .github/workflows/checks.yml
+      secondary:
+        - .claude/hooks/check_header.sh
+        - tests/test_shadowmas_minimal_validator.py
+        - tests/test_candidate_registry_validator.py
+        - tests/test_validator_drift.py
+        - examples/packets/memory_packet.valid.v0.yaml
+        - 06_human_docs/zh-TW/decisions/README.md
+        - 06_human_docs/zh-TW/diagrams/README.md
+        - 06_human_docs/zh-TW/rationale/README.md
+        - 06_human_docs/zh-TW/references/README.md
+        - 07_working/drafts/rationale/history_pollution_residual_risk.md
+        - 07_working/drafts/rationale/negative_audit_cycle_routine.md
+        - 07_working/drafts/rationale/deferred_state_inventory.md
+        - 07_working/drafts/rationale/rationale_index.md
+        - 07_working/drafts/SHADOWMAS-LESSONS-QUEUE.v0.yaml
+        - 01_truth/SHADOWMAS-SCHEMA-VERSION-MIGRATION.v0.en.md
+        - 03_memory/registry/SHADOWMAS-FILE-STATUS-REGISTRY.v0.yaml
+    change_type: privacy_cleanup_plus_validator_hardening_plus_defense_layer_plus_documentation
+    proposed_minimum_shape:
+      registration_kind: retrospective_record_of_landed_changes
+      landed_changes:
+        - R8_remove_hardcoded_developer_path_from_check_header_hook_use_portable_git_toplevel_fallback
+        - R8b_full_history_pollution_scan_classify_by_severity
+        - R8c_global_git_identity_switched_to_noreply_email_via_user_action
+        - R8d_history_rewrite_deferred_to_release_phase_runbook_v3_approved_but_not_executed
+        - R8e_pollution_scanner_tool_plus_github_actions_ci_workflow_standing_defense_layer
+        - hook_exempt_drafts_root_yaml_for_LESSONS_QUEUE
+        - R10_validator_enforce_supervision_mode_risk_RFC3339_created_at_packet_uid_invariants_plus_4_negative_tests
+        - R11_validator_enforce_promotion_candidate_quoted_string_plus_YAML_1_1_boolean_trap_regression_test
+        - R12_CANDIDATE_REGISTRY_entry_shape_validator_tool_plus_test_plus_ci_step
+        - R13_validator_schema_drift_checker_tool_with_sys_modules_fix_plus_test_plus_ci_step
+        - R14_memory_packet_valid_v0_fixture_plus_test_plus_4_zh_tw_subdir_placeholders
+        - R16_negative_audit_cycle_routine_methodology_document
+        - R18_schema_version_migration_canonical_truth_file_plus_registry_entry
+        - R19_deferred_state_inventory_with_unlock_triggers_per_surface
+        - residual_risk_doc_for_history_pollution_with_explicit_acceptance_plus_first_real_lessons_queue_entry
+        - target_truth_file_added_with_v0_claim_boundary_in_current_truth
+      single_author_default_preserved: true
+      all_advisory_unless_otherwise_noted: false  # several changes are now enforcement-grade
+    collision_check:
+      status: confirmed_by_test_suite_and_nine_ci_defense_layers
+      validators_and_hooks_extended_in_compatible_way: true
+      fifty_one_unit_tests_pass_after_each_round: true
+      drift_checker_clean: true
+      pollution_scanner_clean: true
+      candidate_registry_checker_clean: true
+      example_fixtures_unchanged_by_new_optional_fields: true
+    governance_boundary:
+      human_approval_required: true_per_round_landed
+      commit_authority_pattern: agent_develops_human_commits_after_path_scoped_handoff
+      registry_entry_is_retrospective_record_not_promotion_authority: true
+      cannot_promote_from:
+        - T4_execution_feed
+        - T5_ephemeral_cache_or_session_state
+      score_or_vote_is_evidence_not_authority: true
+    change_impact_check:
+      reviewed_per_round:
+        - 05_scripts_validate_extended_with_new_constants_and_check_functions
+        - tests_extended_with_per_invariant_negative_tests
+        - 02_packets_schemas_left_unchanged_validator_only_enforces_what_yaml_already_declared
+        - 03_memory_registry_FILE_STATUS_REGISTRY_extended_with_SCHEMA_VERSION_MIGRATION_entry
+        - 03_memory_registry_CANDIDATE_REGISTRY_extended_with_P5_002_this_entry
+        - 07_working_drafts_rationale_index_extended_per_new_doc
+        - .claude_hooks_check_header_extended_with_drafts_root_yaml_exempt
+        - .github_workflows_checks_added_as_new_ci_surface
+        - 01_truth_SCHEMA_VERSION_MIGRATION_added_as_canonical_migration_policy
+      intentionally_deferred:
+        - R17_L2_and_packet_validator_mutation_corpus
+        - R20_active_design_log_P5_cluster_extraction_sub_cycle
+        - R21_workspace_tool_list_and_destroy_subcommands
+        - R22_grep_shadow_concept_finder
+        - R23_test_plan_document
+        - R24_hook_telemetry
+        - R25_deprecation_policy_doc
+        - history_rewrite_execution_runbook_v3_approved_pending_release_window
+      meta_governance_decision:
+        - sole_maintainer_plus_branch_protection_satisfies_meta_governance_no_separate_doc_needed
+    revision_control:
+      revision_cycle_count: 0
+      max_revision_cycles: 2
+      escalation_after_max_revision: human_authority_required
+    reviewer_decision:
+      decision: approved_per_round_by_human
+      decided_by: human_via_session
+      decided_at: null
+      notes:
+        - approved_R8_hardcoded_path_removal
+        - approved_R8e_pollution_scanner_and_ci_defense_layer
+        - approved_R10_four_validator_invariant_enforcements
+        - approved_R11_promotion_candidate_yaml_boolean_trap_regression
+        - approved_R12_candidate_registry_self_validation
+        - approved_R13_validator_schema_drift_prevention
+        - approved_R14_memory_packet_fixture_and_zh_tw_placeholders
+        - approved_R16_negative_audit_cycle_routine_methodology_capture
+        - approved_R18_schema_version_migration_canonical_policy
+        - approved_R19_deferred_state_inventory_with_unlock_triggers
+        - approved_target_truth_file_and_v0_claim_boundary_separation
+        - approved_history_rewrite_deferral_with_explicit_residual_risk_record
+        - declined_R17_mutation_corpus_expansion_existing_tests_sufficient
+        - declined_separate_meta_governance_doc_sole_maintainer_satisfies_invariant
+        - declined_immediate_history_rewrite_release_phase_is_correct_window
+    next_action: monitor_for_release_phase_to_execute_history_rewrite_per_runbook_v3_and_revisit_deferred_state_inventory_per_unlock_triggers
+
 notes:
   - this_registry_is_not_canonical_truth
   - this_registry_is_not_approval_authority
