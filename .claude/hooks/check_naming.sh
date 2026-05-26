@@ -11,6 +11,16 @@ BASENAME=$(basename "$FILE_PATH")
 DIRNAME=$(dirname "$FILE_PATH")
 NAME_NO_EXT="${BASENAME%.*}"
 
+# --- Telemetry: one line per invocation; errors silenced ---
+{
+  printf '%s\t%s\t%s\t%s\n' \
+    "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+    "$(basename "$0")" \
+    "naming" \
+    "${FILE_PATH:-N/A}" \
+    >> "${CLAUDE_PROJECT_DIR:-$(pwd)}/.claude/hook-log"
+} 2>/dev/null || true
+
 # =============================================
 # Universal exemption rules
 # =============================================

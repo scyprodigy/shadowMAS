@@ -12,6 +12,16 @@ FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path')
 BASENAME=$(basename "$FILE_PATH")
 EXT="${BASENAME##*.}"
 
+# --- Telemetry: one line per invocation; errors silenced ---
+{
+  printf '%s\t%s\t%s\t%s\n' \
+    "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+    "$(basename "$0")" \
+    "${EVENT:-N/A}" \
+    "${FILE_PATH:-N/A}" \
+    >> "${CLAUDE_PROJECT_DIR:-$(pwd)}/.claude/hook-log"
+} 2>/dev/null || true
+
 # --- Gate: only check .md, .yaml, .yml ---
 case "$EXT" in
   md|yaml|yml) ;;

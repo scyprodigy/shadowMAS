@@ -15,3 +15,6 @@ __pycache__/
 
 # Local agent harness settings (per-user allowlist; never tracked)
 .claude/settings.local.json
+
+# Hook telemetry log (per-user invocation log; never tracked)
+.claude/hook-log
