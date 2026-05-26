@@ -41,5 +41,8 @@ jobs:
       - name: Candidate registry shape check
         run: python3 tools/check_candidate_registry.py
 
+      - name: Validator-schema drift check
+        run: python3 tools/check_validator_drift.py
+
       - name: Unit tests
         run: python3 -m unittest discover tests
