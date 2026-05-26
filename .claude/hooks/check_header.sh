@@ -51,13 +51,9 @@ esac
 
 # --- Exempt: shadowMAS root README.md GitHub-facing landing page ---
 # This is intentionally project-specific; nested README.md files still require the 3-line header.
-# Use $CLAUDE_PROJECT_DIR so the hook is portable across clones.
-ROOT_README="${CLAUDE_PROJECT_DIR:-}/README.md"
-if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && [ "$FILE_PATH" = "$ROOT_README" ]; then
-  exit 0
-fi
-# Fallback: legacy hardcoded path for environments that don't set CLAUDE_PROJECT_DIR.
-if [ "$FILE_PATH" = "/home/scyhris/workspace/shadow-mas/README.md" ]; then
+# Resolve the project root portably: prefer CLAUDE_PROJECT_DIR, otherwise fall back to git toplevel.
+PROJECT_ROOT="${CLAUDE_PROJECT_DIR:-$(git -C "$(dirname "$FILE_PATH")" rev-parse --show-toplevel 2>/dev/null)}"
+if [ -n "$PROJECT_ROOT" ] && [ "$FILE_PATH" = "$PROJECT_ROOT/README.md" ]; then
   exit 0
 fi
 
