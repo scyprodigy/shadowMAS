@@ -16,6 +16,7 @@
 | `active_design_ledger.yaml` | Coverage ledger over the active design log; per-section disposition and extraction status. |
 | `active_log_move_plan.yaml` | Executed-move record for the active design log out of `01_truth/` into this folder. |
 | `calibration_framework_note.md` | Working rationale draft for treating model calibration as distributional metadata, not a single confidence number. |
+| `history_pollution_residual_risk.md` | Record of the deferred history rewrite decision and the residual risk being explicitly accepted until release / public-hygiene phase. |
 | `l1_mutation_coverage_report.md` | Fixture-level mutation coverage report for `tools/shadowmas_minimal_validator.py` invariants. |
 | `mdl_compressive_refinement_rationale.md` | Draft rationale for MDL / minimum-description reasoning, compressive refinement, and parsimony / net-effect criterion; not canonical truth, not schema, not validator logic. |
 | `policy_filename_memo.md` | Path-sensitive filename, header, language, and session-gate policy memo; authority-boundary statement on hook vs policy roles. |
