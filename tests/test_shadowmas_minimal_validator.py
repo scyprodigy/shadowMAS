@@ -12,6 +12,7 @@ POSITIVE_FIXTURE = REPO_ROOT / "examples" / "demo_signal_governance.json"
 NEGATIVE_FIXTURE = REPO_ROOT / "examples" / "demo_signal_governance_violation.json"
 VALID_REVIEW_PACKET = REPO_ROOT / "examples" / "packets" / "review_packet.valid.v0.yaml"
 VALID_TASK_PACKET = REPO_ROOT / "examples" / "packets" / "task_packet.valid.v0.yaml"
+VALID_MEMORY_PACKET = REPO_ROOT / "examples" / "packets" / "memory_packet.valid.v0.yaml"
 SINGLE_FLAG_DIR = REPO_ROOT / "examples" / "mutations" / "single_flag"
 PARTIAL_COMPLIANCE_DIR = REPO_ROOT / "examples" / "mutations" / "partial_compliance"
 L1_REPORT = REPO_ROOT / "07_working" / "drafts" / "rationale" / "l1_mutation_coverage_report.md"
@@ -776,6 +777,17 @@ promotion_candidate: __PLACEHOLDER__
             msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
         self.assertIn("INVALID_PROMOTION_CANDIDATE", result.stdout)
+
+    def test_valid_memory_packet_fixture_passes(self):
+        """memory_packet.valid.v0.yaml fixture must satisfy the validator end-to-end."""
+        result = run_packet_validator(VALID_MEMORY_PACKET)
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("packet_type: memory_packet", result.stdout)
+        self.assertIn("checks: passed", result.stdout)
 
 
 if __name__ == "__main__":
