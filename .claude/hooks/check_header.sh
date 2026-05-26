@@ -46,6 +46,9 @@ case "$EXT" in
     if echo "$FILE_PATH" | grep -Eq '(^|/)07_working/drafts/runtime_adapter/.*\.(yaml|yml)$'; then
       exit 0
     fi
+    if echo "$FILE_PATH" | grep -Eq '(^|/)07_working/drafts/[^/]+\.(yaml|yml)$'; then
+      exit 0
+    fi
     ;;
 esac
 
