@@ -100,6 +100,10 @@ STATUS_VALUES = {
 REVIEW_RECOMMENDATION_VALUES = {"approve", "reject", "revise", "defer", "escalate", "unpromote"}
 REVIEW_CONSENSUS_KIND_VALUES = {"unanimous", "majority", "first_to_decide"}
 
+SUPERVISION_MODE_VALUES = {"human_live_pair", "human_available_delegate", "human_away_autonomous"}
+RISK_VALUES = {"r0_trivial", "r1_routine", "r2_guarded", "r3_sensitive", "r4_human_only"}
+RFC3339_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
+
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}
 
 
@@ -566,6 +570,76 @@ def validate_handoff(data: dict[str, Any], file_name: str) -> list[ValidationErr
     return errors
 
 
+def validate_supervision_mode(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    value = data.get("supervision_mode")
+    if value is None:
+        return []
+    if value not in SUPERVISION_MODE_VALUES:
+        allowed = ", ".join(sorted(SUPERVISION_MODE_VALUES))
+        return [
+            make_error(
+                "INVALID_SUPERVISION_MODE",
+                file_name,
+                "supervision_mode",
+                "$.supervision_mode",
+                f'supervision_mode "{value}" is not allowed; allowed: {allowed}',
+            )
+        ]
+    return []
+
+
+def validate_risk(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    value = data.get("risk")
+    if value is None:
+        return []
+    if value not in RISK_VALUES:
+        allowed = ", ".join(sorted(RISK_VALUES))
+        return [
+            make_error(
+                "INVALID_RISK",
+                file_name,
+                "risk",
+                "$.risk",
+                f'risk "{value}" is not allowed; allowed: {allowed}',
+            )
+        ]
+    return []
+
+
+def validate_created_at(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    value = data.get("created_at")
+    if value is None:
+        return []
+    if not isinstance(value, str) or not RFC3339_UTC_RE.match(value):
+        return [
+            make_error(
+                "INVALID_TIMESTAMP",
+                file_name,
+                "created_at",
+                "$.created_at",
+                f'created_at must be RFC3339 UTC with Z suffix (e.g. "2026-04-20T16:40:00Z"); got {value!r}',
+            )
+        ]
+    return []
+
+
+def validate_packet_uid(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    value = data.get("packet_uid")
+    if value is None:
+        return []
+    if not isinstance(value, str) or not value.strip():
+        return [
+            make_error(
+                "INVALID_PACKET_UID",
+                file_name,
+                "packet_uid",
+                "$.packet_uid",
+                "packet_uid must be a non-empty string",
+            )
+        ]
+    return []
+
+
 def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str | None]:
     file_name = str(path)
     if not isinstance(data, dict):
@@ -606,6 +680,10 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     errors.extend(validate_required(data, packet_type, file_name))
     errors.extend(validate_schema_version(data, path))
     errors.extend(validate_status(data, packet_type, file_name))
+    errors.extend(validate_supervision_mode(data, file_name))
+    errors.extend(validate_risk(data, file_name))
+    errors.extend(validate_created_at(data, file_name))
+    errors.extend(validate_packet_uid(data, file_name))
     if packet_type == "review_packet":
         errors.extend(validate_review_recommendation(data, file_name))
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
