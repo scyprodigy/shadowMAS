@@ -145,6 +145,15 @@ tracked_files:
       - human_governance
     notes: Canonical bilingual policy.
 
+  - path: 01_truth/SHADOWMAS-SCHEMA-VERSION-MIGRATION.v0.en.md
+    artifact_type: formal_truth
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: Canonical schema-version migration policy for packet schemas, validator constants, and registry schemas.
+
   - path: 03_memory/MEMORY-PLANE-HARNESS.v0.en.md
     artifact_type: formal_truth
     status: approved_truth
