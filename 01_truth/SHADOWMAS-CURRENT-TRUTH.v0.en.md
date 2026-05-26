@@ -35,6 +35,15 @@ shadowMAS is not:
 - a workflow engine
 - a runtime governance engine
 
+## v0 Claim Boundary
+A schema-valid packet is not necessarily authority-valid.
+
+Validators enforce representation invariants, not authority semantics.
+
+Advisory fields are evidence-carrying fields, not enforcement mechanisms.
+
+For shadowMAS target identity and long-term trajectory, see `01_truth/SHADOWMAS-TARGET-TRUTH.v0.en.md`.
+
 ## Problem Profile
 shadowMAS exists to reduce five recurring failure modes in AI-assisted work:
 
