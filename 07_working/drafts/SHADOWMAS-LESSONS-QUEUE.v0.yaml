@@ -17,7 +17,21 @@ suggested_sink_values:
   - project_patch
   - authority_boundary_candidate
   - no_action
-entries: []
+entries:
+  - lesson_id: lesson_0001
+    date: "2026-05-26"
+    trigger_type: needs_patch_downshift
+    short_summary: "history cleanup decisions must either rewrite history or record residual risk explicitly"
+    impact: high
+    repeat_count: 1
+    suggested_sink: authority_boundary_candidate
+    source_refs:
+      - source_type: file
+        source_path: "07_working/drafts/rationale/history_pollution_residual_risk.md"
+        relation: derived_from
+    human_decision:
+      status: pending
+      note: "Pending owner review of residual-risk acceptance until the release / public-hygiene phase that will execute the deferred rewrite"
 entry_schema:
   lesson_id: "string"
   date: "YYYY-MM-DD"
