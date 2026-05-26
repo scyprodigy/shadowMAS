@@ -639,6 +639,82 @@ promotion_snapshot: invalid-for-review-packet
             msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_invalid_supervision_mode_fails(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text.replace(
+                "supervision_mode: human_available_delegate",
+                "supervision_mode: not_a_real_mode",
+            )
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("INVALID_SUPERVISION_MODE", result.stdout)
+
+    def test_invalid_risk_fails(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text.replace(
+                "risk: r0_trivial",
+                "risk: not_a_real_tier",
+            )
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("INVALID_RISK", result.stdout)
+
+    def test_invalid_created_at_fails(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text.replace(
+                'created_at: "2026-05-06T00:00:00Z"',
+                'created_at: "not a timestamp"',
+            )
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("INVALID_TIMESTAMP", result.stdout)
+
+    def test_empty_packet_uid_fails(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text.replace(
+                "packet_uid: example-task-packet-valid-v0-001",
+                'packet_uid: ""',
+            )
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("INVALID_PACKET_UID", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
