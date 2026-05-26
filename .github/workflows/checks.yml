@@ -38,5 +38,8 @@ jobs:
       - name: L2 fixture inspector
         run: python3 tools/inspect_l2_fixture.py examples/traces/l2_handoff/ephemeral_handoff_memory_promotion.json
 
+      - name: Candidate registry shape check
+        run: python3 tools/check_candidate_registry.py
+
       - name: Unit tests
         run: python3 -m unittest discover tests
