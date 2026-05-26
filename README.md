@@ -508,6 +508,8 @@ Current v0 intake pack:
 For deeper authority-boundary review, also read:
 - `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
 
+For shadowMAS target identity and long-term trajectory, see `01_truth/SHADOWMAS-TARGET-TRUTH.v0.en.md`.
+
 ## v0 design bias
 - rules-first
 - text-first

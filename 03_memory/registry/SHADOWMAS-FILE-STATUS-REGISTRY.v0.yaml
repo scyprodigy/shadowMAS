@@ -100,6 +100,15 @@ tracked_files:
       - human_governance
     notes: Current minimum truth baseline.
 
+  - path: 01_truth/SHADOWMAS-TARGET-TRUTH.v0.en.md
+    artifact_type: formal_truth
+    status: approved_truth
+    authority: canonical
+    owner: human_governance
+    writable_by:
+      - human_governance
+    notes: North-star identity and long-term trajectory; pairs with CURRENT-TRUTH.
+
   - path: 01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md
     artifact_type: formal_truth
     status: approved_truth
