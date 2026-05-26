@@ -715,6 +715,68 @@ promotion_snapshot: invalid-for-review-packet
         )
         self.assertIn("INVALID_PACKET_UID", result.stdout)
 
+    # --- promotion_candidate YAML 1.1 boolean trap regression ---
+    # Background: PyYAML defaults to YAML 1.1, which implicitly coerces
+    # unquoted yes/no/on/off into booleans. The memory_packet schema
+    # requires the string literal "yes" or "no" (quoted). These tests
+    # guard the fix from commit d7a0d46 against regression.
+
+    _BASE_MEMORY_PACKET = """packet_uid: test-memory-promotion-candidate-pkt-001
+packet_type: memory_packet
+schema_version: v0
+created_at: "2026-05-26T00:00:00Z"
+created_by: test_author
+owner: test_owner
+supervision_mode: human_available_delegate
+risk: r0_trivial
+status: captured
+memory_kind: heuristic
+memory_scope: session_local
+summary: regression baseline for promotion_candidate quoted enum
+structured_payload:
+  note: minimal payload for validator exercise
+source_refs:
+  - source_type: file
+    source_path: examples/packets/task_packet.valid.v0.yaml
+    relation: read_from
+invalidation_triggers:
+  - source file changes
+confidence: 0.5
+promotion_candidate: __PLACEHOLDER__
+"""
+
+    def _run_with_promotion_candidate(self, raw_value):
+        text = self._BASE_MEMORY_PACKET.replace("__PLACEHOLDER__", raw_value)
+        tmp_path = write_temp_packet(text)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+        return run_packet_validator(tmp_path)
+
+    def test_promotion_candidate_quoted_yes_passes(self):
+        result = self._run_with_promotion_candidate('"yes"')
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_promotion_candidate_unquoted_yes_fails_yaml_boolean_trap(self):
+        result = self._run_with_promotion_candidate("yes")
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("INVALID_PROMOTION_CANDIDATE", result.stdout)
+
+    def test_promotion_candidate_unquoted_no_fails_yaml_boolean_trap(self):
+        result = self._run_with_promotion_candidate("no")
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("INVALID_PROMOTION_CANDIDATE", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
