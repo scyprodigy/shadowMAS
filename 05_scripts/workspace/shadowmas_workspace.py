@@ -15,6 +15,7 @@ import json
 import os
 import platform
 import re
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -46,6 +47,16 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     for name in ("init", "where", "inspect"):
         command = subparsers.add_parser(name)
         command.add_argument("--project", required=True, help="Product project directory path")
+
+    destroy_cmd = subparsers.add_parser("destroy")
+    destroy_cmd.add_argument("--project", required=True, help="Product project directory path")
+    destroy_cmd.add_argument(
+        "--yes",
+        action="store_true",
+        help="confirm destructive action; required for destroy to actually remove the workspace",
+    )
+
+    subparsers.add_parser("list")
 
     return parser.parse_args(argv)
 
@@ -350,9 +361,67 @@ def inspect_workspace(project_path: Path) -> int:
     return 0
 
 
+def list_workspaces() -> int:
+    root = local_data_root()
+    if not root.exists():
+        print(f"no workspaces (root does not exist: {root})")
+        return 0
+    workspaces = sorted([d for d in root.iterdir() if d.is_dir()])
+    if not workspaces:
+        print(f"no workspaces under {root}")
+        return 0
+    print(f"workspaces under {root}:")
+    for w in workspaces:
+        meta = w / "workspace.json"
+        if not meta.exists():
+            print(f"  {w.name}  <no workspace.json>  INVALID")
+            continue
+        try:
+            data = json.loads(meta.read_text(encoding="utf-8"))
+            project = data.get("project_path", "<unknown>")
+            print(f"  {w.name}  project={project}  OK")
+        except (OSError, json.JSONDecodeError):
+            print(f"  {w.name}  <unreadable>  INVALID")
+    return 0
+
+
+def destroy_workspace(project_path: Path, confirm: bool) -> int:
+    workspace = workspace_path(project_path)
+    if not workspace.exists():
+        print(f"workspace does not exist: {workspace}")
+        return 0  # idempotent: already gone
+    if not workspace.is_dir():
+        print_error(f"workspace path is not a directory: {workspace}")
+        return 1
+    meta = workspace / "workspace.json"
+    if not meta.exists():
+        print_error(f"refusing to destroy: workspace.json missing at {workspace}")
+        return 1
+    try:
+        data = json.loads(meta.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print_error(f"refusing to destroy: workspace.json unreadable: {exc}")
+        return 1
+    if data.get("workspace_path") != str(workspace):
+        print_error(
+            "refusing to destroy: workspace.json workspace_path mismatch "
+            f"(expected {workspace}, got {data.get('workspace_path')})"
+        )
+        return 1
+    if not confirm:
+        print(f"would destroy: {workspace}")
+        print("re-run with --yes to actually destroy.")
+        return 1
+    shutil.rmtree(workspace)
+    print(f"destroyed: {workspace}")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     try:
         args = parse_args(argv)
+        if args.command == "list":
+            return list_workspaces()
         project_path = resolve_project(args.project)
         if args.command == "init":
             return init_workspace(project_path)
@@ -360,6 +429,8 @@ def main(argv: list[str]) -> int:
             return where_workspace(project_path)
         if args.command == "inspect":
             return inspect_workspace(project_path)
+        if args.command == "destroy":
+            return destroy_workspace(project_path, args.yes)
         print_error(f"unknown command: {args.command}")
         return 2
     except Exception as exc:  # Defensive boundary for unexpected CLI failures.
