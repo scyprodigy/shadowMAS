@@ -32,6 +32,9 @@ jobs:
       - name: Packet validator - review_packet
         run: python3 05_scripts/validate/shadowmas_validate.py examples/packets/review_packet.valid.v0.yaml
 
+      - name: Packet validator - memory_packet
+        run: python3 05_scripts/validate/shadowmas_validate.py examples/packets/memory_packet.valid.v0.yaml
+
       - name: L1 minimal validator (positive fixture)
         run: python3 tools/shadowmas_minimal_validator.py examples/demo_signal_governance.json
 
