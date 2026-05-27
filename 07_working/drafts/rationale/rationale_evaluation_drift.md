@@ -93,7 +93,7 @@ The first three names already appear in the active design ledger as `representat
 
 ## Source and absorption notes
 
-- Source section: `07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md` §36 (R9 C-II + M-II Three-Layer Evaluation × Static Reward Model Structural Defect), lines 8,859–9,478.
+- Source section: `07_working/archive/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md` §36 (R9 C-II + M-II Three-Layer Evaluation × Static Reward Model Structural Defect), lines 8,859–9,478.
 - Concept anchors used in the source section (paraphrased, not quoted at length): difference-that-makes-a-difference (Bateson, second-order cybernetics tradition); observing the observer (von Foerster, second-order cybernetics); functor + natural transformation as an audit lens (category theory); reward model overoptimisation literature; Goodhart-style proxy drift comparisons. The historical log captures these as concept analogies and audit framings, not as load-bearing mathematical commitments.
 - Current absorption status: not yet registered. `reviewer_drift_monitor` is named in the ledger's family index and P3 batch as a `representative_primitive` and `first_canonical_candidate`, but no candidate registry entry exists. This memo treats it as rationale only.
 - Related public evidence: `07_working/drafts/rationale/l1_mutation_coverage_report.md` (30/30 fixture-level result); does not claim drift evidence.

@@ -7,7 +7,7 @@ packet_schema_changed: false
 runtime_implemented: false
 
 source_basis:
-  active_design_log_path: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+  active_design_log_path: 07_working/archive/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
   source_section: "§19.9.1"
   ledger_path: 07_working/drafts/rationale/active_design_ledger.yaml
   ledger_disposition: extract_candidate_next
