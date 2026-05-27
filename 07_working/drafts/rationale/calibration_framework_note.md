@@ -77,6 +77,6 @@ Until then this file is rationale only.
 
 ## References
 - `07_working/drafts/rationale/rationale_evaluation_drift.md`
-- `07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md` §36
+- `07_working/archive/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md` §36
 - `03_memory/MEMORY-PLANE-HARNESS.v0.en.md` (retrieval and authority boundary)
 - `04_runtime/LOCAL-MODEL-BASELINE.v0.en.md` (mxbai-embed-large baseline)
