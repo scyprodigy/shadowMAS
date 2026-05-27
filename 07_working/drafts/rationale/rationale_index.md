@@ -14,6 +14,7 @@
 |---|---|
 | `SHADOWMAS-MANIFESTO-DRAFT.v0.md` | Manifesto draft; source-evidence; explicitly no authority. |
 | `active_design_ledger.yaml` | Coverage ledger over the active design log; per-section disposition and extraction status. |
+| `active_log_archive_plan.yaml` | Plan-only artifact preparing the next-stage disposition of the active design log (keep / archive / delete) per the ledger's authorized next task. |
 | `active_log_move_plan.yaml` | Executed-move record for the active design log out of `01_truth/` into this folder. |
 | `calibration_framework_note.md` | Working rationale draft for treating model calibration as distributional metadata, not a single confidence number. |
 | `deferred_state_inventory.md` | Honest inventory of intentionally-deferred shadowMAS surfaces (3 memory planes, 5 runtime adapter drafts) with concrete unlock triggers per surface. |
