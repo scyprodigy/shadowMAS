@@ -1,0 +1,178 @@
+plan_name: active_design_log_archive_plan
+status: non_canonical_plan_only
+execution_status: not_executed
+purpose: >-
+  Prepare the next-stage disposition decision for the active design log
+  (archive vs delete vs keep). Mirrors active_log_move_plan.yaml in
+  structure; that earlier plan covered the prior move out of 01_truth/
+  and is already executed.
+
+source_file_current_path: 07_working/drafts/rationale/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md
+source_file_size_bytes: 453072
+source_file_status: non_canonical_design_evidence
+canonical_truth_changed: false
+registry_changed: false
+candidate_ids_assigned: false
+active_log_moved_in_this_plan: false
+active_log_deleted_in_this_plan: false
+
+basis:
+  coverage_ledger: 07_working/drafts/rationale/active_design_ledger.yaml
+  prior_move_plan: 07_working/drafts/rationale/active_log_move_plan.yaml
+  ledger_authorization: >-
+    active_design_ledger.yaml lists
+    "prepare_active_log_move_plan_after_human_approval" under
+    next_allowed_codex_tasks. This file is that preparation.
+  preserved_before_this_plan:
+    - direct schema primitive coverage in ledger
+    - working disposition review for all 7 remaining primitives
+    - compact section 0.7 consolidated primitive family index
+    - compact section 0.9 promotion / change-impact queue
+  current_ledger_disposition_summary:
+    extracted: 7 primitives  # P1-001, P2-001, P2-003, P2-004, P2-005, P2-006, P2-007, P4-001
+    reference_only: 5 primitives  # field_navigation_policy, learnable_frontier_filter, irreducible_noise_classifier, curiosity_budget_policy, frontier_exhaustion_report
+    defer_with_explicit_record: 2 primitives  # learnable_frontier_record, learning_progress_probe
+    candidate_ids_assignable_from_active_log: 0  # all blocked by ledger hard boundary
+
+disposition_options:
+  - option_id: A_keep_in_place
+    name: Keep at current 07_working/drafts/rationale/ path
+    rationale: >-
+      Active log remains as non-canonical design evidence in the
+      rationale folder. Provenance preserved verbatim; no path
+      references need updating.
+    pros:
+      - zero risk of breaking existing path references
+      - source of truth for any future extraction decision remains accessible
+      - simplest disposition
+    cons:
+      - 440 KB single file remains the largest tracked text artifact
+      - new contributors may mistake size for canonical importance
+      - rationale/ folder grows over time without housekeeping
+    readiness: no_action_required
+    recommended_for: short-term default if no archive convention exists yet
+
+  - option_id: B_move_to_archive
+    name: Move to 07_working/archive/ (or equivalent archive path)
+    rationale: >-
+      Active log retains provenance but moves out of the working
+      rationale path. Signals "historical evidence" more clearly than
+      its current location, which is still under drafts/.
+    pros:
+      - clearer signal that the file is historical not working material
+      - rationale/ folder stays focused on currently-relevant drafts
+      - aligns with SHADOWMAS-FILE-STATUS-REGISTRY folder_defaults for 07_working/archive (status archived, authority historical_only)
+    cons:
+      - 07_working/archive/ does not yet exist as a tracked directory in this repo
+      - path references in candidate registry, ledger, and prior move plan must be updated
+      - new path needs to be reviewed against check_naming.sh and check_header.sh exempt rules
+    readiness: human_target_path_approval_required
+    blockers_before_execution:
+      - human approves 07_working/archive/ as target (or names an alternative)
+      - 07_working/archive/ directory created with placeholder README explaining archive purpose
+      - file-status registry impact reviewed and approved
+      - path references updated atomically with the move
+      - 07_working/archive/ added to FILE-STATUS-REGISTRY folder_defaults if not already covered
+    recommended_for: medium-term cleanup once archive convention is approved
+
+  - option_id: C_delete
+    name: Delete from repo entirely
+    rationale: >-
+      Active log content has been extracted to the extent it will ever
+      be extracted (per ledger's working_disposition_review for all 7
+      remaining primitives); further retention is provenance only.
+    pros:
+      - removes the largest tracked text artifact from the repo
+      - removes a class of distraction during future audit cycles
+      - simplifies future history rewrites
+    cons:
+      - provenance evidence is permanently lost from the working tree
+      - external readers cannot inspect the design log to verify
+        candidate registry source pointers
+      - git history retention still preserves the log, but it becomes
+        much less discoverable
+    readiness: explicit_human_delete_approval_required
+    blockers_before_execution:
+      - active log already moved to archive (option B executed) OR explicit decision to skip archive
+      - all old path references resolved (active_design_ledger + candidate registry source pointers)
+      - human delete approval recorded in a successor plan file
+      - decision recorded that provenance retention via git history alone is acceptable
+    recommended_for: long-term only after archive option has been lived with for at least one full audit cycle
+
+reference_scan_at_plan_time:
+  scope: tracked files only; same scan surface as the prior move_plan reference_scan.
+  exact_filename_references_count: 5  # carried from prior plan; not re-scanned in this preparation
+  active_design_log_phrase_references_count: 6  # carried from prior plan
+  candidate_registry_provenance_lines:
+    - file: 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+      note: contains active_log_path_as_read references; would need atomic update on move
+  note: full re-scan should be re-run by the move-execution task, not by this plan-only file.
+
+anticipated_update_requirements_if_option_B_approved:
+  path_references_to_update:
+    - 07_working/drafts/rationale/active_design_ledger.yaml
+    - 07_working/drafts/rationale/active_log_move_plan.yaml
+    - 07_working/drafts/rationale/active_log_archive_plan.yaml  # this file's own source_file_current_path
+    - 03_memory/registry/SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml
+    - 07_working/drafts/rationale/rationale_index.md if path appears
+  likely_metadata_or_registry_updates:
+    - add 07_working/archive/ to 03_memory/registry/SHADOWMAS-FILE-STATUS-REGISTRY.v0.yaml folder_defaults if not present
+    - add a placeholder README at 07_working/archive/ explaining the archive convention
+  do_not_update_without_explicit_move_task:
+    - 01_truth files
+    - 02_packets files
+    - packet schemas
+    - canonical truth files
+    - validator constants or tests
+
+human_decision_needed:
+  - "choose disposition: option_id = A_keep_in_place | B_move_to_archive | C_delete"
+  - "if B: confirm target path is 07_working/archive/ or specify alternative"
+  - "if B: approve creating 07_working/archive/ with placeholder README"
+  - "if B: approve updating path references atomically during the move"
+  - "if C: confirm that option B has been executed first OR explicitly waive it"
+  - "if C: confirm provenance retention via git history alone is acceptable"
+  - "for all options: confirm that the candidate registry hard_boundaries remain in force"
+
+move_readiness:
+  ready_for_human_disposition_decision: true
+  ready_for_codex_execution: false
+  reason_not_ready_for_execution: >-
+    This file only prepares the disposition decision. Actual move or
+    delete requires explicit human approval, target path confirmation,
+    and an atomic execution task that updates path references in the
+    same commit as the file move.
+  blockers_before_execution_of_any_option:
+    - human selects disposition option
+    - reference update list reviewed
+    - file-status registry impact reviewed
+    - 07_working/archive/ created (if option B chosen)
+
+hard_boundaries:
+  - this_plan_does_not_execute_move_or_delete
+  - do_not_delete_active_log_in_this_task
+  - do_not_promote_to_canonical_truth
+  - do_not_modify_registry_beyond_path_reference_update_in_atomic_move_task
+  - do_not_modify_packet_schemas
+  - do_not_assign_candidate_ids
+  - do_not_implement_runtime
+  - do_not_reopen_decided_dispositions_in_ledger_working_disposition_review
+
+relationship_to_prior_artifacts:
+  active_log_move_plan.yaml:
+    role: prior plan covering the move from 01_truth/ to 07_working/drafts/rationale/
+    status: executed_move_only
+    relationship: this archive plan covers the next-stage disposition after that earlier move landed
+  active_design_ledger.yaml:
+    role: coverage ledger naming the 14 schema primitives and their dispositions
+    status: complete for current cycle
+    relationship: this plan does not change ledger contents; it cites them
+  candidate registry P5-001 and P5-002:
+    role: retrospective records of audit cycles
+    relationship: this plan does not touch them; archive of active log does not affect cycle records
+
+notes:
+  - This is a plan-only artifact.
+  - Active design log remains in place after this task.
+  - Active design log remains non-canonical design evidence.
+  - The next action authorized by the ledger is for a human to read this plan and choose A / B / C.
