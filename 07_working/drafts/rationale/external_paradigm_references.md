@@ -71,7 +71,11 @@ new vocabulary.
 - A "shadowMAS is genuinely original here" claim must survive at
   least one serious search round before being asserted.
 - shadowMAS originality is not suppressed. A3 (geology unconformity)
-  is plausibly genuinely novel and stays. The point is that
+  began as a "plausibly genuinely novel" claim, but a later
+  recursive application of this discipline surfaced prior art in DB
+  theory (tombstones, SQL NULL semantics) and the claim was
+  downgraded to "novel application of an established pattern." See
+  the A3 entry below for the one-sentence diff. The point is that
   "genuinely novel" must be **earned** by a prior-art check, not
   assumed by absence of prior reference.
 
@@ -95,6 +99,42 @@ new vocabulary.
   design choices, especially counterfactual ones
 - **E** Implementation menus — concrete options to consult when the
   corresponding trigger arrives
+
+## Triage State
+
+10 entries across 5 categories. Their applicability to active
+shadowMAS work varies. Quick filter for "what to read first if
+time is limited":
+
+### Actively shaping (3) — high near-term yield
+- **C1 Speech Act + FIPA ACL** — directly catches recommendation
+  enum extensions and packet vocabulary debates; useful on the next
+  packet-vocabulary change
+- **A3 Geology unconformity (+ DB tombstones + SQL NULL semantics)**
+  — concrete addition for session_log when it activates; design now
+  rather than retrofit
+- **D1 GSAR coherence trap** — academic insurance against drifting
+  into agent self-correction without typed grounding
+
+### Wait-on-trigger (3) — load when conditions arise
+- **A2 SAFEFLOW IFC** — load when R-layer substrate is selected
+- **B1 ALMA meta-learned memory** — load when axis 3 (dynamic
+  adaptation) gets a concrete implementation effort
+- **A1 Active Inference** — load when a "non-blocking governance"
+  use case appears
+
+### Library only (4) — kept for completeness, no current pull
+- **C2 Common Law + CBR** — precedent registry mechanism; large
+  effort, low near-term signal
+- **E1 Jidoka + CRM** — multi-agent same-task safety; no such scope
+  yet
+- **E2 Sandbox substrates** — implementation menu for R-layer
+- **E3 Watertight blast radius** — packet field mechanism; no
+  evidence of wide-blast packet problem yet
+
+Promotion between buckets is allowed without further review; just
+update this section. Demotion to "remove" requires a one-line
+reason recorded here.
 
 ---
 
@@ -143,8 +183,15 @@ new vocabulary.
   IFC labels should be the substrate vocabulary.
 
 ### A3. Geology unconformity → explicit memory gap markers
-- **Source**: stratigraphic geology (Hutton, Smith, 18th–19th century);
-  no AI memory architecture appears to use this specifically
+- **Sources**:
+  - stratigraphic geology (Hutton, Smith, 18th–19th century) — the
+    visual metaphor of explicit-gap-as-evidence
+  - **DB tombstone records** (Cassandra, DynamoDB; distributed
+    database literature) — marks "deleted, not absent" so reads can
+    distinguish a removed record from a never-existed record
+  - **SQL NULL semantics** (Codd, 1970s) — distinguishes "unknown",
+    "not applicable", and "missing" rather than collapsing them into
+    one absence
 - **shadowMAS gap**: memory plane currently records "what happened."
   It does not distinguish between
   (a) positive absence: agent ran, recorded nothing of interest, and
@@ -157,6 +204,12 @@ new vocabulary.
   "between T_a and T_b, no recorded events; gap_reason
   = scheduled_idle | agent_crash | unobserved | deliberate_redaction;
   recorded_by = ..."
+- **One-sentence diff vs prior art**: DB tombstones mark deleted
+  records inside a row-oriented store, and SQL NULL distinguishes
+  missing-value semantics inside a relation; A3 applies the same
+  gap-marker pattern to **agent-level observation periods** in a
+  temporal memory plane, where the gap itself carries audit-relevant
+  meaning rather than being purely an internal-storage concern.
 - **Potential impact on MEMORY-PLANE-HARNESS**: a new record type or
   packet field. SESSION-LOG-INTEGRITY spec could incorporate
   unconformity markers as part of hash chain integrity.
@@ -165,9 +218,17 @@ new vocabulary.
   millisecond.
 - **Trigger to consider**: when session_log plane gets a real
   implementation, design unconformity marker semantics from day one.
-- **Novelty note**: appears genuinely unexplored in AI memory
-  literature based on initial search. The other paradigm imports in
-  this file have prior art; this one may not.
+- **Novelty status**: **novel application** of established DB
+  gap-marker patterns (tombstones + NULL semantics) to AI agent
+  memory architecture. Not pure novelty. The category (gap markers
+  as first-class data) is borrowed with attribution; the application
+  layer (agent observation periods) is what shadowMAS adds.
+- **Self-correction note**: this entry was originally written as
+  "plausibly genuinely novel." Recursive application of the
+  Synthesis Discipline section above surfaced DB-theory prior art
+  during a later review round. The entry is now reframed accordingly.
+  See the Notes section at the bottom of this file for the meta
+  observation.
 
 ---
 
@@ -410,6 +471,13 @@ This file does not:
   cases where shadowMAS appears to be reinventing wheels that other
   communities standardized decades ago. Awareness of this prior art
   is worth more than the import itself.
-- A3 (geology unconformity) is the one item that initial search did
-  not surface in AI memory literature. If true, it is the most
-  original of the imports here.
+- A3 (geology unconformity) was first written as "plausibly
+  genuinely novel" because initial search did not surface AI memory
+  literature using this metaphor. A later recursive review applied
+  the Synthesis Discipline section to this file itself and surfaced
+  DB-theory prior art (tombstones, SQL NULL semantics) that the
+  initial search missed. A3 is now reframed as a **novel
+  application** of established DB gap-marker patterns to AI agent
+  memory architecture, not pure novelty. This self-correction is a
+  worked example of the discipline and is preserved here as
+  evidence that the discipline applies to the discipline doc itself.
