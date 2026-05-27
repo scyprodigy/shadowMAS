@@ -35,6 +35,19 @@ once successfully. It is not canonical and does not bind future runs.
 
 ## Phases
 
+### Phase 0 — prior art check (synthesis discipline)
+Before proposing any new packet field, vocabulary, validator
+invariant, or governance mechanism in subsequent phases, grep
+`07_working/drafts/rationale/external_paradigm_references.md` for
+the topic and run a short web search for adjacent-field standards.
+Borrowing is shadowMAS's design intent; the failure mode this phase
+guards against is **silent miss** — building without knowing prior
+art or without documenting the diff. If prior art exists (FIPA ACL,
+CBR, IFC label models, etc.), the audit cycle should adopt with
+attribution, adapt with attribution + one-sentence diff, or refuse
+with explicit reason. Phase 0 is cheap; missing it generates
+attribution debt that future audit cycles have to clean.
+
 ### Phase A — scan and classify
 - Pattern-grep across the current tree and full `git log --all -p`
   for personal identifiers, third-party PII, commercial names,

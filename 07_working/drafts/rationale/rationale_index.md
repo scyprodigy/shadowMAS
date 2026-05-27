@@ -18,6 +18,7 @@
 | `active_log_move_plan.yaml` | Executed-move record for the active design log out of `01_truth/` into this folder. |
 | `calibration_framework_note.md` | Working rationale draft for treating model calibration as distributional metadata, not a single confidence number. |
 | `deferred_state_inventory.md` | Honest inventory of intentionally-deferred shadowMAS surfaces (3 memory planes, 5 runtime adapter drafts) with concrete unlock triggers per surface. |
+| `external_paradigm_references.md` | External frameworks and prior art (Active Inference, IFC/SAFEFLOW, ALMA, FIPA ACL, CBR, geology unconformity, jidoka/CRM, sandbox substrates) that shadowMAS's distillation may have missed; rationale only. |
 | `history_pollution_residual_risk.md` | Record of the deferred history rewrite decision and the residual risk being explicitly accepted until release / public-hygiene phase. |
 | `l1_mutation_coverage_report.md` | Fixture-level mutation coverage report for `tools/shadowmas_minimal_validator.py` invariants. |
 | `mdl_compressive_refinement_rationale.md` | Draft rationale for MDL / minimum-description reasoning, compressive refinement, and parsimony / net-effect criterion; not canonical truth, not schema, not validator logic. |
