@@ -44,6 +44,7 @@ Do not perform blind full-repo traversal. Load files on demand by task shape.
 - Preserve existing public-safe wording unless a task explicitly asks for a rewrite.
 - Do not rename files without checking references and the path policy below.
 - For markdown and YAML files, preserve any existing 3-line header convention (line 1 name/responsibility, line 2 related list, line 3 phase) unless the task is explicitly to revise those headers.
+- Before introducing a new packet field, packet family, validator enum value, governance vocabulary, or runtime mechanism, grep `07_working/drafts/rationale/external_paradigm_references.md` for prior art and search adjacent fields (multi-agent communication, legal theory, formal verification, cognitive science, safety engineering, information-flow security). Borrowing is shadowMAS's design intent; the failure mode this rule guards against is **silent miss** — building without knowing prior art or without documenting the diff. If prior art exists, choose "adopt with attribution", "adapt with attribution + one-sentence diff", or "refuse with explicit reason."
 
 ## Naming and generated files
 
