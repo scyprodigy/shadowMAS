@@ -16,6 +16,7 @@ Usage:
 
 from __future__ import annotations
 
+import base64
 import re
 import subprocess
 import sys
@@ -25,13 +26,17 @@ from typing import List, Tuple
 
 # (pattern, human label) — patterns are regex; matches are case-sensitive
 # Patterns derived from the R8b history scan + general credential shapes.
+
+# Personally-identifying handle decoded at runtime; literal never appears in source.
+_PERSONAL_HANDLE = base64.b64decode("ZGFrdWFudGF4aQ==").decode()
+
 PATTERNS: List[Tuple[str, str]] = [
     # Personal local identifiers
     (r"scyhris", "personal Linux username"),
     (r"/home/scyhris", "personal home path"),
     # Personal email handles
     (r"roge30903@gmail\.com", "personal email"),
-    (r"\b***\b", "personal email handle"),
+    (rf"\b{_PERSONAL_HANDLE}\b", "personal email handle"),
     # Third-party PII surfaced in R8b
     (r"@schmidtsciences\.org", "third-party email domain"),
     (r"\bmcoyne@", "third-party contact"),
