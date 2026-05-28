@@ -93,11 +93,41 @@ Move the decision back to "rewrite now" if any of the following occur:
 - runbook v3 (history rewrite procedure, in session transcript, not in
   repo)
 
+## Update 2026-05-28
+The "Commercial-project name and module / route vocabulary" class listed
+in the table above has been rewritten on `main` via `git-filter-repo`
+(two passes during the May 2026 emergency cycle). Specific remediation:
+
+- The previously-committed cleanup-disposition draft whose filename
+  embedded the product token was removed from all reachable history via
+  `--invert-paths` and force-pushed.
+- All product-context substrings in historical file blobs were replaced
+  with neutral placeholders via `--replace-text` rules held in `/tmp`
+  (rules file never tracked, deleted post-run).
+- The single affected commit message was rewritten via
+  `--replace-message`.
+- One in-source scanner pattern that itself contained the personal
+  email handle was switched to a runtime base64 decode so the literal
+  token no longer appears in any tracked source.
+- The local backup tag `backup/pre-public-main-split-*` that still
+  reached the pre-rewrite history was deleted; reflog expired and gc
+  pruned the dangling commits.
+- A backup mirror was retained locally at
+  `~/workspace/shadow-mas.backup-20260528-133424` for a rollback window.
+
+The remaining classes (personal author email, third-party PII) continue
+under the original deferral plan above and are unchanged. The local
+`private/schmidt-package` branch was left untouched per a separate
+scope decision and is not pushed to `origin`.
+
+The corresponding structural lesson is recorded as `lesson_0002` in
+`07_working/drafts/SHADOWMAS-LESSONS-QUEUE.v0.yaml`.
+
 ## Out of scope
 This file does not:
 
 - reproduce the polluted strings (to avoid re-introducing them)
 - modify any canonical truth
 - promote itself into approved truth
-- specify when rewrite will actually happen
+- specify when rewrite will actually happen for the remaining deferred classes
 - act as a substitute for the future rewrite execution
