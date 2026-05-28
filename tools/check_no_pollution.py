@@ -36,9 +36,6 @@ PATTERNS: List[Tuple[str, str]] = [
     (r"@schmidtsciences\.org", "third-party email domain"),
     (r"\bmcoyne@", "third-party contact"),
     (r"\btrustworthyai@", "third-party contact"),
-    # Commercial-project leak
-    (r"***", "commercial project name"),
-    (r"\b***\b", "commercial project name (lowercase)"),
     # Cryptographic / SSH key headers
     (r"BEGIN OPENSSH PRIVATE KEY", "SSH private key"),
     (r"BEGIN RSA PRIVATE KEY", "RSA private key"),
