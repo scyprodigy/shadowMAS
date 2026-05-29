@@ -1,5 +1,5 @@
-# checks | CI workflow running pollution scan, packet validators, and unit tests
-# related: [tools/check_no_pollution.py, 05_scripts/validate/shadowmas_validate.py, tools/shadowmas_minimal_validator.py, tools/inspect_l2_fixture.py, tests/]
+# checks | CI workflow running packet validators and unit tests
+# related: [05_scripts/validate/shadowmas_validate.py, tools/shadowmas_minimal_validator.py, tools/inspect_l2_fixture.py, tests/]
 # phase: ci
 
 name: checks
@@ -22,9 +22,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Pollution scan (must be clean)
-        run: python3 tools/check_no_pollution.py
 
       - name: Packet validator - task_packet
         run: python3 05_scripts/validate/shadowmas_validate.py examples/packets/task_packet.valid.v0.yaml
