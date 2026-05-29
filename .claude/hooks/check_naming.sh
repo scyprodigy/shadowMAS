@@ -128,8 +128,8 @@ match_packet_dotted() {
 }
 
 # Helper: working-marker dotted filename for 07_working/drafts/**
-# Accepts files like packet_common_shell.PROPOSAL.v0, bootstrap-prompt.CLAUDE-CODE.v0,
-# agents.template.PROPOSAL, shared_core.template.DRAFT, adapter-plan.v0, etc.
+# Accepts dotted-mixed shapes like <base>.PROPOSAL.v0, <base>.DRAFT.v0,
+# <base>.template.PROPOSAL, <base>.template.DRAFT, <base>.v0, etc.
 match_working_marker() {
   local name="$1"
   # Must be dotted-mixed shape: base segment then at least one dot-segment

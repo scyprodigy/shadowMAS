@@ -3,7 +3,7 @@
 > not canonical truth
 > not runtime implementation
 > not packet schema law unless later promoted through packet-boundary review
-> source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
+> source basis: (operator working notes, no longer tracked in this repo)
 
 # PACKET-COMPATIBILITY-LAYER.v0
 
@@ -75,7 +75,7 @@ This draft does not replace canonical `02_packets` packet files.
 
 Rules:
 - canonical packet fields remain controlled by `02_packets/`
-- `packet_common_shell.PROPOSAL.v0.yaml` is proposal evidence only
+- `02_packets/packet_common_shell.v0.yaml` is the canonical shared shell
 - adapter-wrapped artifacts may point toward packet shape, but they are not approved packets
 - compatibility levels describe intake maturity, not truth authority
 
