@@ -3,7 +3,7 @@
 > not canonical truth
 > not runtime implementation
 > not packet schema law unless later promoted through packet-boundary review
-> source basis: SHADOWMAS-RUNTIME-ADAPTER-MERGEBACK.v0.md
+> source basis: (operator working notes, no longer tracked in this repo)
 
 # AGENT-JOIN-CONTRACT.v0
 

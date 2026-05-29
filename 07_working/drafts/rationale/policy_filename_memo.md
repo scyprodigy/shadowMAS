@@ -107,13 +107,10 @@ The local Claude Code hooks at `~/.claude/hooks/check_naming.sh`, `~/.claude/hoo
 - Allowed examples:
   - lowercase snake_case descriptive names (e.g., `active_design_ledger.yaml`, `policy_filename_memo.md`)
   - UPPERCASE-WITH-HYPHENS legacy working docs (e.g., `CONTRACT-VERSIONING-VALIDATOR-CI-PREP.v0.en.md`, `AGENT-JOIN-CONTRACT.v0.en.md`)
-  - working markers already present in the repo:
-    - `packet_common_shell.PROPOSAL.v0.yaml`
-    - `adapter-plan.v0.yaml`
-    - `agents.template.PROPOSAL.yaml`
-    - `bootstrap-prompt.CLAUDE-CODE.v0.md`
-    - `claude-code-settings.template.PROPOSAL.json`
-    - `shared_core.template.DRAFT.md`
+  - working markers (dotted-mixed shapes), abstract examples:
+    - `<base>.PROPOSAL.v0.yaml`
+    - `<base>.DRAFT.v0.md`
+    - `<base>.template.PROPOSAL.yaml`
 - Disallowed examples:
   - lowercase generic standalone scratch names: `scratch.md`, `tmp.md`, `temp.md`, `notes.md`, `final.md`
   - spaces or TitleCase: `Final Draft.md`, `MyProposal.md`
