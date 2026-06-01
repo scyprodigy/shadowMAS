@@ -102,7 +102,7 @@ REVIEW_CONSENSUS_KIND_VALUES = {"unanimous", "majority", "first_to_decide"}
 
 SUPERVISION_MODE_VALUES = {"human_live_pair", "human_available_delegate", "human_away_autonomous"}
 RISK_VALUES = {"r0_trivial", "r1_routine", "r2_guarded", "r3_sensitive", "r4_human_only"}
-RFC3339_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
+RFC3339_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 PROMOTION_CANDIDATE_VALUES = {"yes", "no"}
 
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}

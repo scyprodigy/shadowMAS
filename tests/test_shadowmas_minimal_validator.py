@@ -716,6 +716,46 @@ promotion_snapshot: invalid-for-review-packet
         )
         self.assertIn("INVALID_PACKET_UID", result.stdout)
 
+    def test_non_string_packet_uid_fails(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text.replace(
+                "packet_uid: example-task-packet-valid-v0-001",
+                "packet_uid: 12345",
+            )
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("INVALID_PACKET_UID", result.stdout)
+
+    def test_valid_review_packet_still_passes(self):
+        result = run_packet_validator(VALID_REVIEW_PACKET)
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_valid_memory_packet_still_passes_if_fixture_exists(self):
+        if not VALID_MEMORY_PACKET.exists():
+            self.skipTest(f"memory packet fixture absent: {VALID_MEMORY_PACKET}")
+
+        result = run_packet_validator(VALID_MEMORY_PACKET)
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     # --- promotion_candidate YAML 1.1 boolean trap regression ---
     # Background: PyYAML defaults to YAML 1.1, which implicitly coerces
     # unquoted yes/no/on/off into booleans. The memory_packet schema
