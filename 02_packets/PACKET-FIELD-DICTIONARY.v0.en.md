@@ -201,6 +201,9 @@ Allowed direction:
 - `r3_sensitive`
 - `r4_human_only`
 
+Validator rule:
+- the v0 packet validator enforces representation invariants for `packet_uid`, `created_at`, `supervision_mode`, and `risk`; these checks validate packet form, not authority semantics
+
 ### `source_refs`
 Meaning:
 References to external or internal sources used by this packet.
