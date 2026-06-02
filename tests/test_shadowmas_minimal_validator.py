@@ -287,6 +287,12 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
         self.addCleanup(tmp_path.unlink, missing_ok=True)
         return run_packet_validator(tmp_path)
 
+    def _run_task_packet_with_inputs(self, lines):
+        text = VALID_TASK_PACKET.read_text(encoding="utf-8") + "\n" + "\n".join(lines) + "\n"
+        tmp_path = write_temp_packet(text)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+        return run_packet_validator(tmp_path)
+
     def test_review_packet_recommendation_enum_values_pass(self):
         base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
 
@@ -965,6 +971,48 @@ promotion_snapshot: invalid-for-review-packet
                 self.assertIn("ERROR INVALID_DATA_CLASS", result.stdout)
                 self.assertIn("field: data_class", result.stdout)
                 self.assertIn("path: $.data_class", result.stdout)
+
+    def test_task_packet_inputs_valid_objects_pass(self):
+        cases = {
+            "empty_object": ["inputs: {}"],
+            "nested_fields_not_validated": [
+                "inputs:",
+                "  required_context: not-a-list",
+                "  optional_context: true",
+                "  trust_class: unknown_value",
+            ],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name=name):
+                result = self._run_task_packet_with_inputs(lines)
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_task_packet_inputs_invalid_non_objects_fail(self):
+        cases = {
+            "boolean": "true",
+            "integer": "123",
+            "float": "1.5",
+            "list": "[]",
+            "string": "text",
+            "null": "null",
+        }
+        for name, raw_value in cases.items():
+            with self.subTest(name=name):
+                result = self._run_task_packet_with_inputs([f"inputs: {raw_value}"])
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_INPUTS", result.stdout)
+                self.assertIn("field: inputs", result.stdout)
+                self.assertIn("path: $.inputs", result.stdout)
 
     def test_source_refs_valid_source_path_and_source_id_locators_pass(self):
         cases = {
