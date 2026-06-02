@@ -286,6 +286,8 @@ The command reads `<project-path>` only to validate that it exists as a director
 
 `where` prints the workspace path for an existing workspace; `inspect` re-reads and validates `workspace.json` and prints `OK workspace metadata valid` on pass.
 
+For the full workspace command inventory, including `list` and external-workspace-only `destroy`, see `05_scripts/workspace/README.md`.
+
 ### Caution
 
 Do not run `init` against a production product repository before reviewing the on-disk effects above. Prefer a disposable clone or a throwaway directory for your first workspace-tool experiment. Even though `init` writes nothing inside the product repo, confirm that behavior on your platform before pointing the command at a path you care about. The product-repo owner remains responsible for deciding whether any artifact later generated, copied, or referenced from the workspace should be committed into the product repo's history. shadowMAS does not replace your product repo's project-specific canonical truth.
@@ -467,6 +469,8 @@ python3 05_scripts/workspace/shadowmas_workspace.py init --project <project-path
 python3 05_scripts/workspace/shadowmas_workspace.py where --project <project-path>
 python3 05_scripts/workspace/shadowmas_workspace.py inspect --project <project-path>
 ```
+
+See `05_scripts/workspace/README.md` for `list` and `destroy` usage.
 
 Current scripts do not run agents, modify product repos, or perform write-back.
 
