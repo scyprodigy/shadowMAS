@@ -104,6 +104,15 @@ SUPERVISION_MODE_VALUES = {"human_live_pair", "human_available_delegate", "human
 RISK_VALUES = {"r0_trivial", "r1_routine", "r2_guarded", "r3_sensitive", "r4_human_only"}
 RFC3339_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 PROMOTION_CANDIDATE_VALUES = {"yes", "no"}
+SOURCE_REF_STRING_FIELDS = {
+    "source_type",
+    "source_id",
+    "source_path",
+    "source_hash",
+    "source_version",
+    "section",
+    "relation",
+}
 
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}
 
@@ -451,7 +460,24 @@ def validate_source_refs(data: dict[str, Any], file_name: str) -> list[Validatio
                         f"source_refs item requires {field}",
                     )
                 )
-        if not item.get("source_path") and not item.get("source_id"):
+
+        for field in SOURCE_REF_STRING_FIELDS:
+            if field in item and item[field] is not None and not isinstance(item[field], str):
+                errors.append(
+                    make_error(
+                        "INVALID_REFERENCE_SHAPE",
+                        file_name,
+                        field,
+                        f"{item_path}.{field}",
+                        f"source_refs item {field} must be a string when present",
+                    )
+                )
+
+        source_path = item.get("source_path")
+        source_id = item.get("source_id")
+        has_source_path = isinstance(source_path, str) and bool(source_path.strip())
+        has_source_id = isinstance(source_id, str) and bool(source_id.strip())
+        if not has_source_path and not has_source_id:
             errors.append(
                 make_error(
                     "INVALID_REFERENCE_SHAPE",
