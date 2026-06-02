@@ -754,7 +754,35 @@ def validate_task_packet_fields(data: dict[str, Any], file_name: str) -> list[Va
                 "inputs must be an object when present",
             )
         ]
-    return []
+
+    errors: list[ValidationError] = []
+    for field in ("required_context", "optional_context"):
+        if field not in value or value[field] is None:
+            continue
+        context_list = value[field]
+        if not isinstance(context_list, list):
+            errors.append(
+                make_error(
+                    "INVALID_INPUTS",
+                    file_name,
+                    field,
+                    f"$.inputs.{field}",
+                    f"inputs.{field} must be a list when present",
+                )
+            )
+            continue
+        for index, item in enumerate(context_list):
+            if not isinstance(item, str) or not item.strip():
+                errors.append(
+                    make_error(
+                        "INVALID_INPUTS",
+                        file_name,
+                        field,
+                        f"$.inputs.{field}[{index}]",
+                        f"inputs.{field} items must be non-empty strings",
+                    )
+                )
+    return errors
 
 
 def validate_promotion_candidate(data: dict[str, Any], file_name: str) -> list[ValidationError]:
