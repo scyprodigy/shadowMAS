@@ -506,6 +506,66 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
         self.assertIn("field: recommendation", result.stdout)
         self.assertIn("path: $.recommendation", result.stdout)
 
+    def test_enforced_enum_fields_reject_yaml_scalar_traps(self):
+        cases = [
+            (
+                "packet_type_boolean",
+                VALID_TASK_PACKET,
+                "packet_type: task_packet",
+                "packet_type: true",
+                "UNKNOWN_PACKET_TYPE",
+                "field: packet_type",
+            ),
+            (
+                "status_boolean",
+                VALID_TASK_PACKET,
+                "status: draft",
+                "status: false",
+                "INVALID_STATUS",
+                "field: status",
+            ),
+            (
+                "risk_boolean_like",
+                VALID_TASK_PACKET,
+                "risk: r0_trivial",
+                "risk: on",
+                "INVALID_RISK",
+                "field: risk",
+            ),
+            (
+                "supervision_mode_boolean_like",
+                VALID_TASK_PACKET,
+                "supervision_mode: human_available_delegate",
+                "supervision_mode: off",
+                "INVALID_SUPERVISION_MODE",
+                "field: supervision_mode",
+            ),
+            (
+                "recommendation_boolean_like",
+                VALID_REVIEW_PACKET,
+                "recommendation: defer",
+                "recommendation: yes",
+                "INVALID_RECOMMENDATION",
+                "field: recommendation",
+            ),
+        ]
+
+        for name, fixture, old, new, error_code, field_line in cases:
+            with self.subTest(name=name):
+                base_text = fixture.read_text(encoding="utf-8")
+                tmp_path = write_temp_packet(base_text.replace(old, new))
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn(f"ERROR {error_code}", result.stdout)
+                self.assertIn(field_line, result.stdout)
+
     def test_review_packet_missing_recommendation_still_uses_required_field_error(self):
         lines = [
             line
