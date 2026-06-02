@@ -816,6 +816,212 @@ promotion_snapshot: invalid-for-review-packet
             msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_source_refs_valid_source_path_and_source_id_locators_pass(self):
+        cases = {
+            "source_path": [
+                "source_refs:",
+                "  - source_type: file",
+                "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                "    relation: read_from",
+            ],
+            "source_id": [
+                "source_refs:",
+                "  - source_type: packet",
+                "    source_id: example-task-packet-valid-v0-001",
+                "    relation: read_from",
+            ],
+            "optional_scalars": [
+                "source_refs:",
+                "  - source_type: file",
+                "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                "    source_hash: sha256:example",
+                "    source_version: v0",
+                "    section: examples",
+                "    relation: read_from",
+            ],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name=name):
+                result = self._run_with_memory_field(
+                    "\n".join(
+                        [
+                            "source_refs:",
+                            "  - source_type: file",
+                            "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                            "    relation: read_from",
+                        ]
+                    ),
+                    "\n".join(lines),
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_source_refs_invalid_top_level_and_item_shapes_fail(self):
+        cases = {
+            "top_level_string": "source_refs: not-a-list",
+            "item_scalar": "source_refs:\n  - not-an-object",
+        }
+        for name, source_refs in cases.items():
+            with self.subTest(name=name):
+                result = self._run_with_memory_field(
+                    "\n".join(
+                        [
+                            "source_refs:",
+                            "  - source_type: file",
+                            "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                            "    relation: read_from",
+                        ]
+                    ),
+                    source_refs,
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_REFERENCE_SHAPE", result.stdout)
+                self.assertIn("field: source_refs", result.stdout)
+
+    def test_source_refs_missing_required_item_fields_fail(self):
+        cases = {
+            "missing_source_type": [
+                "source_refs:",
+                "  - source_path: examples/packets/task_packet.valid.v0.yaml",
+                "    relation: read_from",
+                "field: source_type",
+            ],
+            "missing_relation": [
+                "source_refs:",
+                "  - source_type: file",
+                "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                "field: relation",
+            ],
+            "missing_locator": [
+                "source_refs:",
+                "  - source_type: file",
+                "    relation: read_from",
+                "field: source_path",
+            ],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name=name):
+                expected_field = lines[-1]
+                result = self._run_with_memory_field(
+                    "\n".join(
+                        [
+                            "source_refs:",
+                            "  - source_type: file",
+                            "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                            "    relation: read_from",
+                        ]
+                    ),
+                    "\n".join(lines[:-1]),
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_REFERENCE_SHAPE", result.stdout)
+                self.assertIn(expected_field, result.stdout)
+
+    def test_source_refs_invalid_scalar_field_types_fail(self):
+        cases = {
+            "source_type": "true",
+            "source_id": "123",
+            "source_path": "[]",
+            "source_hash": "false",
+            "source_version": "1.0",
+            "section": "{}",
+            "relation": "true",
+        }
+        for field, value in cases.items():
+            with self.subTest(field=field):
+                source_refs = [
+                    "source_refs:",
+                    "  - source_type: file",
+                    "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                    "    relation: read_from",
+                    f"    {field}: {value}",
+                ]
+                if field in {"source_type", "source_path", "relation"}:
+                    source_refs = [
+                        "source_refs:",
+                        "  - source_type: file",
+                        "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                        "    relation: read_from",
+                    ]
+                    replacement = {
+                        "source_type": "  - source_type: file",
+                        "source_path": "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                        "relation": "    relation: read_from",
+                    }[field]
+                    source_refs[source_refs.index(replacement)] = f"{replacement.split(':', 1)[0]}: {value}"
+
+                result = self._run_with_memory_field(
+                    "\n".join(
+                        [
+                            "source_refs:",
+                            "  - source_type: file",
+                            "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                            "    relation: read_from",
+                        ]
+                    ),
+                    "\n".join(source_refs),
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_REFERENCE_SHAPE", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
+                self.assertIn(f"$.source_refs[0].{field}", result.stdout)
+
+    def test_source_refs_empty_locator_strings_fail(self):
+        cases = {
+            "empty_source_path": [
+                "source_refs:",
+                "  - source_type: file",
+                "    source_path: \"\"",
+                "    relation: read_from",
+            ],
+            "whitespace_source_id": [
+                "source_refs:",
+                "  - source_type: packet",
+                "    source_id: \"   \"",
+                "    relation: read_from",
+            ],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name=name):
+                result = self._run_with_memory_field(
+                    "\n".join(
+                        [
+                            "source_refs:",
+                            "  - source_type: file",
+                            "    source_path: examples/packets/task_packet.valid.v0.yaml",
+                            "    relation: read_from",
+                        ]
+                    ),
+                    "\n".join(lines),
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_REFERENCE_SHAPE", result.stdout)
+                self.assertIn("source_refs item requires source_path or source_id", result.stdout)
+
     _BASE_MEMORY_PACKET = """packet_uid: test-memory-packet-fields-pkt-001
 packet_type: memory_packet
 schema_version: v0
