@@ -975,10 +975,8 @@ promotion_snapshot: invalid-for-review-packet
     def test_task_packet_inputs_valid_objects_pass(self):
         cases = {
             "empty_object": ["inputs: {}"],
-            "nested_fields_not_validated": [
+            "trust_class_not_validated": [
                 "inputs:",
-                "  required_context: not-a-list",
-                "  optional_context: true",
                 "  trust_class: unknown_value",
             ],
         }
@@ -1013,6 +1011,87 @@ promotion_snapshot: invalid-for-review-packet
                 self.assertIn("ERROR INVALID_INPUTS", result.stdout)
                 self.assertIn("field: inputs", result.stdout)
                 self.assertIn("path: $.inputs", result.stdout)
+
+    def test_task_packet_inputs_context_lists_valid_values_pass(self):
+        cases = {
+            "empty_required_context": [
+                "inputs:",
+                "  required_context: []",
+            ],
+            "empty_optional_context": [
+                "inputs:",
+                "  optional_context: []",
+            ],
+            "non_empty_items": [
+                "inputs:",
+                "  required_context:",
+                "    - README.md",
+                "  optional_context:",
+                "    - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md",
+            ],
+        }
+        for name, lines in cases.items():
+            with self.subTest(name=name):
+                result = self._run_task_packet_with_inputs(lines)
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_task_packet_inputs_context_lists_invalid_containers_fail(self):
+        cases = {
+            "required_context_boolean": ("required_context", "true"),
+            "required_context_string": ("required_context", '"README.md"'),
+            "optional_context_integer": ("optional_context", "123"),
+            "optional_context_string": ("optional_context", '"README.md"'),
+        }
+        for name, (field, raw_value) in cases.items():
+            with self.subTest(name=name):
+                result = self._run_task_packet_with_inputs(
+                    [
+                        "inputs:",
+                        f"  {field}: {raw_value}",
+                    ]
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_INPUTS", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
+                self.assertIn(f"path: $.inputs.{field}", result.stdout)
+
+    def test_task_packet_inputs_context_lists_invalid_items_fail(self):
+        cases = {
+            "required_context_boolean_item": ("required_context", "true"),
+            "required_context_empty_item": ("required_context", '""'),
+            "required_context_whitespace_item": ("required_context", '"   "'),
+            "optional_context_boolean_item": ("optional_context", "false"),
+            "optional_context_empty_item": ("optional_context", '""'),
+            "optional_context_whitespace_item": ("optional_context", '"   "'),
+        }
+        for name, (field, raw_value) in cases.items():
+            with self.subTest(name=name):
+                result = self._run_task_packet_with_inputs(
+                    [
+                        "inputs:",
+                        f"  {field}:",
+                        f"    - {raw_value}",
+                    ]
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_INPUTS", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
+                self.assertIn(f"path: $.inputs.{field}[0]", result.stdout)
 
     def test_source_refs_valid_source_path_and_source_id_locators_pass(self):
         cases = {
