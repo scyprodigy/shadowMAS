@@ -816,13 +816,7 @@ promotion_snapshot: invalid-for-review-packet
             msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
-    # --- promotion_candidate YAML 1.1 boolean trap regression ---
-    # Background: PyYAML defaults to YAML 1.1, which implicitly coerces
-    # unquoted yes/no/on/off into booleans. The memory_packet schema
-    # requires the string literal "yes" or "no" (quoted). These tests
-    # guard the fix from commit d7a0d46 against regression.
-
-    _BASE_MEMORY_PACKET = """packet_uid: test-memory-promotion-candidate-pkt-001
+    _BASE_MEMORY_PACKET = """packet_uid: test-memory-packet-fields-pkt-001
 packet_type: memory_packet
 schema_version: v0
 created_at: "2026-05-26T00:00:00Z"
@@ -833,7 +827,7 @@ risk: r0_trivial
 status: captured
 memory_kind: heuristic
 memory_scope: session_local
-summary: regression baseline for promotion_candidate quoted enum
+summary: regression baseline for memory_packet field validation
 structured_payload:
   note: minimal payload for validator exercise
 source_refs:
@@ -843,11 +837,149 @@ source_refs:
 invalidation_triggers:
   - source file changes
 confidence: 0.5
-promotion_candidate: __PLACEHOLDER__
+promotion_candidate: "no"
 """
 
+    def _run_with_memory_field(self, old_line, new_line):
+        text = self._BASE_MEMORY_PACKET.replace(old_line, new_line)
+        tmp_path = write_temp_packet(text)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+        return run_packet_validator(tmp_path)
+
+    def test_memory_packet_confidence_valid_values_pass(self):
+        for confidence in ("0", "0.5", "1"):
+            with self.subTest(confidence=confidence):
+                result = self._run_with_memory_field(
+                    "confidence: 0.5", f"confidence: {confidence}"
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_memory_packet_confidence_invalid_types_fail(self):
+        cases = {
+            "string": '"0.5"',
+            "boolean": "true",
+            "list": "[]",
+            "map": "{}",
+        }
+        for name, confidence in cases.items():
+            with self.subTest(name=name):
+                result = self._run_with_memory_field(
+                    "confidence: 0.5", f"confidence: {confidence}"
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_CONFIDENCE", result.stdout)
+                self.assertIn("field: confidence", result.stdout)
+                self.assertIn("path: $.confidence", result.stdout)
+
+    def test_memory_packet_confidence_invalid_range_fails(self):
+        for confidence in ("-0.1", "1.1"):
+            with self.subTest(confidence=confidence):
+                result = self._run_with_memory_field(
+                    "confidence: 0.5", f"confidence: {confidence}"
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_CONFIDENCE", result.stdout)
+                self.assertIn("field: confidence", result.stdout)
+
+    def test_memory_packet_missing_confidence_uses_required_field_error(self):
+        result = self._run_with_memory_field("confidence: 0.5", "confidence: null")
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("ERROR REQUIRED_FIELD_MISSING", result.stdout)
+        self.assertIn("field: confidence", result.stdout)
+        self.assertNotIn("ERROR INVALID_CONFIDENCE", result.stdout)
+
+    def test_memory_packet_memory_kind_valid_value_passes(self):
+        result = self._run_with_memory_field("memory_kind: heuristic", "memory_kind: tooling_note")
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_memory_packet_memory_kind_invalid_values_fail(self):
+        cases = {
+            "integer": "123",
+            "empty": '""',
+            "whitespace": '"   "',
+        }
+        for name, memory_kind in cases.items():
+            with self.subTest(name=name):
+                result = self._run_with_memory_field(
+                    "memory_kind: heuristic", f"memory_kind: {memory_kind}"
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_MEMORY_KIND", result.stdout)
+                self.assertIn("field: memory_kind", result.stdout)
+                self.assertIn("path: $.memory_kind", result.stdout)
+
+    def test_memory_packet_memory_scope_valid_value_passes(self):
+        result = self._run_with_memory_field(
+            "memory_scope: session_local", "memory_scope: repo_local"
+        )
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_memory_packet_memory_scope_invalid_values_fail(self):
+        cases = {
+            "integer": "123",
+            "empty": '""',
+            "whitespace": '"   "',
+        }
+        for name, memory_scope in cases.items():
+            with self.subTest(name=name):
+                result = self._run_with_memory_field(
+                    "memory_scope: session_local", f"memory_scope: {memory_scope}"
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_MEMORY_SCOPE", result.stdout)
+                self.assertIn("field: memory_scope", result.stdout)
+                self.assertIn("path: $.memory_scope", result.stdout)
+
+    # --- promotion_candidate YAML 1.1 boolean trap regression ---
+    # Background: PyYAML defaults to YAML 1.1, which implicitly coerces
+    # unquoted yes/no/on/off into booleans. The memory_packet schema
+    # requires the string literal "yes" or "no" (quoted). These tests
+    # guard the fix from commit d7a0d46 against regression.
+
     def _run_with_promotion_candidate(self, raw_value):
-        text = self._BASE_MEMORY_PACKET.replace("__PLACEHOLDER__", raw_value)
+        text = self._BASE_MEMORY_PACKET.replace(
+            'promotion_candidate: "no"', f"promotion_candidate: {raw_value}"
+        )
         tmp_path = write_temp_packet(text)
         self.addCleanup(tmp_path.unlink, missing_ok=True)
         return run_packet_validator(tmp_path)
