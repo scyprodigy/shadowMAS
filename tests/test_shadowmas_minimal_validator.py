@@ -1022,6 +1022,201 @@ promotion_snapshot: invalid-for-review-packet
                 self.assertIn("ERROR INVALID_REFERENCE_SHAPE", result.stdout)
                 self.assertIn("source_refs item requires source_path or source_id", result.stdout)
 
+    def _run_task_packet_with_handoff(self, handoff_text):
+        tmp_path = write_temp_packet(VALID_TASK_PACKET.read_text(encoding="utf-8") + "\n" + handoff_text)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+        return run_packet_validator(tmp_path)
+
+    def test_handoff_valid_shape_passes(self):
+        result = self._run_task_packet_with_handoff(
+            """handoff:
+  to_role: L3
+  needed_action: implement
+  reason: continue scoped packet work
+  resume_from:
+    - read task scope
+    - inspect changed files
+  blockers: []
+"""
+        )
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_handoff_invalid_top_level_shape_fails(self):
+        result = self._run_task_packet_with_handoff("handoff: not-an-object\n")
+
+        self.assertEqual(
+            result.returncode,
+            1,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("ERROR INVALID_HANDOFF_SHAPE", result.stdout)
+        self.assertIn("field: handoff", result.stdout)
+
+    def test_handoff_missing_required_fields_fail(self):
+        base_lines = {
+            "to_role": "  to_role: L3",
+            "needed_action": "  needed_action: implement",
+            "reason": "  reason: continue scoped packet work",
+            "resume_from": "  resume_from:\n    - read task scope",
+            "blockers": "  blockers: []",
+        }
+        for missing_field in base_lines:
+            with self.subTest(missing_field=missing_field):
+                handoff_lines = ["handoff:"] + [
+                    line for field, line in base_lines.items() if field != missing_field
+                ]
+                result = self._run_task_packet_with_handoff("\n".join(handoff_lines) + "\n")
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_HANDOFF_SHAPE", result.stdout)
+                self.assertIn(f"field: {missing_field}", result.stdout)
+
+    def test_handoff_deprecated_fields_fail(self):
+        for field in ("next_owner", "handoff_reason"):
+            with self.subTest(field=field):
+                result = self._run_task_packet_with_handoff(
+                    f"""handoff:
+  to_role: L3
+  needed_action: implement
+  reason: continue scoped packet work
+  resume_from:
+    - read task scope
+  blockers: []
+  {field}: deprecated parallel field
+"""
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR DEPRECATED_HANDOFF_FIELD", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
+
+    def test_handoff_invalid_scalar_fields_fail(self):
+        cases = {
+            "to_role_boolean": ("to_role", "true"),
+            "to_role_empty": ("to_role", '""'),
+            "to_role_whitespace": ("to_role", '"   "'),
+            "needed_action_integer": ("needed_action", "123"),
+            "needed_action_empty": ("needed_action", '""'),
+            "needed_action_whitespace": ("needed_action", '"   "'),
+            "reason_list": ("reason", "[]"),
+            "reason_empty": ("reason", '""'),
+            "reason_whitespace": ("reason", '"   "'),
+        }
+        for name, (field, value) in cases.items():
+            with self.subTest(name=name):
+                replacements = {
+                    "to_role": "L3",
+                    "needed_action": "implement",
+                    "reason": "continue scoped packet work",
+                }
+                replacements[field] = value
+                result = self._run_task_packet_with_handoff(
+                    f"""handoff:
+  to_role: {replacements["to_role"]}
+  needed_action: {replacements["needed_action"]}
+  reason: {replacements["reason"]}
+  resume_from:
+    - read task scope
+  blockers: []
+"""
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_HANDOFF_SHAPE", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
+                self.assertIn(f"path: $.handoff.{field}", result.stdout)
+
+    def test_handoff_invalid_list_containers_fail(self):
+        cases = {
+            "resume_from": "not-a-list",
+            "blockers": "not-a-list",
+        }
+        for field, value in cases.items():
+            with self.subTest(field=field):
+                fields = {
+                    "resume_from": "  resume_from:\n    - read task scope",
+                    "blockers": "  blockers: []",
+                }
+                fields[field] = f"  {field}: {value}"
+                result = self._run_task_packet_with_handoff(
+                    "\n".join(
+                        [
+                            "handoff:",
+                            "  to_role: L3",
+                            "  needed_action: implement",
+                            "  reason: continue scoped packet work",
+                            fields["resume_from"],
+                            fields["blockers"],
+                        ]
+                    )
+                    + "\n"
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_HANDOFF_SHAPE", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
+                self.assertIn(f"path: $.handoff.{field}", result.stdout)
+
+    def test_handoff_invalid_list_items_fail(self):
+        cases = {
+            "resume_from_boolean": ("resume_from", "true"),
+            "resume_from_empty": ("resume_from", '""'),
+            "resume_from_whitespace": ("resume_from", '"   "'),
+            "blockers_integer": ("blockers", "123"),
+            "blockers_empty": ("blockers", '""'),
+            "blockers_whitespace": ("blockers", '"   "'),
+        }
+        for name, (field, value) in cases.items():
+            with self.subTest(name=name):
+                fields = {
+                    "resume_from": "  resume_from:\n    - read task scope",
+                    "blockers": "  blockers:\n    - unresolved blocker",
+                }
+                fields[field] = f"  {field}:\n    - {value}"
+                result = self._run_task_packet_with_handoff(
+                    "\n".join(
+                        [
+                            "handoff:",
+                            "  to_role: L3",
+                            "  needed_action: implement",
+                            "  reason: continue scoped packet work",
+                            fields["resume_from"],
+                            fields["blockers"],
+                        ]
+                    )
+                    + "\n"
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_HANDOFF_SHAPE", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
+                self.assertIn(f"$.handoff.{field}[0]", result.stdout)
+
     _BASE_MEMORY_PACKET = """packet_uid: test-memory-packet-fields-pkt-001
 packet_type: memory_packet
 schema_version: v0
