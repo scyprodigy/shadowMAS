@@ -706,6 +706,23 @@ def validate_payload_repr(data: dict[str, Any], file_name: str) -> list[Validati
     return []
 
 
+def validate_cost_trace(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    if "cost_trace" not in data:
+        return []
+    value = data["cost_trace"]
+    if not isinstance(value, dict):
+        return [
+            make_error(
+                "INVALID_COST_TRACE",
+                file_name,
+                "cost_trace",
+                "$.cost_trace",
+                "cost_trace must be an object when present",
+            )
+        ]
+    return []
+
+
 def validate_promotion_candidate(data: dict[str, Any], file_name: str) -> list[ValidationError]:
     value = data.get("promotion_candidate")
     if value is None:
@@ -823,6 +840,7 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     errors.extend(validate_created_at(data, file_name))
     errors.extend(validate_packet_uid(data, file_name))
     errors.extend(validate_payload_repr(data, file_name))
+    errors.extend(validate_cost_trace(data, file_name))
     if packet_type == "review_packet":
         errors.extend(validate_review_recommendation(data, file_name))
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
