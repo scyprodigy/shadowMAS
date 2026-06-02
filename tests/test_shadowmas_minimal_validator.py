@@ -287,11 +287,14 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
         self.addCleanup(tmp_path.unlink, missing_ok=True)
         return run_packet_validator(tmp_path)
 
-    def _run_task_packet_with_inputs(self, lines):
-        text = VALID_TASK_PACKET.read_text(encoding="utf-8") + "\n" + "\n".join(lines) + "\n"
+    def _run_packet_with_inputs(self, fixture_path, lines):
+        text = fixture_path.read_text(encoding="utf-8") + "\n" + "\n".join(lines) + "\n"
         tmp_path = write_temp_packet(text)
         self.addCleanup(tmp_path.unlink, missing_ok=True)
         return run_packet_validator(tmp_path)
+
+    def _run_task_packet_with_inputs(self, lines):
+        return self._run_packet_with_inputs(VALID_TASK_PACKET, lines)
 
     def test_review_packet_recommendation_enum_values_pass(self):
         base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
@@ -975,9 +978,9 @@ promotion_snapshot: invalid-for-review-packet
     def test_task_packet_inputs_valid_objects_pass(self):
         cases = {
             "empty_object": ["inputs: {}"],
-            "trust_class_not_validated": [
+            "without_trust_class": [
                 "inputs:",
-                "  trust_class: unknown_value",
+                "  required_context: []",
             ],
         }
         for name, lines in cases.items():
@@ -1092,6 +1095,71 @@ promotion_snapshot: invalid-for-review-packet
                 self.assertIn("ERROR INVALID_INPUTS", result.stdout)
                 self.assertIn(f"field: {field}", result.stdout)
                 self.assertIn(f"path: $.inputs.{field}[0]", result.stdout)
+
+    def test_task_packet_inputs_trust_class_valid_values_pass(self):
+        for trust_class in ("trusted", "external", "adversarial_assumed"):
+            with self.subTest(trust_class=trust_class):
+                result = self._run_task_packet_with_inputs(
+                    [
+                        "inputs:",
+                        f"  trust_class: {trust_class}",
+                    ]
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_task_packet_inputs_trust_class_invalid_values_fail(self):
+        cases = {
+            "yaml_yes": "yes",
+            "boolean": "true",
+            "unknown": "unknown",
+            "empty": '""',
+            "whitespace": '"   "',
+            "integer": "123",
+            "list": "[]",
+            "map": "{}",
+            "null": "null",
+        }
+        for name, raw_value in cases.items():
+            with self.subTest(name=name):
+                result = self._run_task_packet_with_inputs(
+                    [
+                        "inputs:",
+                        f"  trust_class: {raw_value}",
+                    ]
+                )
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_INPUTS", result.stdout)
+                self.assertIn("field: trust_class", result.stdout)
+                self.assertIn("path: $.inputs.trust_class", result.stdout)
+
+    def test_task_packet_inputs_trust_class_validation_is_task_only(self):
+        lines = [
+            "inputs:",
+            "  trust_class: unknown",
+        ]
+        cases = {
+            "review_packet": VALID_REVIEW_PACKET,
+            "memory_packet": VALID_MEMORY_PACKET,
+        }
+        for name, fixture in cases.items():
+            with self.subTest(name=name):
+                result = self._run_packet_with_inputs(fixture, lines)
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
 
     def test_source_refs_valid_source_path_and_source_id_locators_pass(self):
         cases = {

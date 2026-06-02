@@ -104,6 +104,7 @@ SUPERVISION_MODE_VALUES = {"human_live_pair", "human_available_delegate", "human
 RISK_VALUES = {"r0_trivial", "r1_routine", "r2_guarded", "r3_sensitive", "r4_human_only"}
 RFC3339_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 PROMOTION_CANDIDATE_VALUES = {"yes", "no"}
+TRUST_CLASS_VALUES = {"trusted", "external", "adversarial_assumed"}
 SOURCE_REF_STRING_FIELDS = {
     "source_type",
     "source_id",
@@ -782,6 +783,19 @@ def validate_task_packet_fields(data: dict[str, Any], file_name: str) -> list[Va
                         f"inputs.{field} items must be non-empty strings",
                     )
                 )
+    if "trust_class" in value:
+        trust_class = value["trust_class"]
+        if not isinstance(trust_class, str) or trust_class not in TRUST_CLASS_VALUES:
+            allowed = ", ".join(sorted(TRUST_CLASS_VALUES))
+            errors.append(
+                make_error(
+                    "INVALID_INPUTS",
+                    file_name,
+                    "trust_class",
+                    "$.inputs.trust_class",
+                    f"inputs.trust_class must be one of: {allowed}",
+                )
+            )
     return errors
 
 
