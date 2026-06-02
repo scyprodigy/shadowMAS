@@ -115,6 +115,8 @@ SOURCE_REF_STRING_FIELDS = {
 }
 
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}
+HANDOFF_REQUIRED_STRING_FIELDS = {"to_role", "needed_action", "reason"}
+HANDOFF_REQUIRED_LIST_FIELDS = {"resume_from", "blockers"}
 
 
 @dataclass
@@ -550,7 +552,7 @@ def validate_handoff(data: dict[str, Any], file_name: str) -> list[ValidationErr
         ]
 
     errors: list[ValidationError] = []
-    for field in ("to_role", "needed_action", "reason", "resume_from", "blockers"):
+    for field in HANDOFF_REQUIRED_STRING_FIELDS | HANDOFF_REQUIRED_LIST_FIELDS:
         if field not in handoff or handoff[field] is None:
             errors.append(
                 make_error(
@@ -562,26 +564,46 @@ def validate_handoff(data: dict[str, Any], file_name: str) -> list[ValidationErr
                 )
             )
 
-    if "resume_from" in handoff and not isinstance(handoff["resume_from"], list):
-        errors.append(
-            make_error(
-                "INVALID_HANDOFF_SHAPE",
-                file_name,
-                "resume_from",
-                "$.handoff.resume_from",
-                "handoff.resume_from must be a list",
+    for field in HANDOFF_REQUIRED_STRING_FIELDS:
+        if field in handoff and handoff[field] is not None:
+            value = handoff[field]
+            if not isinstance(value, str) or not value.strip():
+                errors.append(
+                    make_error(
+                        "INVALID_HANDOFF_SHAPE",
+                        file_name,
+                        field,
+                        f"$.handoff.{field}",
+                        f"handoff.{field} must be a non-empty string",
+                    )
+                )
+
+    for field in HANDOFF_REQUIRED_LIST_FIELDS:
+        if field not in handoff or handoff[field] is None:
+            continue
+        value = handoff[field]
+        if not isinstance(value, list):
+            errors.append(
+                make_error(
+                    "INVALID_HANDOFF_SHAPE",
+                    file_name,
+                    field,
+                    f"$.handoff.{field}",
+                    f"handoff.{field} must be a list",
+                )
             )
-        )
-    if "blockers" in handoff and not isinstance(handoff["blockers"], list):
-        errors.append(
-            make_error(
-                "INVALID_HANDOFF_SHAPE",
-                file_name,
-                "blockers",
-                "$.handoff.blockers",
-                "handoff.blockers must be a list",
-            )
-        )
+            continue
+        for index, item in enumerate(value):
+            if not isinstance(item, str) or not item.strip():
+                errors.append(
+                    make_error(
+                        "INVALID_HANDOFF_SHAPE",
+                        file_name,
+                        field,
+                        f"$.handoff.{field}[{index}]",
+                        f"handoff.{field} items must be non-empty strings",
+                    )
+                )
 
     for field in DEPRECATED_HANDOFF_FIELDS:
         if field in handoff:
