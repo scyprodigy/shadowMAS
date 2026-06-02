@@ -281,6 +281,12 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
         self.addCleanup(tmp_path.unlink, missing_ok=True)
         return run_packet_validator(tmp_path)
 
+    def _run_packet_with_data_class(self, fixture_path, raw_value):
+        text = fixture_path.read_text(encoding="utf-8") + f"\ndata_class: {raw_value}\n"
+        tmp_path = write_temp_packet(text)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+        return run_packet_validator(tmp_path)
+
     def test_review_packet_recommendation_enum_values_pass(self):
         base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
 
@@ -921,6 +927,44 @@ promotion_snapshot: invalid-for-review-packet
                 self.assertIn("ERROR INVALID_COST_TRACE", result.stdout)
                 self.assertIn("field: cost_trace", result.stdout)
                 self.assertIn("path: $.cost_trace", result.stdout)
+
+    def test_data_class_valid_strings_pass_for_all_packet_families(self):
+        cases = {
+            "task_preferred_public": (VALID_TASK_PACKET, "public"),
+            "review_empty": (VALID_REVIEW_PACKET, '""'),
+            "memory_unknown": (VALID_MEMORY_PACKET, "custom_unknown_value"),
+        }
+        for name, (fixture, raw_value) in cases.items():
+            with self.subTest(name=name):
+                result = self._run_packet_with_data_class(fixture, raw_value)
+
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+
+    def test_data_class_invalid_non_strings_fail(self):
+        cases = {
+            "boolean": "true",
+            "integer": "123",
+            "float": "1.5",
+            "list": "[]",
+            "map": "{}",
+            "null": "null",
+        }
+        for name, raw_value in cases.items():
+            with self.subTest(name=name):
+                result = self._run_packet_with_data_class(VALID_TASK_PACKET, raw_value)
+
+                self.assertEqual(
+                    result.returncode,
+                    1,
+                    msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                )
+                self.assertIn("ERROR INVALID_DATA_CLASS", result.stdout)
+                self.assertIn("field: data_class", result.stdout)
+                self.assertIn("path: $.data_class", result.stdout)
 
     def test_source_refs_valid_source_path_and_source_id_locators_pass(self):
         cases = {
