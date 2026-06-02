@@ -658,6 +658,61 @@ def validate_promotion_candidate(data: dict[str, Any], file_name: str) -> list[V
     return []
 
 
+def validate_memory_packet_fields(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    errors: list[ValidationError] = []
+
+    confidence = data.get("confidence")
+    if confidence is not None:
+        if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
+            errors.append(
+                make_error(
+                    "INVALID_CONFIDENCE",
+                    file_name,
+                    "confidence",
+                    "$.confidence",
+                    "confidence must be a number between 0.0 and 1.0",
+                )
+            )
+        elif confidence < 0.0 or confidence > 1.0:
+            errors.append(
+                make_error(
+                    "INVALID_CONFIDENCE",
+                    file_name,
+                    "confidence",
+                    "$.confidence",
+                    "confidence must be between 0.0 and 1.0 inclusive",
+                )
+            )
+
+    memory_kind = data.get("memory_kind")
+    if memory_kind is not None and (not isinstance(memory_kind, str) or not memory_kind.strip()):
+        errors.append(
+            make_error(
+                "INVALID_MEMORY_KIND",
+                file_name,
+                "memory_kind",
+                "$.memory_kind",
+                "memory_kind must be a non-empty string",
+            )
+        )
+
+    memory_scope = data.get("memory_scope")
+    if memory_scope is not None and (
+        not isinstance(memory_scope, str) or not memory_scope.strip()
+    ):
+        errors.append(
+            make_error(
+                "INVALID_MEMORY_SCOPE",
+                file_name,
+                "memory_scope",
+                "$.memory_scope",
+                "memory_scope must be a non-empty string",
+            )
+        )
+
+    return errors
+
+
 def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str | None]:
     file_name = str(path)
     if not isinstance(data, dict):
@@ -707,6 +762,7 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
         errors.extend(validate_review_promotion_snapshot(data, file_name))
     if packet_type == "memory_packet":
+        errors.extend(validate_memory_packet_fields(data, file_name))
         errors.extend(validate_promotion_candidate(data, file_name))
     errors.extend(validate_source_refs(data, file_name))
     errors.extend(validate_artifact_refs(data, file_name))
