@@ -689,6 +689,23 @@ def validate_packet_uid(data: dict[str, Any], file_name: str) -> list[Validation
     return []
 
 
+def validate_payload_repr(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    if "payload_repr" not in data:
+        return []
+    value = data["payload_repr"]
+    if not isinstance(value, str):
+        return [
+            make_error(
+                "INVALID_PAYLOAD_REPR",
+                file_name,
+                "payload_repr",
+                "$.payload_repr",
+                "payload_repr must be a string when present",
+            )
+        ]
+    return []
+
+
 def validate_promotion_candidate(data: dict[str, Any], file_name: str) -> list[ValidationError]:
     value = data.get("promotion_candidate")
     if value is None:
@@ -805,6 +822,7 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     errors.extend(validate_risk(data, file_name))
     errors.extend(validate_created_at(data, file_name))
     errors.extend(validate_packet_uid(data, file_name))
+    errors.extend(validate_payload_repr(data, file_name))
     if packet_type == "review_packet":
         errors.extend(validate_review_recommendation(data, file_name))
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
