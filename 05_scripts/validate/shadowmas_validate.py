@@ -723,6 +723,23 @@ def validate_cost_trace(data: dict[str, Any], file_name: str) -> list[Validation
     return []
 
 
+def validate_data_class(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    if "data_class" not in data:
+        return []
+    value = data["data_class"]
+    if not isinstance(value, str):
+        return [
+            make_error(
+                "INVALID_DATA_CLASS",
+                file_name,
+                "data_class",
+                "$.data_class",
+                "data_class must be a string when present",
+            )
+        ]
+    return []
+
+
 def validate_promotion_candidate(data: dict[str, Any], file_name: str) -> list[ValidationError]:
     value = data.get("promotion_candidate")
     if value is None:
@@ -841,6 +858,7 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     errors.extend(validate_packet_uid(data, file_name))
     errors.extend(validate_payload_repr(data, file_name))
     errors.extend(validate_cost_trace(data, file_name))
+    errors.extend(validate_data_class(data, file_name))
     if packet_type == "review_packet":
         errors.extend(validate_review_recommendation(data, file_name))
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
