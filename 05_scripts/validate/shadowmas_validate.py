@@ -740,6 +740,23 @@ def validate_data_class(data: dict[str, Any], file_name: str) -> list[Validation
     return []
 
 
+def validate_task_packet_fields(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    if "inputs" not in data:
+        return []
+    value = data["inputs"]
+    if not isinstance(value, dict):
+        return [
+            make_error(
+                "INVALID_INPUTS",
+                file_name,
+                "inputs",
+                "$.inputs",
+                "inputs must be an object when present",
+            )
+        ]
+    return []
+
+
 def validate_promotion_candidate(data: dict[str, Any], file_name: str) -> list[ValidationError]:
     value = data.get("promotion_candidate")
     if value is None:
@@ -859,6 +876,8 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     errors.extend(validate_payload_repr(data, file_name))
     errors.extend(validate_cost_trace(data, file_name))
     errors.extend(validate_data_class(data, file_name))
+    if packet_type == "task_packet":
+        errors.extend(validate_task_packet_fields(data, file_name))
     if packet_type == "review_packet":
         errors.extend(validate_review_recommendation(data, file_name))
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
