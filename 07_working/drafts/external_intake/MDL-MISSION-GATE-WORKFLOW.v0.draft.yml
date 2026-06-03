@@ -45,6 +45,18 @@ gate_result_model:
   on_flag: "bounce to reporter; NOT absorbed until resubmitted clean"
   on_reject: "not accepted; no candidate created"
 
+# --- 3b. Malformed / missing / unparseable field defaults ------------------
+# Authority fields are never inferred from prose; parse failure fails closed.
+malformed_or_missing_field_default:
+  requested_shadow_action_missing_malformed_duplicated_or_unparseable: reject
+  claim_ceiling_missing_malformed_duplicated_or_unparseable: reject
+  required_form_fields_not_extractable_from_issue_body: reject
+  optional_field_malformed_but_not_security_sensitive: flag_for_human_review
+  parsing_fails_in_a_way_that_prevents_safe_classification: reject
+  never_infer_missing_authority_fields_from_prose: true
+  never_auto_upgrade_claim_ceiling_or_requested_shadow_action_from_prose: true
+  rule: "fail closed; when in doubt about authority fields, reject"
+
 # --- 4. Allowed enums ------------------------------------------------------
 allowed_enums:
   claim_ceiling:                 # height only; maximum reachable = candidate
@@ -101,6 +113,7 @@ hard_reject:
     - canonical_promotion_request
     - runtime_behavior_change_request
   backstop: "even if a semantic request is missed, claim_ceiling<=candidate caps authority structurally"
+  detection_mode: best_effort   # see best_effort_detection section; structural cap is the guarantee, not detection
 
 # --- 7. Flag checks (fixable; flag only if NO hard_reject present) ----------
 flag_for_human_review_when:
@@ -150,6 +163,28 @@ evidence_validation:
   seam_contract: "<=3 lines, abstract signature/shape; prose => flag"
   test: "if content could be applied as a change, it is a diff, not evidence"
 
+# --- best-effort detection vs structural authority guarantee ---------------
+best_effort_detection:
+  best_effort:
+    - secret_detection
+    - credential_detection
+    - raw_log_or_stack_trace_detection
+    - diff_patch_or_schema_edit_detection
+    - workflow_graph_detection
+    - semantic_authority_ban_detection
+  purpose: "best-effort detection reduces reviewer noise and downstream pollution"
+  not_the_guarantee: "best-effort detection is NOT the authority guarantee"
+  structural_guarantee: "claim_ceiling <= candidate plus human-gated review"
+  even_if_detection_misses_prose_level_pollution_packet_still_cannot_become:
+    - canonical_truth
+    - schema_change
+    - memory_ingestion
+    - runtime_behavior_change
+    - glossary_promotion
+    - product_repo_write_back
+    - authority_approval
+    - task_verification
+
 # --- 9. Label plan (label -> trigger) --------------------------------------
 labels:
   mdl-gate-pass: "result == pass"
@@ -160,6 +195,10 @@ labels:
   contains-denied-request: "semantic-ban reject (do not quote content)"
   contains-sensitive-content: "secret/log reject (apply WITHOUT quoting content)"
   action-ceiling-mismatch: "consistency flag"
+  malformed-packet: "structurally malformed packet (reject or flag per field type)"
+  missing-required-field: "a required authority/form field is absent -> reject"
+  unparseable-intake: "issue body could not be parsed into packet fields -> reject"
+  best-effort-detection: "advisory marker: a best-effort detector fired"
 
 # --- 10. Bot comment templates (safe; never quote secrets/raw content) ------
 comment_templates:
@@ -176,10 +215,16 @@ comment_templates:
     or denied requests.
   sensitive_addendum: |
     If you posted a secret or credential, rotate it now — this issue is public.
+  malformed_or_missing: |
+    Gate: reject - required packet fields are missing, malformed, or could not be
+    parsed from the issue body. Please resubmit using the issue-form fields
+    (one bounded observation). No content quoted.
   rules:
+    - never_quote_malformed_raw_input
     - never_quote_suspected_secrets
     - never_echo_raw_rejected_content
-    - on_sensitive_detection_instruct_reporter_to_rotate_exposed_credentials
+    - for_malformed_required_fields_ask_reporter_to_resubmit_using_issue_form_fields
+    - for_suspected_sensitive_content_advise_credential_rotation_without_echoing_content
 
 # --- 11. Security note -----------------------------------------------------
 security_note:
