@@ -24,6 +24,14 @@ shadowMAS is in controlled-alpha state. You can evaluate its current public surf
 
 Clone shadowMAS into a directory parallel to your product repo, not inside it, for the first evaluation pass. Do not run the workspace tooling (`05_scripts/workspace/shadowmas_workspace.py`) against your product repo until after you have completed the steps below and decided that shadowMAS belongs in your working practice at all.
 
+For a one-command local smoke path, run:
+
+```bash
+python3 tools/first_user_smoke.py
+```
+
+This runs the local checks below plus a temp-only workspace attach/review flow. It does not prove production safety or authority validity.
+
 1. Enter the shadowMAS repository directory.
 
 2. Run the test suite from the repository root.
