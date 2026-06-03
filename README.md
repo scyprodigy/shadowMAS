@@ -370,13 +370,19 @@ After this loop you can also inspect the existing L2 fixtures (see Step 4 of the
 
 After the First attach loop, you have a workspace path from `where` and a validated task packet under `<workspace-path>/packets/`. This walkthrough adds the first manual review packet for that task.
 
+If `<workspace-path>` is not in view, recover it with:
+
+```bash
+python3 05_scripts/workspace/shadowmas_workspace.py where --project <product-repo-path>
+```
+
 1. Copy the valid review packet example into the workspace reviews directory.
 
    ```bash
    cp examples/packets/review_packet.valid.v0.yaml <workspace-path>/reviews/first_review_packet.v0.yaml
    ```
 
-   `<workspace-path>` is the path printed by the `where` command in the attach loop.
+   `<workspace-path>/reviews/` is inside the external shadowMAS workspace. It is not inside the shadowMAS repo and not inside the product repo. The copied file is a manual review artifact for this attached workspace.
 
 2. Edit the copied review packet before validating. At minimum, change:
 
