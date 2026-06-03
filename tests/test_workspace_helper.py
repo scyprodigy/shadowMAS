@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -8,6 +9,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOL = REPO_ROOT / "05_scripts" / "workspace" / "shadowmas_workspace.py"
+VALIDATOR = REPO_ROOT / "05_scripts" / "validate" / "shadowmas_validate.py"
+TASK_PACKET_EXAMPLE = REPO_ROOT / "examples" / "packets" / "task_packet.valid.v0.yaml"
+REVIEW_PACKET_EXAMPLE = REPO_ROOT / "examples" / "packets" / "review_packet.valid.v0.yaml"
 
 
 def run_tool(*args, env_overrides=None):
@@ -20,6 +24,15 @@ def run_tool(*args, env_overrides=None):
         text=True,
         cwd=REPO_ROOT,
         env=env,
+    )
+
+
+def run_validator(packet_path):
+    return subprocess.run(
+        [sys.executable, str(VALIDATOR), str(packet_path)],
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
     )
 
 
@@ -98,6 +111,58 @@ class WorkspaceListDestroyTests(unittest.TestCase):
             msg=f"destroy on missing workspace must return 0; stdout:\n{d.stdout}",
         )
         self.assertIn("does not exist", d.stdout)
+
+    def test_first_attach_and_review_flow_uses_external_workspace(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            project_path = tmp_path / "product-repo"
+            project_path.mkdir()
+            env = {"XDG_DATA_HOME": str(tmp_path / "xdg")}
+
+            init = run_tool("init", "--project", str(project_path), env_overrides=env)
+            self.assertEqual(init.returncode, 0, msg=init.stderr)
+
+            where = run_tool("where", "--project", str(project_path), env_overrides=env)
+            self.assertEqual(where.returncode, 0, msg=where.stderr)
+            workspace = Path(where.stdout.strip())
+            self.assertTrue(
+                workspace.is_relative_to(Path(env["XDG_DATA_HOME"])),
+                msg=f"workspace {workspace} is not under temp XDG data root",
+            )
+
+            inspect = run_tool("inspect", "--project", str(project_path), env_overrides=env)
+            self.assertEqual(
+                inspect.returncode,
+                0,
+                msg=f"stdout:\n{inspect.stdout}\nstderr:\n{inspect.stderr}",
+            )
+
+            for name in ("packets", "reviews", "handoffs", "runs"):
+                self.assertTrue((workspace / name).is_dir(), msg=f"missing {name}/")
+
+            task_packet = workspace / "packets" / "first_attach_packet.v0.yaml"
+            review_packet = workspace / "reviews" / "first_review_packet.v0.yaml"
+            shutil.copyfile(TASK_PACKET_EXAMPLE, task_packet)
+            shutil.copyfile(REVIEW_PACKET_EXAMPLE, review_packet)
+
+            task_result = run_validator(task_packet)
+            self.assertEqual(
+                task_result.returncode,
+                0,
+                msg=f"stdout:\n{task_result.stdout}\nstderr:\n{task_result.stderr}",
+            )
+            self.assertIn("checks: passed", task_result.stdout)
+
+            review_result = run_validator(review_packet)
+            self.assertEqual(
+                review_result.returncode,
+                0,
+                msg=f"stdout:\n{review_result.stdout}\nstderr:\n{review_result.stderr}",
+            )
+            self.assertIn("checks: passed", review_result.stdout)
+
+            self.assertTrue(project_path.is_dir())
+            self.assertEqual(list(project_path.iterdir()), [])
 
 
 if __name__ == "__main__":
