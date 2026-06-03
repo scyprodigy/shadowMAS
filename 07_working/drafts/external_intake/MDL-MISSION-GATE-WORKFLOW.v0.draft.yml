@@ -1,0 +1,204 @@
+# MDL-MISSION-GATE-WORKFLOW.v0.draft | inactive draft of the external MDL mission issue gate (enforcement companion to the intake form; form collects, gate decides)
+# related: [external_intake_issue_form, mdl_mission_packet, claim_ceiling, requested_shadow_action, gate_result_model]
+# phase: external_intake_gate_draft
+#
+# ============================================================================
+# INACTIVE DRAFT ONLY — NOT INSTALLED — NOT ACTIVE — NOT PRODUCTION
+# This is a NON-ACTIVE design draft stored under 07_working/drafts/.
+# It is NOT a GitHub Actions workflow and does nothing where it lives.
+# Do NOT copy to .github/workflows/ without explicit human approval.
+# Form collects; gate decides. Nothing from an external issue becomes a
+# shadow candidate unless this gate would return `pass`.
+# ============================================================================
+
+draft_meta:
+  artifact: mdl_mission_gate
+  version: v0
+  state: inactive_draft
+  installed: false
+  active: false
+  production: false
+  do_not_copy_to: ".github/workflows/"   # requires explicit human approval first
+  principle: "form collects; gate decides"
+
+# --- 2. Trigger placeholder (INTENT ONLY — not wired, not runnable) ---------
+# Only after a human approves activation would the real workflow trigger on:
+#   on:
+#     issues:
+#       types: [opened, edited]
+# This draft intentionally defines NO runnable `on:` block and must NOT be
+# placed in .github/workflows/.
+intended_triggers_placeholder:
+  - issues.opened
+  - issues.edited
+trigger_note: "placeholder only; no runnable trigger is defined in this draft"
+
+# --- 3. Gate result model --------------------------------------------------
+gate_result_model:
+  results:
+    - pass
+    - flag_for_human_review
+    - reject
+  precedence: "reject > flag_for_human_review > pass"   # worst finding wins
+  resolution: "evaluate all rule groups, then resolve by precedence"
+  on_pass: "issue may enter human-gated candidate review (no automatic change)"
+  on_flag: "bounce to reporter; NOT absorbed until resubmitted clean"
+  on_reject: "not accepted; no candidate created"
+
+# --- 4. Allowed enums ------------------------------------------------------
+allowed_enums:
+  claim_ceiling:                 # height only; maximum reachable = candidate
+    - reject_only
+    - doc_clarification_candidate
+    - evidence_only
+    - candidate
+  requested_shadow_action:       # type/route only; exactly one per packet
+    - accept_lesson_candidate
+    - accept_verifier_edge_case
+    - accept_seam_contract_candidate
+    - accept_schema_promotion_evidence
+    - accept_doc_clarification_candidate
+    - reject_project_specific
+    - require_more_reproducible_packet
+
+# --- 5. Cross-field consistency (action => required ceiling) ----------------
+cross_field_consistency:
+  accept_schema_promotion_evidence: evidence_only
+  accept_lesson_candidate: candidate
+  accept_verifier_edge_case: candidate
+  accept_seam_contract_candidate: candidate
+  accept_doc_clarification_candidate: doc_clarification_candidate
+  reject_project_specific: reject_only
+  require_more_reproducible_packet: [reject_only, evidence_only]
+  mismatch_handling:
+    ceiling_higher_than_required: flag_for_human_review   # propose safe downgrade
+    ceiling_lower_than_required: flag_for_human_review    # downgrade action to match
+    never: auto_raise_authority
+
+# --- 6. Hard reject checks (any present => reject) --------------------------
+hard_reject:
+  structural_denied_values:
+    - denied_requested_shadow_action_value
+    - denied_claim_ceiling_value
+  sensitive_content_detected:
+    - secrets
+    - credentials
+    - raw_logs
+    - stack_traces
+    - repo_dumps
+    - workflow_graphs
+    - concrete_diffs
+    - patches
+    - schema_edits
+    - implementation_instructions
+  semantic_denied_request:        # phrase-class + request-mood (see semantic_authority_ban)
+    - memory_import_request
+    - n8n_workflow_import_request
+    - external_repo_scan_request
+    - product_repo_write_back_request
+    - authority_approval_request
+    - task_verification_request
+    - canonical_promotion_request
+    - runtime_behavior_change_request
+  backstop: "even if a semantic request is missed, claim_ceiling<=candidate caps authority structurally"
+
+# --- 7. Flag checks (fixable; flag only if NO hard_reject present) ----------
+flag_for_human_review_when:
+  - external_proper_noun_present_but_quarantine_missing      # -> needs-quarantine-fix
+  - external_terms_quarantine_contains_empty_string
+  - generalized_replacement_missing_for_quarantined_term
+  - core_field_over_max_length_but_no_secret_or_raw_log      # -> ask trim
+  - low_reproducibility_but_potentially_useful_observation   # -> needs-repro
+  - action_ceiling_mismatch_safely_downgradable              # -> action-ceiling-mismatch
+  - external_project_kind_is_other
+  - seam_contract_present_but_prose_not_concrete_signature
+
+# --- 8. Pass checks (ALL must hold) ----------------------------------------
+pass_requires:
+  - enum_values_valid
+  - action_and_ceiling_consistent
+  - core_fields_within_limits          # intent/restraint/boundary_hit/seam_gap <=200, lesson <=280
+  - no_denied_content_present
+  - external_terms_quarantined_or_correct_empty_list
+  - evidence_refs_only_allowed_forms
+  - memory_n8n_flags_do_not_raise_authority
+  - acknowledgements_complete
+
+# --- semantic authority-ban (best-effort defense-in-depth) -----------------
+semantic_authority_ban:
+  detect_request_phrase_classes:
+    - "promote to canonical"
+    - "make official"
+    - "approve this"
+    - "mark verified"
+    - "update schema"
+    - "add to glossary"
+    - "import memory"
+    - "import n8n workflow"
+    - "scan my repo"
+    - "write back to product repo"
+    - "change runtime behavior"
+  allowed: "describing or negating these is allowed"
+  rejected: "requesting these (imperative/optative, shadow as target) is rejected"
+  hard_wall: "claim_ceiling remains the hard wall; this scan only reduces reviewer noise"
+
+# --- evidence validation ---------------------------------------------------
+evidence_validation:
+  allowed: [hash, redacted_snippet_pointer, count, generalized_observation, reproducibility_note]
+  denied: [raw_logs, stack_traces, repo_dumps, workflow_graphs, concrete_diffs, patches, schema_edits, credentials, full_paths]
+  changed_paths_summary: "counts/types only; no real project paths"
+  seam_contract: "<=3 lines, abstract signature/shape; prose => flag"
+  test: "if content could be applied as a change, it is a diff, not evidence"
+
+# --- 9. Label plan (label -> trigger) --------------------------------------
+labels:
+  mdl-gate-pass: "result == pass"
+  mdl-gate-flag: "result == flag_for_human_review"
+  mdl-gate-reject: "result == reject"
+  needs-quarantine-fix: "quarantine flag"
+  needs-repro: "low-reproducibility flag"
+  contains-denied-request: "semantic-ban reject (do not quote content)"
+  contains-sensitive-content: "secret/log reject (apply WITHOUT quoting content)"
+  action-ceiling-mismatch: "consistency flag"
+
+# --- 10. Bot comment templates (safe; never quote secrets/raw content) ------
+comment_templates:
+  pass: |
+    Gate: pass. This packet may enter candidate review (claim_ceiling=<value>).
+    Nothing is applied automatically; a maintainer will triage.
+  flag_for_human_review: |
+    Gate: flag_for_human_review. Fixable: <generic issue list>.
+    Not absorbed yet — please edit and resubmit. (No content quoted.)
+  reject: |
+    Gate: reject — this packet contains a denied request or sensitive/raw
+    content and was not accepted. Details withheld to avoid echoing sensitive
+    content. Please open a new bounded packet without secrets, logs, diffs,
+    or denied requests.
+  sensitive_addendum: |
+    If you posted a secret or credential, rotate it now — this issue is public.
+  rules:
+    - never_quote_suspected_secrets
+    - never_echo_raw_rejected_content
+    - on_sensitive_detection_instruct_reporter_to_rotate_exposed_credentials
+
+# --- 11. Security note -----------------------------------------------------
+security_note:
+  - public_issue_secret_scanning_is_too_late_once_submitted
+  - gate_reduces_downstream_pollution_but_cannot_un_expose_a_posted_secret
+  - issue_form_must_warn_users_before_submission
+  - private_intake_may_be_needed_later_if_external_use_grows
+  - on_sensitive_detection_advise_rotation_and_consider_human_approved_lock_or_minimize
+
+# --- 12. Non-goals ---------------------------------------------------------
+non_goals:
+  - no_active_workflow
+  - no_production_enforcement
+  - no_external_api_calls
+  - no_secret_extraction
+  - no_repo_scan
+  - no_auto_close_unless_later_approved
+  - no_candidate_promotion_without_human_review
+
+# ============================================================================
+# END INACTIVE DRAFT — explicit human approval required before any activation.
+# ============================================================================
