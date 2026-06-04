@@ -321,11 +321,14 @@ Rules:
 - No paths.
 - No secrets.
 - No authority request language.
+- Authority request language in `external_term` or `replacement` rejects.
 - Missing replacement for a quarantined term flags for human review.
 - Empty replacement flags for human review.
 - Extra replacement entry with no matching quarantined term flags for human
   review.
-- Identity-bearing or sensitive replacement rejects.
+- Identity-bearing, sensitive, or authority-bearing replacement rejects.
+- Rejected authority-bearing replacements include `canonical rule`, `schema
+  update`, `approved behavior`, `runtime change`, and `glossary term`.
 - No glossary promotion.
 - Repeated terms across missions are evidence only, not authority.
 - External terms in `mission_id` or route enums reject rather than quarantine.
