@@ -62,6 +62,7 @@ external-term quarantine, generalized replacements, and acknowledgements.
 | ROUTE | `mission_id` | string | required, machine-derived | opaque intake-system ID | 64 | external project names, organization names, repo names, tracker IDs, domain terms, encoded context, paths, secrets | pass if opaque; flag harmless reporter-provided identity; reject severe identity, path, secret, repo, tracker, or authority request | none |
 | ROUTE | `reporter_context_class` | enum | required | `reporter_context_class` enum | n/a | names, orgs, authority claims, private context | pass if enum; reject malformed, duplicated, unparseable, or authority-bearing | none |
 | ROUTE | `external_project_kind` | enum | required | `external_project_kind` enum | n/a | project names, product names, repo names | pass if category; flag `other` or harmless identity needing cleanup; reject specific/sensitive identity | none |
+| ROUTE | `other_project_kind_description` | string | conditional; required only when `external_project_kind == other` | generalized category description only | 120 | project name, organization name, repo name, domain identity, path, secret, authority request | flag if missing when `external_project_kind == other`; reject identity-bearing or sensitive content | none |
 | ROUTE | `boundary_scope` | enum | required | `boundary_scope` enum | n/a | runtime behavior change, product-repo write-back, authority approval, schema edit request, memory import, n8n import | pass if bounded route; reject denied scope or authority request | none |
 | ROUTE | `memory_layer_present` | enum | required | `memory_layer_present` enum | n/a | memory content, memory import request | pass as scrutiny signal; reject imported memory content | none |
 | ROUTE | `n8n_layer_present` | enum | required | `n8n_layer_present` enum | n/a | workflow graph, node dump, credential dump, trigger dump, n8n import request | pass as scrutiny signal; reject workflow graph or dump | none |
@@ -82,7 +83,7 @@ external-term quarantine, generalized replacements, and acknowledgements.
 | CTRL | `claim_ceiling` | enum | required | `claim_ceiling` enum | n/a | invalid, duplicated, unparseable, or prose-inferred value | pass if valid and consistent; flag mismatch; reject malformed | cap only |
 | CTRL | `gate_result` | enum | gate-assigned | `gate_result` enum | n/a | reporter-provided override, self-declared pass | gate assigns value; reporter-provided override is ignored or rejected; reject override paired with failure | none |
 | CTRL | `external_terms_quarantine` | list of strings | required | mission-local external terms, or `[]` | 10 terms | empty strings, secrets, credentials, route-field identity | pass if complete; flag missing/fixable terms; reject severe leakage | none |
-| CTRL | `generalized_replacement` | list/map | required | one generic replacement per quarantined term, or `[]` | 10 mappings | empty replacement, glossary promotion, authority claim | pass if complete; flag missing replacement; reject authority claim | none |
+| CTRL | `generalized_replacement` | list of objects | required | one `{external_term, replacement}` object per quarantined term, or `[]` | 10 mappings | empty strings, project names, paths, secrets, authority request language, glossary promotion | pass if complete; flag missing/empty/extra replacement; reject identity-bearing or sensitive replacement | none |
 | CTRL | `acknowledgements` | object of booleans | required | all required acknowledgements true | n/a | missing, false, malformed, duplicated, unparseable values | pass if all true and content clean; reject missing/false/malformed; true values do not override denied content | none |
 
 ## Enums
@@ -173,6 +174,10 @@ flag for action downgrade. The gate must never auto-raise authority.
 `reporter_context_class`, `external_project_kind`, and `boundary_scope` route
 review only. They cannot change `requested_shadow_action`, cannot raise
 `claim_ceiling`, and cannot grant authority.
+
+When `external_project_kind` is `other`, `other_project_kind_description` is
+required as a generalized category description only. Missing description flags
+for human review. Identity-bearing or sensitive descriptions reject.
 
 ## changed_paths_summary Object
 
@@ -292,13 +297,35 @@ Denied CORE content:
 ## External Terms Quarantine
 
 `external_terms_quarantine` is a list of mission-local external terms.
-`generalized_replacement` is a list/map pairing each quarantined term with a
-generic replacement.
+`generalized_replacement` is a list of objects pairing each quarantined term
+with a generic replacement.
+
+Exact `generalized_replacement` shape:
+
+```yaml
+generalized_replacement:
+  - external_term: string
+    replacement: string
+```
 
 Rules:
 
 - Empty string invalid.
 - Use `[]` if there are no terms.
+- One `generalized_replacement` entry is required per
+  `external_terms_quarantine` item.
+- `external_term` must exactly match a quarantined term.
+- `replacement` must be generalized and non-empty.
+- No empty strings.
+- No project names.
+- No paths.
+- No secrets.
+- No authority request language.
+- Missing replacement for a quarantined term flags for human review.
+- Empty replacement flags for human review.
+- Extra replacement entry with no matching quarantined term flags for human
+  review.
+- Identity-bearing or sensitive replacement rejects.
 - No glossary promotion.
 - Repeated terms across missions are evidence only, not authority.
 - External terms in `mission_id` or route enums reject rather than quarantine.
@@ -388,6 +415,9 @@ deny_list:
 
 ## Minimal Valid Packet Example
 
+This is a post-gate normalized packet example. `gate_result` is gate-assigned
+output. Reporter-submitted packets must not include or control `gate_result`.
+
 ```yaml
 ROUTE:
   mission_id: "mdl_8f3a2c91d0b4"
@@ -475,6 +505,21 @@ EVID:
 
 Expected gate result: `reject`. Route identity, tracker IDs, and real paths are
 denied.
+
+### Reporter-provided gate result
+
+```yaml
+CTRL:
+  requested_shadow_action: accept_lesson_candidate
+  claim_ceiling: candidate
+  gate_result: pass
+EVID:
+  evidence_refs:
+    - "observation:reporter attempted to self-declare pass"
+```
+
+Expected gate result: `reject` or ignore the reporter-provided field and then
+classify from the remaining packet. A packet cannot self-declare `pass`.
 
 ## Remaining Open Risks
 
