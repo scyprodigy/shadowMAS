@@ -1,0 +1,411 @@
+# MDL-MISSION-ISSUE-TEMPLATE.v0.draft | inactive GitHub issue-form draft for external MDL mission packet intake
+# related: [EXTERNAL-MDL-MISSION-PACKET-SCHEMA, MDL-MISSION-GATE-WORKFLOW, external_intake]
+# phase: external_intake_issue_template_draft
+#
+# ============================================================================
+# INACTIVE DRAFT ONLY - NOT INSTALLED - NOT ACTIVE - NOT PRODUCTION
+# This is NOT public intake and does not enable external intake.
+# This is a draft-only GitHub issue-form shape stored under 07_working/drafts/.
+# Do NOT copy to .github/ISSUE_TEMPLATE/ without explicit human approval.
+# Form collects; gate decides. Nothing becomes a shadow candidate without gate
+# pass and human-gated review.
+# ============================================================================
+
+name: "External MDL mission packet (inactive draft)"
+description: "INACTIVE DRAFT ONLY. Bounded external feedback packet shape; not public intake."
+title: "[external-mdl] <one bounded observation>"
+labels:
+  - external-intake-draft
+  - mdl-mission-packet
+  - needs-gate
+body:
+  - type: markdown
+    id: inactive_status
+    attributes:
+      value: |
+        ## INACTIVE DRAFT ONLY
+
+        This issue-form shape is not installed, not active, not production, not public intake, not a validator, not a bot, and not a workflow.
+
+        Do not copy this draft to `.github/ISSUE_TEMPLATE/` without explicit human approval.
+
+        Form collects; gate decides. Nothing becomes a shadow candidate without gate pass and human-gated review.
+
+  - type: markdown
+    id: security_warning
+    attributes:
+      value: |
+        ## Before you submit
+
+        One packet = one bounded observation. Multi-issue reports are rejected.
+
+        Do not include secrets, credentials, raw logs, repo dumps, workflow graphs, concrete diffs, patches, schema edits, external repo scan requests, or requests for schema / glossary / memory / n8n / runtime / product write-back changes.
+
+        Public issue secret exposure happens before any gate can help. If something is sensitive, do not put it here.
+
+  - type: markdown
+    id: route_header
+    attributes:
+      value: |
+        ## ROUTE
+
+        ROUTE fields route review only. They do not grant authority. Memory and n8n fields raise review cost and redaction scrutiny only.
+
+  - type: dropdown
+    id: reporter_context_class
+    attributes:
+      label: "reporter_context_class"
+      description: "Advisory routing only."
+      options:
+        - external_user
+        - integrator
+        - maintainer_proxy
+        - anonymous_external
+        - internal_shadow_reviewer
+        - agent_scratch_run
+        - ci_run
+    validations:
+      required: true
+
+  - type: dropdown
+    id: external_project_kind
+    attributes:
+      label: "external_project_kind"
+      description: "Category only. Do not enter a project, product, organization, or repo name."
+      options:
+        - api_service
+        - web_app
+        - workflow_automation
+        - data_pipeline
+        - ai_agent_system
+        - library_framework
+        - documentation_site
+        - cli
+        - other
+    validations:
+      required: true
+
+  - type: input
+    id: other_project_kind_description
+    attributes:
+      label: "other_project_kind_description"
+      description: "Required by the gate only when external_project_kind == other. GitHub forms may not enforce this. Max 120 characters, generalized category only."
+      placeholder: "generalized category, no project names"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: boundary_scope
+    attributes:
+      label: "boundary_scope"
+      description: "Triage route only. No runtime change, write-back, approval, schema edit, memory import, or n8n import request."
+      options:
+        - shadow_docs_only
+        - shadow_verifier_only
+        - shadow_contract_only
+        - shadow_schema_evidence_only
+        - shadow_evidence_only
+        - reject_only
+    validations:
+      required: true
+
+  - type: dropdown
+    id: memory_layer_present
+    attributes:
+      label: "memory_layer_present"
+      description: "Raises review cost only; does not permit memory import or raise authority."
+      options:
+        - none
+        - light
+        - heavy
+    validations:
+      required: true
+
+  - type: dropdown
+    id: n8n_layer_present
+    attributes:
+      label: "n8n_layer_present"
+      description: "Raises review cost only; do not include workflow graphs, nodes, credentials, or triggers."
+      options:
+        - "no"
+        - "yes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility_level
+    attributes:
+      label: "reproducibility_level"
+      description: "Affects confidence only; cannot raise authority."
+      options:
+        - none
+        - once
+        - steps
+        - deterministic
+    validations:
+      required: true
+
+  - type: markdown
+    id: evid_header
+    attributes:
+      value: |
+        ## EVID
+
+        EVID fields are bounded evidence pointers and summaries only. Do not paste raw artifacts.
+
+  - type: textarea
+    id: task_goal
+    attributes:
+      label: "task_goal"
+      description: "Generalized goal, max 200 characters. No project identity or authority request."
+      placeholder: "What bounded task goal was involved?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: observed_failure
+    attributes:
+      label: "observed_failure"
+      description: "Generalized symptom, max 280 characters. No raw logs, traces, paths, or dumps."
+      placeholder: "What failed, in generalized terms?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: "expected_behavior"
+      description: "Generalized expected behavior, max 200 characters."
+      placeholder: "What should have happened?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: "actual_behavior"
+      description: "Generalized actual behavior, max 280 characters. No raw logs or paths."
+      placeholder: "What happened instead?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: changed_paths_summary
+    attributes:
+      label: "changed_paths_summary"
+      description: "Counts/types only. No real paths, absolute paths, project names, file contents, or diffs."
+      value: |
+        own_scope_changed_count:
+        forbidden_scope_changed_count:
+        contested_scope_changed_count:
+        untracked_count:
+        deleted_count:
+        renamed_or_moved_count:
+        summary_note:
+    validations:
+      required: false
+
+  - type: textarea
+    id: seam_contract
+    attributes:
+      label: "seam_contract"
+      description: "Max 3 abstract lines. Concrete generalized signature/shape only. No real API names, secrets, prose body, or implementation."
+      placeholder: "validate(input: GeneralInput) -> ValidationResult"
+    validations:
+      required: false
+
+  - type: textarea
+    id: evidence_refs
+    attributes:
+      label: "evidence_refs"
+      description: "Tagged pointers only. Allowed: hash:<algorithm>:<value>, redacted_snippet_ref:<id>, count:<name>=<number>, repro_note:<short note>, observation:<short observation>."
+      placeholder: |
+        count:observed_cases=1
+        repro_note:generalized reproduction note
+    validations:
+      required: true
+
+  - type: markdown
+    id: core_header
+    attributes:
+      value: |
+        ## CORE
+
+        CORE is bounded human residual only. No authority/promotion request language and no unquarantined external terms.
+
+  - type: textarea
+    id: intent
+    attributes:
+      label: "intent"
+      description: "Required. Max 200 characters."
+      placeholder: "What were you trying to surface?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: restraint
+    attributes:
+      label: "restraint"
+      description: "Max 200 characters. Required if an out-of-scope temptation occurred."
+      placeholder: "What did you avoid including or doing?"
+    validations:
+      required: false
+
+  - type: textarea
+    id: boundary_hit
+    attributes:
+      label: "boundary_hit"
+      description: "Max 200 characters. Required if a boundary was reached."
+      placeholder: "What boundary was reached?"
+    validations:
+      required: false
+
+  - type: textarea
+    id: seam_gap
+    attributes:
+      label: "seam_gap"
+      description: "Max 200 characters. Required if a seam was involved."
+      placeholder: "What generalized seam gap appeared?"
+    validations:
+      required: false
+
+  - type: textarea
+    id: shadow_candidate_lesson
+    attributes:
+      label: "shadow_candidate_lesson"
+      description: "Required. Max 280 characters. Generalized lesson only; no promotion or authority request."
+      placeholder: "What bounded lesson might shadowMAS consider?"
+    validations:
+      required: true
+
+  - type: markdown
+    id: ctrl_header
+    attributes:
+      value: |
+        ## CTRL
+
+        CTRL caps authority and records requested disposition, quarantine, and acknowledgements.
+
+        `gate_result` is gate-assigned output and must not be reporter-submitted. This form intentionally does not include `gate_result`.
+
+  - type: dropdown
+    id: requested_shadow_action
+    attributes:
+      label: "requested_shadow_action"
+      description: "Requested disposition. The gate enforces consistency with claim_ceiling."
+      options:
+        - accept_lesson_candidate
+        - accept_verifier_edge_case
+        - accept_seam_contract_candidate
+        - accept_schema_promotion_evidence
+        - accept_doc_clarification_candidate
+        - reject_project_specific
+        - require_more_reproducible_packet
+    validations:
+      required: true
+
+  - type: dropdown
+    id: claim_ceiling
+    attributes:
+      label: "claim_ceiling"
+      description: "Maximum possible authority. The structural cap is claim_ceiling <= candidate plus human-gated review."
+      options:
+        - reject_only
+        - doc_clarification_candidate
+        - evidence_only
+        - candidate
+    validations:
+      required: true
+
+  - type: markdown
+    id: cross_field_help
+    attributes:
+      value: |
+        ## Cross-field consistency
+
+        The gate enforces these relationships. The form alone does not enforce all constraints.
+
+        - accept_schema_promotion_evidence => evidence_only
+        - accept_lesson_candidate => candidate
+        - accept_verifier_edge_case => candidate
+        - accept_seam_contract_candidate => candidate
+        - accept_doc_clarification_candidate => doc_clarification_candidate
+        - reject_project_specific => reject_only
+        - require_more_reproducible_packet => reject_only or evidence_only
+
+  - type: textarea
+    id: external_terms_quarantine
+    attributes:
+      label: "external_terms_quarantine"
+      description: "Mission-local external terms only. Use [] if none. Empty string invalid. No glossary promotion."
+      value: |
+        []
+    validations:
+      required: true
+
+  - type: textarea
+    id: generalized_replacement
+    attributes:
+      label: "generalized_replacement"
+      description: "List of objects with external_term and replacement. One replacement per quarantined term."
+      value: |
+        []
+      placeholder: |
+        - external_term: "external term"
+          replacement: "generic replacement"
+    validations:
+      required: true
+
+  - type: markdown
+    id: replacement_help
+    attributes:
+      value: |
+        `replacement` must be generalized, non-empty, and non-authority-bearing.
+
+        Rejected replacements include `canonical rule`, `schema update`, `approved behavior`, `runtime change`, and `glossary term`.
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: "acknowledgements"
+      description: "All acknowledgements are required. Acknowledgements do not override denied content."
+      options:
+        - label: "This is exactly one bounded observation."
+          required: true
+        - label: "I am not requesting schema change, glossary promotion, memory import, n8n workflow import, runtime behavior change, product repo write-back, repo scan, authority approval, or task verification."
+          required: true
+        - label: "This packet contains no secrets, credentials, raw logs, repo dumps, workflow graphs, concrete diffs, patches, or schema edits."
+          required: true
+        - label: "External terms are quarantined and generalized."
+          required: true
+        - label: "I understand the gate may pass, flag, or reject this packet."
+          required: true
+
+  - type: markdown
+    id: gate_behavior
+    attributes:
+      value: |
+        ## Gate behavior
+
+        - pass: enters candidate review.
+        - flag_for_human_review: fixable issue; not absorbed yet.
+        - reject: denied content or denied request.
+        - Precedence: reject > flag_for_human_review > pass.
+
+        Detection of secrets, logs, diffs, workflow graphs, and semantic authority requests is best-effort defense-in-depth only.
+
+        `claim_ceiling <= candidate` plus human-gated review is the structural authority cap.
+
+  - type: markdown
+    id: non_goals
+    attributes:
+      value: |
+        ## Non-goals
+
+        - no active public intake
+        - no validator
+        - no bot
+        - no workflow
+        - no automatic candidate promotion
+        - no automatic schema / glossary / memory / runtime change
+        - no product repo write-back
