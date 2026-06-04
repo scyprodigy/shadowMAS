@@ -41,6 +41,7 @@ gate_result_model:
     - reject
   precedence: "reject > flag_for_human_review > pass"   # worst finding wins
   resolution: "evaluate all rule groups, then resolve by precedence"
+  ownership: "gate-assigned output; reporter-provided gate_result cannot self-declare pass"
   on_pass: "issue may enter human-gated candidate review (no automatic change)"
   on_flag: "bounce to reporter; NOT absorbed until resubmitted clean"
   on_reject: "not accepted; no candidate created"
@@ -112,6 +113,9 @@ hard_reject:
     - task_verification_request
     - canonical_promotion_request
     - runtime_behavior_change_request
+    - authority_bearing_other_project_kind_description
+    - authority_bearing_generalized_replacement
+    - authority_request_language_in_external_term_or_replacement
   backstop: "even if a semantic request is missed, claim_ceiling<=candidate caps authority structurally"
   detection_mode: best_effort   # see best_effort_detection section; structural cap is the guarantee, not detection
 
@@ -120,22 +124,75 @@ flag_for_human_review_when:
   - external_proper_noun_present_but_quarantine_missing      # -> needs-quarantine-fix
   - external_terms_quarantine_contains_empty_string
   - generalized_replacement_missing_for_quarantined_term
+  - generalized_replacement_empty_replacement
+  - generalized_replacement_extra_unmatched_entry
   - core_field_over_max_length_but_no_secret_or_raw_log      # -> ask trim
   - low_reproducibility_but_potentially_useful_observation   # -> needs-repro
   - action_ceiling_mismatch_safely_downgradable              # -> action-ceiling-mismatch
-  - external_project_kind_is_other
+  - external_project_kind_other_missing_generalized_description
   - seam_contract_present_but_prose_not_concrete_signature
 
 # --- 8. Pass checks (ALL must hold) ----------------------------------------
 pass_requires:
   - enum_values_valid
   - action_and_ceiling_consistent
+  - other_project_kind_description_valid_when_required
   - core_fields_within_limits          # intent/restraint/boundary_hit/seam_gap <=200, lesson <=280
   - no_denied_content_present
   - external_terms_quarantined_or_correct_empty_list
+  - generalized_replacement_shape_valid_or_correct_empty_list
   - evidence_refs_only_allowed_forms
   - memory_n8n_flags_do_not_raise_authority
   - acknowledgements_complete
+
+# --- ROUTE validation alignment -------------------------------------------
+route_validation:
+  external_project_kind_other:
+    allowed_only_when: other_project_kind_description_present
+    description_shape:
+      type: string
+      max_length: 120
+      content: generalized_category_like_description_only
+    missing_description: flag_for_human_review
+    denied_description_content:
+      - project_name
+      - organization_name
+      - repo_name
+      - domain_identity
+      - path_like_string
+      - secret
+      - sensitive_content
+      - authority_request_language
+    denied_description_handling: reject
+    authority_effect: none
+
+# --- external term replacement validation ----------------------------------
+generalized_replacement_validation:
+  representation: list_of_objects
+  object_shape:
+    external_term: string
+    replacement: string
+  cardinality: "one replacement per external_terms_quarantine item"
+  external_term_rule: "must exactly match a quarantined term"
+  replacement_rule: "generalized and non-empty"
+  flag_for_human_review_when:
+    - missing_replacement_for_quarantined_term
+    - empty_replacement
+    - extra_replacement_entry_without_matching_quarantined_term
+  reject_when:
+    - identity_bearing_replacement
+    - sensitive_replacement
+    - path_like_replacement
+    - authority_bearing_replacement
+    - authority_request_language_in_external_term
+    - authority_request_language_in_replacement
+  rejected_authority_bearing_replacement_examples:
+    - "canonical rule"
+    - "schema update"
+    - "approved behavior"
+    - "runtime change"
+    - "glossary term"
+  authority_effect: none
 
 # --- semantic authority-ban (best-effort defense-in-depth) -----------------
 semantic_authority_ban:
