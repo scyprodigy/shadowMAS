@@ -286,7 +286,9 @@ body:
 
         CTRL caps authority and records requested disposition, quarantine, and acknowledgements.
 
-        `gate_result` is gate-assigned output and must not be reporter-submitted. This form intentionally does not include `gate_result`.
+        `gate_result` is gate-assigned only and must not be reporter-submitted. This form intentionally does not include `gate_result`.
+
+        Reporter-submitted `gate_result` hard-rejects the packet. A packet cannot self-declare `pass`, `flag_for_human_review`, or `reject`.
 
   - type: dropdown
     id: requested_shadow_action

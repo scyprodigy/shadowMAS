@@ -360,7 +360,8 @@ Gate results:
 - `reject`: denied content, malformed authority fields, unparseable required
   fields, raw artifacts, secrets, diffs, repo dumps, workflow graphs, import
   requests, runtime/write-back/approval/schema/task-verification requests, or
-  attempted self-declared gate pass.
+  attempted reporter-submitted `gate_result`, including self-declared `pass`,
+  `flag_for_human_review`, or `reject`.
 
 Precedence: `reject > flag_for_human_review > pass`.
 
