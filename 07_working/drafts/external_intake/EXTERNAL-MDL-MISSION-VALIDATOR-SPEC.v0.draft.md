@@ -74,7 +74,9 @@ artifacts.
 - Duplicated authority field => `reject`.
 - Unparseable `requested_shadow_action` => `reject`.
 - Unparseable `claim_ceiling` => `reject`.
-- Reporter-provided `gate_result` => `reject`.
+- Reporter-submitted `gate_result` is malformed input and must hard-reject the
+  packet.
+- A packet cannot self-declare `pass`, `flag_for_human_review`, or `reject`.
 - Optional malformed field without sensitive content => `flag_for_human_review`.
 - Parse failure preventing safe classification => `reject`.
 - Never infer missing authority fields from prose.
@@ -304,7 +306,9 @@ content => `flag_for_human_review`.
 `gate_result`:
 
 - gate-assigned only;
-- reporter-provided `gate_result` => `reject`.
+- reporter-submitted `gate_result` is malformed input and must hard-reject the
+  packet;
+- a packet cannot self-declare `pass`, `flag_for_human_review`, or `reject`.
 
 `external_terms_quarantine`:
 
