@@ -1,0 +1,19 @@
+# shadowMAS CODEOWNERS
+# Encodes the ONE real enforcement gate: human git review of authority surfaces.
+# This is a social / process gate (it requires human review on these paths); it is
+# NOT runtime enforcement and makes no production-safety claim.
+#
+# NOTE: replace @scyprodigy with the actual GitHub owner/team handle(s) if different.
+
+# Canonical truth and authority-boundary contracts
+/01_truth/                       @scyprodigy
+
+# Machine-stable packet contract surfaces
+/02_packets/                     @scyprodigy
+
+# Machine registries (file-status, candidates)
+/03_memory/registry/             @scyprodigy
+
+# Governance hooks and ownership itself
+/.github/CODEOWNERS              @scyprodigy
+/.claude/hooks/                  @scyprodigy
