@@ -140,15 +140,18 @@ bounded, and tied to implementation state.
 This note was drafted against the following internal surfaces:
 
 - `README.md`
-- `SHADOWMAS-CURRENT-TRUTH`
-- `SHADOWMAS-TARGET-TRUTH`
-- `SHADOWMAS-GOVERNANCE-MATRIX`
-- `SHADOWMAS-PROMPT-LAYERING-CONTRACT`
-- `PACKET-FIELD-DICTIONARY`
-- `MEMORY-PLANE-HARNESS`
-- `SHADOWMAS-RUNTIME-LOADING-MAP`
-- `SHADOWMAS-OPERATOR-GUIDE`
-- `SHADOWMAS-MANIFESTO-DRAFT`
+- `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
+- `01_truth/SHADOWMAS-TARGET-TRUTH.v0.en.md`
+- `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`
+- `01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md`
+- `02_packets/PACKET-FIELD-DICTIONARY.v0.en.md`
+- `03_memory/MEMORY-PLANE-HARNESS.v0.en.md`
+- `04_runtime/SHADOWMAS-RUNTIME-LOADING-MAP.v0.en.md`
+- `04_runtime/LOCAL-MODEL-BASELINE.v0.en.md`
+- `06_human_docs/en/onboarding/SHADOWMAS-OPERATOR-GUIDE.v0.en.md`
+- `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
+- `07_working/drafts/rationale/SHADOWMAS-MANIFESTO-DRAFT.v0.md`
+- `07_working/drafts/rationale/mdl_compressive_refinement_rationale.md`
 
 These filenames are cited as internal evidence only. This note does not update
 or supersede them.
