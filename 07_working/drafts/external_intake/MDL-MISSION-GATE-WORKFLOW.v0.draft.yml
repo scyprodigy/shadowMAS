@@ -41,7 +41,7 @@ gate_result_model:
     - reject
   precedence: "reject > flag_for_human_review > pass"   # worst finding wins
   resolution: "evaluate all rule groups, then resolve by precedence"
-  ownership: "gate-assigned output; reporter-provided gate_result cannot self-declare pass"
+  ownership: "gate-assigned output only; reporter-submitted gate_result is malformed input and hard-rejects the packet; packet cannot self-declare pass, flag, or reject"
   on_pass: "issue may enter human-gated candidate review (no automatic change)"
   on_flag: "bounce to reporter; NOT absorbed until resubmitted clean"
   on_reject: "not accepted; no candidate created"

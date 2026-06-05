@@ -81,7 +81,7 @@ external-term quarantine, generalized replacements, and acknowledgements.
 | CORE | `shadow_candidate_lesson` | string | required | one generalized lesson | 280 | promotion request language, authority request language, schema edits, runtime changes, product write-back, unquarantined project names | pass if generalized; reject authority-seeking lesson | none |
 | CTRL | `requested_shadow_action` | enum | required | `requested_shadow_action` enum | n/a | invalid, duplicated, unparseable, or prose-inferred value | pass if valid and consistent; flag mismatch; reject malformed | none |
 | CTRL | `claim_ceiling` | enum | required | `claim_ceiling` enum | n/a | invalid, duplicated, unparseable, or prose-inferred value | pass if valid and consistent; flag mismatch; reject malformed | cap only |
-| CTRL | `gate_result` | enum | gate-assigned | `gate_result` enum | n/a | reporter-provided override, self-declared pass | gate assigns value; reporter-provided override is ignored or rejected; reject override paired with failure | none |
+| CTRL | `gate_result` | enum | gate-assigned | `gate_result` enum | n/a | reporter-submitted value, reporter-provided override, self-declared pass / flag / reject | gate assigns value only; reporter-submitted `gate_result` is malformed input and must hard-reject the packet | none |
 | CTRL | `external_terms_quarantine` | list of strings | required | mission-local external terms, or `[]` | 10 terms | empty strings, secrets, credentials, route-field identity | pass if complete; flag missing/fixable terms; reject severe leakage | none |
 | CTRL | `generalized_replacement` | list of objects | required | one `{external_term, replacement}` object per quarantined term, or `[]` | 10 mappings | empty strings, project names, paths, secrets, authority request language, glossary promotion | pass if complete; flag missing/empty/extra replacement; reject identity-bearing or sensitive replacement | none |
 | CTRL | `acknowledgements` | object of booleans | required | all required acknowledgements true | n/a | missing, false, malformed, duplicated, unparseable values | pass if all true and content clean; reject missing/false/malformed; true values do not override denied content | none |
@@ -419,7 +419,9 @@ deny_list:
 ## Minimal Valid Packet Example
 
 This is a post-gate normalized packet example. `gate_result` is gate-assigned
-output. Reporter-submitted packets must not include or control `gate_result`.
+output. Reporter-submitted packets must not include or control `gate_result`;
+reporter-submitted `gate_result` is malformed input and must hard-reject the
+packet.
 
 ```yaml
 ROUTE:
@@ -521,8 +523,9 @@ EVID:
     - "observation:reporter attempted to self-declare pass"
 ```
 
-Expected gate result: `reject` or ignore the reporter-provided field and then
-classify from the remaining packet. A packet cannot self-declare `pass`.
+Expected gate result: `reject`. Reporter-submitted `gate_result` is malformed
+input and must hard-reject the packet. A packet cannot self-declare `pass`,
+`flag_for_human_review`, or `reject`.
 
 ## Remaining Open Risks
 
