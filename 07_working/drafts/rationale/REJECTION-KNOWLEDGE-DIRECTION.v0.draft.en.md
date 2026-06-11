@@ -68,6 +68,46 @@ implementation of the shape.
 - no neuroscience or cognitive-science authority claim; the
   inhibitory-learning analogy is motivation, not evidence
 
+## Paper simulation (2026-06-11)
+Status: two strongly-shaped instances exist
+(`DECISION-no-covert-random-audit-v0`, `DECISION-no-mass-filename-rename`).
+The CURRENT-TRUTH "do not adopt early" list and WFGY position are
+rejection-shaped but weakly shaped: they carry claim, scope, and reopen
+direction, but not per-item reasons. "Strongly shaped" therefore means:
+all six fields recoverable from the record without the original
+conversation.
+
+Rendering the newest instance through the candidate shape, as a paper
+test only (not a schema, not a packet):
+
+```yaml
+rejected_claim: mass-rename existing files to a single naming convention
+rejection_scope: all tracked layers; strongest in 07_working/drafts/**;
+  single-file renames with concrete cause remain allowed
+rejection_reasons:
+  - references are load-bearing; mass rename maximizes blast radius for
+    zero semantic gain
+  - machine surfaces depend on existing prefixes (DECISION-* glob,
+    test_* discovery)
+  - git log --follow ergonomics degrade across the whole working area
+  - apparent inconsistency is path-scoped policy, not accident
+reopen_conditions:
+  - filename policy memo promoted and grandfathering clause dropped
+  - release milestone budgets a one-time normalization pass
+  - atomic rename+reference-rewrite+regeneration tooling approved
+source_refs:
+  - 07_working/drafts/rationale/DECISION-no-mass-filename-rename.v0.en.md
+  - 07_working/drafts/rationale/policy_filename_memo.md
+anti_resurrection_note: a repo audit re-flagged sanctioned mixed naming
+  as drift before reading the policy owner; this record absorbs that
+  class of rework
+```
+
+Observations from the simulation: the shape holds; `rejection_scope`
+wants to express both path scope and allowed exceptions, which suggests
+scope may need two subfields (`applies_to`, `exceptions`) when a real
+schema is drafted. No other field strained.
+
 ## Promotion path
 1. Keep authoring new rejections in the current decision-record style.
 2. When a third strongly-shaped instance exists, draft
