@@ -26,6 +26,7 @@ Start here for human takeover:
 3. the exact current intake-pack section in `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md` when you need the formal 4-file zero-memory entry set
 4. `00_entry/SHADOWMAS-LAYERING-QUICKREF.v0.en.md` when layer/source mapping is needed
 5. `04_runtime/SHADOWMAS-RUNTIME-LOADING-MAP.v0.en.md` when runtime-side loading rules matter
+6. `00_entry/DO-NOT-REDO.compiled.v0.en.md` before proposing new work — a compiled one-screen list of already-decided, deferred, and lesson-recorded items
 
 ## Folder Reading Rule
 You do not need a full folder-by-folder explanation to take over safely.
