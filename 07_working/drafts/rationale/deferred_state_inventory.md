@@ -147,6 +147,7 @@ they are listed here only as cross-references.
 
 | Surface | Tracked in |
 |---|---|
+| User/project adaptation profile implementation | `07_working/drafts/personalization/USER-PROJECT-ADAPTATION-PROFILE-SCHEMA.v0.en.md` ("Future Unlocks" + "Do Not Promote Yet") |
 | History rewrite of personal email + third-party PII | `07_working/drafts/rationale/history_pollution_residual_risk.md` |
 | Distributional calibration metadata | `07_working/drafts/rationale/calibration_framework_note.md` |
 | Active design log P5 cluster extraction | `07_working/drafts/rationale/active_design_ledger.yaml` |

@@ -91,7 +91,8 @@ By axis:
   protection, path-scoped commits)
 - **axis 3 dynamic adaptation**: **least developed**; LESSONS-QUEUE
   mechanism present with first hand-authored entries; CANDIDATE-REGISTRY
-  is hand-registered, not learned; no personalization surface exists
+  is hand-registered, not learned; personalization exists only as a
+  non-canonical schema draft under `07_working/drafts/personalization/`
 - **axis 4 memory topology**: harness specified; three plane
   placeholders intentionally unimplemented in v0; SESSION-LOG-INTEGRITY
   spec drafted; no backend selected
