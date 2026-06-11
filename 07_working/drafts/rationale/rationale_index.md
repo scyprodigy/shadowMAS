@@ -13,6 +13,7 @@
 | File | One-line purpose |
 |---|---|
 | `DECISION-no-covert-random-audit-v0.v0.en.md` | draft rationale for not building covert random audit in v0. |
+| `DECISION-no-mass-filename-rename.v0.en.md` | decision record: mixed legacy naming in working drafts stays; no mass rename. |
 | `FOUNDATION-incompleteness-and-external-authority.v0.draft.en.md` | draft rationale: why shadowMAS keeps final authority outside the formal packet system. |
 | `RATIONALE-attention-budget-review.v0.draft.en.md` | direction draft: human attention as a budgeted, schedulable review resource. |
 | `RATIONALE-calibrated-trust-gates.v0.draft.en.md` | why deterministic checks exist: trust calibration, not sustained human attention. |

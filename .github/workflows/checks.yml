@@ -44,5 +44,16 @@ jobs:
       - name: Validator-schema drift check
         run: python3 tools/check_validator_drift.py
 
+      - name: Pollution pattern scan
+        run: python3 tools/check_no_pollution.py
+
+      - name: Anchor drift check
+        run: python3 tools/check_anchor_drift.py
+
+      - name: Compiled surfaces freshness
+        run: |
+          python3 tools/build_rationale_index.py --check
+          python3 tools/build_rework_guard.py --check
+
       - name: Unit tests
         run: python3 -m unittest discover tests

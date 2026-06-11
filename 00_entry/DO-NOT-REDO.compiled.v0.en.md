@@ -21,6 +21,7 @@ re-proposing from scratch.
 ## Already decided (do not re-litigate without reopen conditions)
 
 - draft rationale for not building covert random audit in v0 — `07_working/drafts/rationale/DECISION-no-covert-random-audit-v0.v0.en.md`
+- decision record: mixed legacy naming in working drafts stays; no mass rename — `07_working/drafts/rationale/DECISION-no-mass-filename-rename.v0.en.md`
 
 ## Deferred with explicit unlock triggers (do not build early)
 
