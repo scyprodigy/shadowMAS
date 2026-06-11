@@ -115,6 +115,32 @@ listed below with its declared unlock trigger.
 - unlock trigger: registry exceeds 50 candidates OR 200 KB, OR a
   merge conflict occurs inside the registry file
 
+## Shadow genealogy (cross-owner lesson import)
+- declared purpose: let one person's lessons / memory packets be
+  imported by another owner as downgraded candidates with forced
+  re-validation, instead of inherited trust
+- v0 state: not designed; memory_packet already carries source_refs,
+  confidence, and promotion gating, which are the prerequisites
+- why deferred: solo scale has no second owner; designing import
+  semantics without a real importer invites speculation
+- unlock trigger: first real second human (collaborator or team
+  member) wants to reuse this repo's lessons, OR a fork asks for a
+  lesson-exchange format
+
+## Personal-scale incident reconstruction (forensics surface)
+- declared purpose: answer, from packet chains alone, "what did the
+  agent see, under which truth version, and who approved it" after an
+  agent-caused incident
+- v0 state: raw material exists (SESSION-LOG-INTEGRITY hash chain,
+  promotion_snapshot source hashes, packet source_refs); no
+  reconstruction surface assembles them
+- why deferred: no incident has required it; building forensics
+  before the first real reconstruction request risks designing for
+  imagined incidents
+- unlock trigger: first real incident where the owner needs to
+  reconstruct an agent decision chain, OR external liability /
+  accountability pressure reaches personal-scale agent work
+
 ## Other deferred surfaces tracked elsewhere
 For completeness, these deferrals are tracked in their own files;
 they are listed here only as cross-references.
