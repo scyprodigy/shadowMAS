@@ -19,6 +19,8 @@ Two insistences:
 
 The long-term direction is to be usable by many people with their own tools. The first concrete form is one developer running several coding agents on a local machine, who wants AI-assisted work expressed as inspectable packets without adopting a heavyweight platform.
 
+Interoperability direction: the packet's common shell is kept self-contained so that a packet can travel as a data payload inside larger transport protocols (for example, as a data part of an agent-to-agent message). This is a design constraint on the shell, not a shipped integration; v0 ships no protocol binding.
+
 It is not an agent framework, workflow/runtime engine, memory database, replacement for your project's truth, or production-safety guarantee. Today it is controlled-alpha: packet schemas, validators, fixtures, workspace helpers, and inspection surfaces — material to inspect, not a verdict to apply.
 
 # Claim Discipline

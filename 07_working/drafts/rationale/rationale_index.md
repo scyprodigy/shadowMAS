@@ -12,7 +12,7 @@
 
 | File | One-line purpose |
 |---|---|
-| `SHADOWMAS-MANIFESTO-DRAFT.v0.md` | Manifesto draft; source-evidence; explicitly no authority. |
+| `RATIONALE-calibrated-trust-gates.v0.draft.en.md` | Why deterministic checks and human gates coexist: trust calibration and attention fatigue rationale. |
 | `active_design_ledger.yaml` | Coverage ledger over the active design log; per-section disposition and extraction status. |
 | `active_log_archive_plan.yaml` | Plan-only artifact preparing the next-stage disposition of the active design log (keep / archive / delete) per the ledger's authorized next task. |
 | `active_log_move_plan.yaml` | Executed-move record for the active design log out of `01_truth/` into this folder. |

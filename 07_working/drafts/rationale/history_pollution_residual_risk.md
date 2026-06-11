@@ -123,6 +123,25 @@ scope decision and is not pushed to `origin`.
 The corresponding structural lesson is recorded as `lesson_0002` in
 `07_working/drafts/SHADOWMAS-LESSONS-QUEUE.v0.yaml`.
 
+## Update 2026-06-11
+A targeted rewrite removed
+`07_working/drafts/rationale/SHADOWMAS-MANIFESTO-DRAFT.v0.md` from all
+reachable history via `git-filter-repo --invert-paths` and force-push,
+following the same procedure as the May 2026 cycle. Reason: the file
+mixed Chinese prose into an agent-facing draft and carried positioning
+claims (flagship identity comparison, unsourced statistics, a gate
+description contradicting `DECISION-no-covert-random-audit-v0`) that
+the owner rejected. Salvageable concepts were generalized first into
+`RATIONALE-calibrated-trust-gates.v0.draft.en.md` and the
+interoperability paragraph of
+`SHADOWMAS-POSITIONING-STATEMENT.v0.draft.en.md`.
+
+Known residual: GitHub server-side caches and any pre-existing clone,
+fork, or mirror may retain the pre-rewrite commits; this residual is
+accepted, consistent with the original deferral record above. The
+remaining deferred pollution classes (personal author email,
+third-party PII) are unchanged by this update.
+
 ## Out of scope
 This file does not:
 

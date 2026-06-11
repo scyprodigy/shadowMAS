@@ -105,7 +105,3 @@ location and intent. It records a decision NOT to build a feature, so that the i
 not resurrected at the wrong scale by a future reader who sees only the words
 "random audit". Any move toward canonical truth (e.g., `01_truth/`, `02_packets/`) or a
 real runtime requires explicit owner review and change-impact per SHADOWMAS-CURRENT-TRUTH.
-
-Provenance: distilled from an adversarial Claude <-> Codex review loop (iterative negative
-review). The conclusion narrowed across rounds from a covert random-audit design down to
-"document existing shadow-owned checks; build nothing new; absorb no product duty".
