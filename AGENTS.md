@@ -17,6 +17,20 @@ This file gives public-safe instructions for AI coding agents and human contribu
 
 Do not perform blind full-repo traversal. Load files on demand by task shape.
 
+## Rework guard (read before proposing anything new)
+
+Before proposing to build, remove, adopt, or re-design anything, read
+`00_entry/DO-NOT-REDO.compiled.v0.en.md` (one screen). It lists what is already
+decided, deferred-with-trigger, or recorded as a lesson. If your idea matches a
+line, read the owning source file and follow its reopen/unlock conditions
+instead of re-proposing from scratch. For broader prior art, run
+`tools/find_shadow_concept.sh '<keyword>'`.
+
+If you edit a `DECISION-*` file, `deferred_state_inventory.md`, or the lessons
+queue, regenerate the compiled surfaces before finishing:
+`python3 tools/build_rework_guard.py && python3 tools/build_rationale_index.py`.
+CI fails if they are stale.
+
 ## Authority boundaries
 
 - `01_truth/` contains canonical project truth surfaces. Do not edit unless the task explicitly allows truth-surface changes.

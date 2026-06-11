@@ -56,6 +56,22 @@ class AnchorDriftUnitTests(unittest.TestCase):
         self.assertTrue(any("SHADOWMAS-CURRENT-TRUTH" in p for p in pack))
 
 
+class ReworkGuardCompiledTests(unittest.TestCase):
+    def test_do_not_redo_surface_is_up_to_date(self):
+        """00_entry/DO-NOT-REDO.compiled.v0.en.md must match its compiled form at HEAD."""
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "build_rework_guard.py"), "--check"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class RationaleIndexCompiledTests(unittest.TestCase):
     def test_index_is_up_to_date(self):
         """rationale_index.md must match its compiled form at HEAD."""
