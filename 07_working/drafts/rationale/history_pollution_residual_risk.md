@@ -142,6 +142,13 @@ accepted, consistent with the original deferral record above. The
 remaining deferred pollution classes (personal author email,
 third-party PII) are unchanged by this update.
 
+Rollback-window closure: the local backup mirror
+`~/workspace/shadow-mas.backup-20260611` (which retained the
+pre-rewrite history including the removed file) was deleted on
+2026-06-11 after the rewritten remote was confirmed healthy across
+several subsequent pushes. The May 2026 mirror was already gone. No
+local copy of the pre-rewrite history remains on this machine.
+
 ## Out of scope
 This file does not:
 
