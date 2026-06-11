@@ -27,6 +27,7 @@ shadowMAS 是一個用於人類-AI 與多代理工作的 dynamic packetized shad
 3. 需要看正式 4 份 zero-memory intake pack 時，直接看 `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md` 裡的 intake-pack 段落
 4. 需要看 layer/source 對照時，再讀 `00_entry/SHADOWMAS-LAYERING-QUICKREF.v0.en.md`
 5. 需要看 runtime 載入規則時，再讀 `04_runtime/SHADOWMAS-RUNTIME-LOADING-MAP.v0.en.md`
+6. 要提出任何新東西之前，先掃 `00_entry/DO-NOT-REDO.compiled.v0.en.md`——一屏大小的「已決定／已延後／已記取教訓」編譯清單
 
 ## 資料夾閱讀規則
 接手時，不需要先把每個主資料夾都讀一遍。
