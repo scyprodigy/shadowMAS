@@ -46,6 +46,20 @@ entries:
     human_decision:
       status: pending
       note: "Discovered when a previously-committed disposition draft whose filename and body embedded the very commercial-product token it was supposed to flag for removal slipped past the in-source pattern blacklist. Two structural lessons surfaced. (a) Any cleanup, disposition, or lesson artifact must self-audit its own filename and content for the tokens it discusses, before being committed; otherwise the cleanup mechanism becomes a new pollution source. (b) Blacklist-style pollution defense that ships its patterns in tracked source becomes itself the surface that leaks the very tokens it tries to catch; the defense layer should be moved out of the public repo (operator-local pre-push hook) or its patterns encoded so the literal token never appears in any tracked source. Both classes of fix were applied in the May 2026 emergency cycle; full structural decision deferred to a separate cycle."
+  - lesson_id: lesson_0003
+    date: "2026-06-11"
+    trigger_type: rework_or_wrong_edit_risk
+    short_summary: "git add -A swept a concurrently created, unauthored file into a public commit; bulk staging in a shared worktree must be path-scoped or preceded by an unexpected-file check"
+    impact: medium
+    repeat_count: 1
+    suggested_sink: execution_patch
+    source_refs:
+      - source_type: file
+        source_path: "07_working/drafts/personalization/USER-PROJECT-ADAPTATION-PROFILE-SCHEMA.v0.en.md"
+        relation: derived_from
+    human_decision:
+      status: pending
+      note: "The swept file was reviewed post-hoc and kept (claim-discipline compliant), so no damage occurred; the lesson is that the agent committing should have noticed the untracked path it never wrote before staging. Candidate execution patch: agents stage explicit paths, or diff git status against their own authored-file list before commit."
 entry_schema:
   lesson_id: "string"
   date: "YYYY-MM-DD"
