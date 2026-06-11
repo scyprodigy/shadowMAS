@@ -14,7 +14,9 @@
 |---|---|
 | `DECISION-no-covert-random-audit-v0.v0.en.md` | draft rationale for not building covert random audit in v0. |
 | `FOUNDATION-incompleteness-and-external-authority.v0.draft.en.md` | draft rationale: why shadowMAS keeps final authority outside the formal packet system. |
+| `RATIONALE-attention-budget-review.v0.draft.en.md` | direction draft: human attention as a budgeted, schedulable review resource. |
 | `RATIONALE-calibrated-trust-gates.v0.draft.en.md` | why deterministic checks exist: trust calibration, not sustained human attention. |
+| `REJECTION-KNOWLEDGE-DIRECTION.v0.draft.en.md` | direction draft: rejected decisions as first-class, retrievable records. |
 | `SHADOWMAS-CORE-THESIS-CONSOLIDATION.v0.en.md` | draft consolidation note for the shadowMAS core thesis. |
 | `SHADOWMAS-POSITIONING-STATEMENT.v0.draft.en.md` | draft positioning statement for controlled-alpha shadowMAS. |
 | `active_design_ledger.yaml` | YAML artifact `active_design_log_extraction_coverage_ledger` (no top-level purpose line). |

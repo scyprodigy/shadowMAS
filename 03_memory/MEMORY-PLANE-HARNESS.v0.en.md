@@ -169,6 +169,8 @@ Examples of invalidation triggers:
 - source hash mismatch
 - project-local truth replaced
 - runtime assumption no longer valid
+- model or runtime generation changed, when the memory encodes
+  behavior of a specific model generation rather than durable facts
 
 If invalidation occurs:
 - mark memory as stale or broken_reference
@@ -249,7 +251,10 @@ They are support metadata only:
 - not a shortcut from memory to truth
 
 `validity.applies_to` is about intended scope, such as modules or task types.
-`validity.stale_on` is about which changes should force revalidation.
+`validity.stale_on` is about which changes should force revalidation; this may
+include a model or runtime generation change for memories that encode
+model-specific behavior (tone calibration, workaround recipes) rather than
+durable facts (project structure, authority boundaries).
 `review_after` is a re-review hint, not automatic invalidation by itself.
 `source_hashes` are comparison aids, not proof that a memory is approved or currently correct.
 
