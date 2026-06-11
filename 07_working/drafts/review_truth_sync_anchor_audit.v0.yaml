@@ -1,0 +1,40 @@
+# review_truth_sync_anchor_audit | review packet for the 2026-06-11 anchor-drift truth sync
+# related: [SHADOWMAS-CURRENT-TRUTH, SHADOWMAS-TARGET-TRUTH, check_anchor_drift]
+# phase: ready_for_human
+
+packet_uid: review-truth-sync-anchor-audit-v0-001
+packet_type: review_packet
+schema_version: v0
+created_at: "2026-06-11T03:25:35Z"
+created_by: claude_code_session
+owner: repo_owner
+supervision_mode: human_available_delegate
+risk: r2_guarded
+status: ready_for_human
+
+decision_needed: Confirm the owner-approved anchor-drift corrections to canonical truth surfaces (failure-mode count, five-layer Layer Model alignment, artifact-strategy language preference, axis-3 lessons-queue status).
+why_you_are_seeing_this: Changes touch 01_truth/ canonical files; per the truth-change discipline they require a referencing review packet for the human git-review gate even though the owner verbally approved the audit recommendations in session.
+change_summary: CURRENT-TRUTH now says six failure modes (list had six bullets under a five claim), its Layer Model section aligns to the five-layer prompt layering contract with a pointer to the owning file, and the artifact-strategy language preference reflects actual policy (zh-TW for high-value human entry docs, English elsewhere). TARGET-TRUTH axis-3 note updated because LESSONS-QUEUE now has first hand-authored entries. Companion updates landed in README and the zh-TW single-source (intake-pack list replaced by owner-section references; layer model synced).
+risk_summary: Risk is r2_guarded because canonical truth wording changed, but no packet schema, validator semantics, promotion rule, or authority boundary changed; all edits align existing files to already-canonical definitions elsewhere in 01_truth/.
+recommendation: approve
+
+source_refs:
+  - source_type: file
+    source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+    relation: reviews
+  - source_type: file
+    source_path: 01_truth/SHADOWMAS-TARGET-TRUTH.v0.en.md
+    relation: reviews
+
+promotion_snapshot:
+  snapshot_at: "2026-06-11T03:25:35Z"
+  source_hashes:
+    - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+      sha256: 66350397448a77b4aef67fc93974d5414160628ccf0bb9307f1a4dacb3eb3963
+    - source_path: 01_truth/SHADOWMAS-TARGET-TRUTH.v0.en.md
+      sha256: 101edc9ef5f2cbd9cc0a8b3e4268c56cd1548f0493d48fe1fec37ca0dd5a9391
+
+minimal_checks:
+  must_read:
+    - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+    - 01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md

@@ -15,7 +15,7 @@ Seeing a runtime signal is not the same as trusting it, storing it, promoting it
 - [Expected output](#expected-output)
 - [Inspect an L2 fixture](#inspect-an-l2-fixture)
 - [Current status](#current-status)
-- [Repository map](#repository-map)
+- [Top-level directory guide](#top-level-directory-guide)
 - [What shadowMAS is not](#what-shadowmas-is-not)
 
 ## Controlled alpha quickstart
@@ -138,14 +138,6 @@ Not available yet:
 - full dynamic shadow coordination implementation
 - stable public API
 
-## Repository map
-
-- `01_truth/` — canonical truth and authority-boundary contracts
-- `02_packets/` — packet schemas and field definitions
-- `03_memory/` — candidate registry and memory-related artifacts
-- `examples/` — runnable minimal examples
-- `tools/` — lightweight validators and utilities
-
 ## Validator and inspector orientation
 
 shadowMAS ships three small read-only command surfaces. Each handles a different artifact kind; pick by the artifact you have on hand.
@@ -158,20 +150,13 @@ shadowMAS ships three small read-only command surfaces. Each handles a different
 
 None of these run agents, write back to product repos, or promote artifacts into truth. They check shape and contract only. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
 
-shadowMAS is a dynamic packetized shadow layer for multi-agent and multi-session work.
-
-It is not the product application itself.  
-It is not a runtime engine, an agent framework, a memory database, a workflow engine, or a production safeguard.
-
-Current shipped surfaces are local-first and packet/fixture-oriented: they focus on how authority-bounded interpretation is preserved across signals, traces, memory candidates, packets, reviews, lessons, and audit projections. The full dynamic shadow-coordination design lives in canonical truth (`01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`).
-
 Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the shadow packet surfaces around that work: task packets, memory candidates, review packets, handoffs, lessons, workspace boundaries, invalidation, and promotion paths. Current shipped surfaces are controlled-alpha — fixtures, validators, inspectors, packet schemas, and the workspace registration tool — while the full dynamic coordination layer is not yet implemented (see [Current status](#current-status)).
 
 Licensed under the Apache License 2.0. See `LICENSE`.
 
 ## What problem shadowMAS solves
 
-shadowMAS exists to reduce five failure modes that become common once AI work grows beyond a single chat:
+shadowMAS exists to reduce six failure modes that become common once AI work grows beyond a single chat:
 
 - **authority confusion** — who may decide, who may execute, and who may promote results
 - **truth confusion** — execution output, cache, and drafts being mistaken for canonical truth
@@ -208,29 +193,7 @@ Product repos may still receive product-owned outputs in controlled branches or 
 
 ## Why hard separation matters
 
-shadowMAS must remain hard-separated from product repos.
-
-A product repo should still be able to:
-- develop
-- implement
-- test
-- deploy
-- operate
-
-even if shadowMAS is unavailable.
-
-Preferred model:
-- shadowMAS lives in its own root/repo
-- product repos consume selected outputs only
-
-Typical outputs:
-- entry/index files
-- truth-priority files
-- change-impact maps
-- handoff packets
-- review outputs
-- write-back suggestions
-- controlled scripts/hooks
+shadowMAS must remain hard-separated from product repos: a product repo should still be able to develop, test, deploy, and operate even if shadowMAS is unavailable. shadowMAS lives in its own root/repo; product repos consume selected outputs only (entry/index files, change-impact maps, handoff packets, review outputs, write-back suggestions). The canonical hard separation rule and integration model live in `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`.
 
 ## Why machine-first artifacts matter
 
@@ -517,11 +480,7 @@ Primary formal truth lives in:
 Primary human-facing navigation lives in:
 - `06_human_docs/zh-TW/`
 
-Current v0 intake pack:
-1. `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
-2. `01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md`
-3. `01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md`
-4. `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
+The exact current v0 intake pack is defined in `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md` under `Current v0 Intake Pack`. That section is the single maintained owner of the list; it is intentionally not repeated here.
 
 For deeper authority-boundary review, also read:
 - `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`

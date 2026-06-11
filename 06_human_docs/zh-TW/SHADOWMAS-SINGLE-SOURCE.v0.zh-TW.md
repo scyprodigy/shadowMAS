@@ -141,13 +141,12 @@ shadowMAS 不只需要人類可讀，
 
 ## 6. 目前的核心分層
 
-### Shared Core
+完整五層模型的正式定義在 `01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md`。
+
+### Layer 1: Shared Core
 跨專案可重用的行為鐵律。
 
-### Project Execution
-單一專案自己的 repo truth、資料模型、API、命名、實作落點。
-
-### shadowMAS Coordination / Governance Shadow
+### Layer 2: shadowMAS Authority-Boundary Orchestration（權限邊界協調）
 shadowMAS 自己的影子協調與邊界規則，例如：
 - packet
 - memory plane
@@ -156,6 +155,17 @@ shadowMAS 自己的影子協調與邊界規則，例如：
 - review
 - mergeback
 - write-back boundary
+
+### Layer 3: Project Execution
+單一專案自己的 repo truth、資料模型、API、命名、實作落點。
+
+### Layer 4: Runtime Adapter Prompt
+工具 / runtime 專屬的執行塑形層（例如 Claude Code、Cursor、Codex、本地模型 runner）。
+它只調整「怎麼交付」，不能改寫真相。
+
+### Layer 5: Host Native / Opaque Prompt
+平台原生、半隱藏的提示影響層。
+承認它存在、記錄它的影響，但不把它當作可維護的真相來源。
 
 ### 為什麼不 flatten 成 giant prompt
 因為 giant prompt 會把：
@@ -292,11 +302,9 @@ packet 的價值在於：
 
 ## 12. 第一次接觸 shadowMAS，建議怎麼讀
 
-目前 v0 intake pack 先讀：
-1. `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md`
-2. `01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md`
-3. `01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md`
-4. `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
+目前 v0 intake pack 的確切清單，以 `01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md` 的
+`Current v0 Intake Pack` 一節為唯一維護來源（single owner），這裡不重抄，避免兩份清單飄移。
+先讀那一節指定的檔案（包含本檔）。
 
 如果要做更深入的治理 review，再讀：
 - `01_truth/SHADOWMAS-GOVERNANCE-MATRIX.v0.en.md`

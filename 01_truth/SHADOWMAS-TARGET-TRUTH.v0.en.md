@@ -90,8 +90,8 @@ By axis:
   primarily social and process-based (maintainer review, branch
   protection, path-scoped commits)
 - **axis 3 dynamic adaptation**: **least developed**; LESSONS-QUEUE
-  mechanism present but entries empty; CANDIDATE-REGISTRY is
-  hand-registered, not learned; no personalization surface exists
+  mechanism present with first hand-authored entries; CANDIDATE-REGISTRY
+  is hand-registered, not learned; no personalization surface exists
 - **axis 4 memory topology**: harness specified; three plane
   placeholders intentionally unimplemented in v0; SESSION-LOG-INTEGRITY
   spec drafted; no backend selected
