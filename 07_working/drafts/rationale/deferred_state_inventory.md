@@ -95,6 +95,26 @@ listed below with its declared unlock trigger.
 - unlock trigger: a real legacy intake case appears and forces
   shape decisions
 
+## Shared Core standalone source file
+- declared purpose: one-page cross-project reusable behavior floor
+  (Layer 1 of the prompt layering contract)
+- v0 state: concept formalized; represented indirectly through
+  CURRENT-TRUTH and QUICKREF; no dedicated file
+- why deferred: content is stable but low-urgency; writing it is a
+  new truth surface requiring governance review
+- unlock trigger: first second-project adoption of shadowMAS rules,
+  OR first runtime adapter that needs to compose Layer 1 separately
+
+## Candidate registry split
+- declared purpose: keep `SHADOWMAS-CANDIDATE-REGISTRY.v0.yaml`
+  reviewable as it grows (currently ~105 KB, ~26 candidates in one
+  hand-maintained YAML)
+- v0 state: single file; `tools/check_candidate_registry.py` validates it
+- why deferred: split or per-candidate files plus a compiled index is
+  premature at current volume
+- unlock trigger: registry exceeds 50 candidates OR 200 KB, OR a
+  merge conflict occurs inside the registry file
+
 ## Other deferred surfaces tracked elsewhere
 For completeness, these deferrals are tracked in their own files;
 they are listed here only as cross-references.

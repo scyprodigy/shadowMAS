@@ -50,7 +50,7 @@ A draft project intake record SHOULD include:
 shadowMAS may assist any project, but project-domain truth remains project-local.
 
 Rules:
-- shadowMAS Coordination / Governance Shadow may structure work, review, memory, routing, and promotion boundaries
+- shadowMAS Authority-Boundary Orchestration may structure work, review, memory, routing, and promotion boundaries
 - shadowMAS must not replace project domain facts, API contracts, schema decisions, or business rules
 - product repos must remain able to develop, implement, test, deploy, and operate without shadowMAS
 - runtime adapter drafts must not write back into product repos without explicit human-approved packet/task authorization

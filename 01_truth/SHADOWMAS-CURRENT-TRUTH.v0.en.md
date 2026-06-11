@@ -45,7 +45,7 @@ Advisory fields are evidence-carrying fields, not enforcement mechanisms.
 For shadowMAS target identity and long-term trajectory, see `01_truth/SHADOWMAS-TARGET-TRUTH.v0.en.md`.
 
 ## Problem Profile
-shadowMAS exists to reduce five recurring failure modes in AI-assisted work:
+shadowMAS exists to reduce six recurring failure modes in AI-assisted work:
 
 - authority confusion
 - truth confusion
@@ -99,15 +99,26 @@ Governance here means authority-boundary discipline, not runtime ownership.
 - shared core must not directly override project domain facts
 
 ## Layer Model
+The full five-layer prompt layering model is owned by
+`01_truth/SHADOWMAS-PROMPT-LAYERING-CONTRACT.v0.en.md`.
+The five layers are:
 
 ### Shared Core
 Cross-project reusable rules.
 
+### shadowMAS Authority-Boundary Orchestration
+Global shadow-boundary discipline for packet routing, memory, promotion, invalidation, indexing, review, lessons, mergeback, and write-back boundaries.
+
 ### Project Execution
 Repo-local execution constraints and domain-specific truth.
 
-### shadowMAS Authority-Boundary Orchestration
-Global shadow-boundary discipline for packet routing, memory, promotion, invalidation, indexing, review, lessons, mergeback, and write-back boundaries.
+### Runtime Adapter Prompt
+Tool/runtime-specific execution shaping (for example Claude Code, Cursor, Codex, local model runners).
+
+### Host Native / Opaque Prompt
+Provider/host-native prompt influence outside direct shadowMAS control. Acknowledged as an external constraint, not maintainable truth.
+
+The Shadow Boundary Weight Model above concerns only the first three layers; the two runtime-facing layers adapt delivery and never carry truth authority.
 
 ## Current Operational Layer Model
 
@@ -160,8 +171,9 @@ For:
 - design rationale
 
 Language preference:
-- zh-TW first
-- English technical terms when necessary
+- zh-TW for high-value human entry and navigation docs
+- English for working drafts, rationale, and everything agent-facing
+- see Canonical Language Policy below and `01_truth/SHADOWMAS-TRANSLATION-POLICY.v0.en.md`
 
 ### Machine-stable form
 For:
