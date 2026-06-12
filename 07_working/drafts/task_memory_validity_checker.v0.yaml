@@ -1,0 +1,58 @@
+# task_memory_validity_checker | first real task packet: build the advisory memory-validity checker
+# related: [MEMORY-PLANE-HARNESS, memory_compiled_surface_discipline, check_anchor_drift]
+# phase: task_in_progress
+
+packet_uid: task-memory-validity-checker-v0-001
+packet_type: task_packet
+schema_version: v0
+created_at: "2026-06-12T02:29:52Z"
+created_by: claude_code_session
+owner: repo_owner
+supervision_mode: human_available_delegate
+risk: r1_routine
+status: in_progress
+
+task_id: memory-validity-checker-v0
+goal: >-
+  Build tools/check_memory_validity.py, an advisory read-only checker that
+  gives the memory plane's ghost-dependency rule its first mechanical reader:
+  scan memory packets, resolve their source_refs, and report broken_reference
+  (cited path no longer resolves) and stale (cited source hash drifted from a
+  recorded invalidation.source_hashes snapshot) findings.
+scope:
+  - Add tools/check_memory_validity.py as a read-only advisory checker.
+  - Scan default roots 07_working/ and examples/packets/ for packet_type memory_packet.
+  - "Report per packet: missing source_ref paths as broken_reference findings."
+  - Report hash drift against invalidation.source_hashes when that snapshot is present.
+  - Honor the model/runtime generation trigger vocabulary only as a reported
+    label when present; no enforcement.
+  - Add unit tests under tests/ and ride the existing CI unittest step.
+out_of_scope:
+  - No packet schema changes under 02_packets/.
+  - No canonical truth edits under 01_truth/.
+  - No status mutation of any packet; the checker reports, never writes.
+  - No memory store, retrieval, or promotion behavior.
+  - No runtime enforcement claim; findings are evidence for human review.
+truth_touchpoints:
+  - None changed. The checker implements the ghost-dependency rule already
+    canonical in 03_memory/MEMORY-PLANE-HARNESS.v0.en.md; this is the evidence
+    basis for the r1_routine risk value.
+worker_plan:
+  preferred_worker: claude_code_session
+  fallback_worker: human_reviewer
+  allow_fanout: false
+  fanout_limit: 1
+  retry_limit: 1
+acceptance_criteria:
+  - Checker exits 0 on the current repo (no findings) and 1 when a memory
+    packet cites a missing path or a drifted recorded hash.
+  - Checker output names the packet, the source_ref, and the finding class
+    using harness vocabulary (broken_reference, stale).
+  - Unit tests cover the clean case, a broken reference, and a hash drift,
+    using temp fixtures, and pass in the full suite.
+  - README or tool docstring states the advisory, non-enforcement boundary.
+stop_conditions:
+  - Stop if implementing the checker would require changing any packet schema.
+  - Stop if a finding class cannot be expressed without inventing vocabulary
+    absent from MEMORY-PLANE-HARNESS.
+  - Stop if the scoped evidence no longer supports r1_routine.
