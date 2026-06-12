@@ -1,0 +1,73 @@
+# memory_compiled_surface_discipline | first real (non-example) memory packet: compiled-surface heuristic candidate
+# related: [MEMORY-PLANE-HARNESS, build_rework_guard, build_rationale_index, check_anchor_drift]
+# phase: candidate_for_human_review
+
+packet_uid: memory-compiled-surface-discipline-v0-001
+packet_type: memory_packet
+schema_version: v0
+created_at: "2026-06-12T01:14:41Z"
+created_by: claude_code_session
+owner: repo_owner
+supervision_mode: human_available_delegate
+risk: r1_routine
+status: candidate
+
+memory_kind: operational_heuristic
+memory_scope: shadowmas_repo
+summary: >-
+  Any hand-maintained surface that mirrors facts owned by other files
+  (indexes, entry lists, count claims, vocabulary) will drift; the fix
+  that held is to compile the surface from its owning sources and gate
+  freshness in CI, not to ask authors to remember synchronization.
+structured_payload:
+  observation: >-
+    During the 2026-06-11 repo audit, every drift instance found
+    (stale rationale index, repeated intake-pack lists, five-vs-six
+    count mismatch, deprecated layer vocabulary, stale TARGET-TRUTH
+    status lines) shared one root cause: a hand-written surface
+    duplicating facts whose owner was another file.
+  heuristic: >-
+    When the same fact must appear in more than one file, designate one
+    owner file, compile every other appearance from it, and add a
+    --check freshness gate to CI. Manual-discipline rules (change-impact
+    review lists) catch design-level impact but do not survive
+    repetition; deterministic checks do.
+  validated_instances:
+    - tools/build_rationale_index.py (folder index compiled from 3-line headers)
+    - tools/build_rework_guard.py (DO-NOT-REDO compiled from decision/deferral/lesson owners)
+    - tools/check_anchor_drift.py (count claims, list repetition, deprecated vocabulary)
+  boundary: >-
+    Applies to mechanically extractable facts (lists, counts, names,
+    paths). Does not apply to judgment-bearing prose, which still needs
+    the human change-impact path.
+source_refs:
+  - source_type: file
+    source_path: tools/build_rationale_index.py
+    relation: derived_from
+  - source_type: file
+    source_path: tools/build_rework_guard.py
+    relation: derived_from
+  - source_type: file
+    source_path: tools/check_anchor_drift.py
+    relation: derived_from
+  - source_type: file
+    source_path: 07_working/drafts/rationale/RATIONALE-calibrated-trust-gates.v0.draft.en.md
+    relation: supports
+invalidation_triggers:
+  - any cited tool is removed or its compiled-surface contract changes
+  - CI stops gating compiled-surface freshness
+  - a counterexample appears where compilation caused worse drift than hand-maintenance
+validity:
+  applies_to: shadowMAS repo surfaces; portable to any repo with multi-file fact duplication
+  stale_on:
+    - cited tools removed or repurposed
+    - CI freshness gates removed
+  review_after: next significant audit cycle
+confidence: 0.8
+promotion_candidate: "yes"
+promotion_notes: >-
+  Candidate for T3 approved shared memory. Three same-day validated
+  instances; survived one full CI cycle. Promotion requires human
+  review per MEMORY-PLANE-HARNESS; this packet's existence satisfies
+  the shared_memory unlock precondition (first concrete reusable
+  memory candidate) but does not itself unlock placement.
