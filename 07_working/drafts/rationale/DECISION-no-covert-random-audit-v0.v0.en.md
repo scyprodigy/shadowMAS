@@ -51,9 +51,11 @@ blocking (non-zero exit on a real problem; already chained in first_user_smoke):
 - L2 inspector (`tools/inspect_l2_fixture.py`)
 - candidate registry checker (`tools/check_candidate_registry.py`)
 
-blocking but NOT in first_user_smoke (repo hygiene / meta; better kept as separate CI steps):
-- pollution scanner (`tools/check_no_pollution.py`, exit 1 on a match)
-- validator drift (`tools/check_validator_drift.py`)
+blocking but NOT in first_user_smoke (repo hygiene / meta):
+- pollution scanner (`tools/check_no_pollution.py`, exit 1 on a match) — operator-local
+  and gitignored since 2026-06; runs on the operator's machine, not in CI checkout
+  (per lesson_0002: defense patterns must not ship in tracked source)
+- validator drift (`tools/check_validator_drift.py`) — separate CI step
 
 advisory (never blocks; produces a finding for the human git-review gate, not a gate result):
 - translation drift (`tools/check_translation_drift.py`); exits 0 even when the embedding

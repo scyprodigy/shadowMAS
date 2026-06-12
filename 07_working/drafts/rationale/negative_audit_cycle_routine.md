@@ -76,9 +76,11 @@ attribution debt that future audit cycles have to clean.
 ### Phase D — standing defense
 - Add a pollution scanner script (see `tools/check_no_pollution.py`)
   that hard-codes the known pattern set and is callable as a single
-  command.
+  command. Since 2026-06 the scanner is operator-local and gitignored;
+  it runs on the operator's machine, not in CI checkout (lesson_0002:
+  defense patterns must not ship in tracked source).
 - Add a CI workflow (see `.github/workflows/checks.yml`) that runs
-  the scanner first and fails the build on any match.
+  the repo-safe checks and fails the build on any match.
 - Extend the workflow to invoke every other validator and inspector
   in the repository explicitly. Future readers see the defense layer
   list in one place.
@@ -183,7 +185,7 @@ plus any genuine refinement the check surfaced.
 
 ## Verification floor
 Every round must keep these green:
-- `python3 tools/check_no_pollution.py`
+- `python3 tools/check_no_pollution.py` (operator-local; only where the gitignored scanner exists)
 - `python3 tools/check_candidate_registry.py`
 - `python3 tools/check_validator_drift.py`
 - `python3 05_scripts/validate/shadowmas_validate.py` on every
