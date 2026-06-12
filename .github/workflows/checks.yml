@@ -54,5 +54,8 @@ jobs:
           python3 tools/build_rationale_index.py --check
           python3 tools/build_rework_guard.py --check
 
+      - name: Memory validity check
+        run: python3 tools/check_memory_validity.py
+
       - name: Unit tests
         run: python3 -m unittest discover tests

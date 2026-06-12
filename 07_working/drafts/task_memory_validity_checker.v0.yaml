@@ -1,6 +1,6 @@
 # task_memory_validity_checker | first real task packet: build the advisory memory-validity checker
 # related: [MEMORY-PLANE-HARNESS, memory_compiled_surface_discipline, check_anchor_drift]
-# phase: task_in_progress
+# phase: task_awaiting_review
 
 packet_uid: task-memory-validity-checker-v0-001
 packet_type: task_packet
@@ -10,7 +10,7 @@ created_by: claude_code_session
 owner: repo_owner
 supervision_mode: human_available_delegate
 risk: r1_routine
-status: in_progress
+status: awaiting_review
 
 task_id: memory-validity-checker-v0
 goal: >-
