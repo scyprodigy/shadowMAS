@@ -1,6 +1,6 @@
 # review_truth_sync_anchor_audit | review packet for the 2026-06-11 anchor-drift truth sync
 # related: [SHADOWMAS-CURRENT-TRUTH, SHADOWMAS-TARGET-TRUTH, check_anchor_drift]
-# phase: ready_for_human
+# phase: approved
 
 packet_uid: review-truth-sync-anchor-audit-v0-001
 packet_type: review_packet
@@ -10,7 +10,8 @@ created_by: claude_code_session
 owner: repo_owner
 supervision_mode: human_available_delegate
 risk: r2_guarded
-status: ready_for_human
+status: approved
+decision_note: owner-delegated approval 2026-06-15; recommendation was approve. TARGET-TRUTH snapshot hash refreshed to current because the later axis-3 personalization edit (reviewed separately) touched the file after this snapshot was taken.
 
 decision_needed: Confirm the owner-approved anchor-drift corrections to canonical truth surfaces (failure-mode count, five-layer Layer Model alignment, artifact-strategy language preference, axis-3 lessons-queue status).
 why_you_are_seeing_this: Changes touch 01_truth/ canonical files; per the truth-change discipline they require a referencing review packet for the human git-review gate even though the owner verbally approved the audit recommendations in session.
@@ -32,7 +33,7 @@ promotion_snapshot:
     - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
       sha256: 66350397448a77b4aef67fc93974d5414160628ccf0bb9307f1a4dacb3eb3963
     - source_path: 01_truth/SHADOWMAS-TARGET-TRUTH.v0.en.md
-      sha256: 101edc9ef5f2cbd9cc0a8b3e4268c56cd1548f0493d48fe1fec37ca0dd5a9391
+      sha256: 0682d18594d6a6eeb4e5414a7b71e97809902139fc3e57dd7dd261651697d6f5
 
 minimal_checks:
   must_read:

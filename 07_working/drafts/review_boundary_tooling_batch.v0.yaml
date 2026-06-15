@@ -1,6 +1,6 @@
 # review_boundary_tooling_batch | review packet for the executed boundary-tooling batch
 # related: [task_boundary_tooling_batch, rejection_record.PROPOSAL, order_review_queue, trace_packet_chain, import_memory_candidate]
-# phase: ready_for_human
+# phase: approved
 
 packet_uid: review-boundary-tooling-batch-v0-001
 packet_type: review_packet
@@ -10,7 +10,8 @@ created_by: claude_code_session
 owner: repo_owner
 supervision_mode: human_available_delegate
 risk: r1_routine
-status: ready_for_human
+status: approved
+decision_note: owner-delegated approval 2026-06-15; recommendation was approve.
 
 decision_needed: Accept or reject the executed boundary-tooling batch (task-boundary-tooling-batch-v0-001) and its delivered primitives.
 why_you_are_seeing_this: The umbrella task packet declared awaiting_review on completion; per the packet loop, execution output is evidence and the human decides acceptance.

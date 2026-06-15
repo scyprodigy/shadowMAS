@@ -1,6 +1,6 @@
 # task_boundary_tooling_batch | umbrella task packet: implement five recorded direction items as working primitives
 # related: [REJECTION-KNOWLEDGE-DIRECTION, RATIONALE-attention-budget-review, MEMORY-PLANE-HARNESS, deferred_state_inventory]
-# phase: task_awaiting_review
+# phase: task_done
 
 packet_uid: task-boundary-tooling-batch-v0-001
 packet_type: task_packet
@@ -10,7 +10,8 @@ created_by: claude_code_session
 owner: repo_owner
 supervision_mode: human_away_autonomous
 risk: r1_routine
-status: awaiting_review
+status: done
+decision_note: accepted via review-boundary-tooling-batch-v0-001, owner-delegated 2026-06-15.
 
 task_id: boundary-tooling-batch-v0
 goal: >-
