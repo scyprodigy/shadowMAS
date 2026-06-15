@@ -110,8 +110,13 @@ schema is drafted. No other field strained.
 
 ## Promotion path
 1. Keep authoring new rejections in the current decision-record style.
-2. When a third strongly-shaped instance exists, draft
-   `rejection_record` as a candidate packet-family proposal under
-   `07_working/` (not `02_packets/`).
-3. Packet-family promotion requires governance review per
-   `SHADOWMAS-CURRENT-TRUTH.v0.en.md` change-impact rules.
+2. ~~When a third strongly-shaped instance exists~~ — **owner override
+   2026-06-12**: the owner lifted the third-instance precondition and
+   instructed implementation. The working-family proposal now exists at
+   `rejection_record.PROPOSAL.v0.yaml` with two real instances
+   (`rejection_no_covert_random_audit.v0.yaml`,
+   `rejection_no_mass_filename_rename.v0.yaml`), compiled into the
+   DO-NOT-REDO surface by `tools/build_rework_guard.py`.
+3. Packet-family promotion (into `02_packets/`) still requires
+   governance review per `SHADOWMAS-CURRENT-TRUTH.v0.en.md`
+   change-impact rules; the working family does not skip that gate.
