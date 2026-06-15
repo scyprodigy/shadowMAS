@@ -49,6 +49,14 @@ validity:
     - model or runtime generation changed
 """
 
+GENERATION_PACKET = """\
+packet_type: memory_packet
+packet_uid: test-memory-generation-001
+source_refs: []
+validity:
+  runtime_generation: claude-fable-5
+"""
+
 
 class MemoryValidityCurrentStateTests(unittest.TestCase):
     def test_current_repo_is_clean(self):
@@ -77,9 +85,10 @@ class MemoryValidityUnitTests(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def run_checker(self) -> subprocess.CompletedProcess:
+    def run_checker(self, *extra: str) -> subprocess.CompletedProcess:
         return subprocess.run(
-            [sys.executable, str(CHECKER), "--repo", str(self.repo), "--root", "packets"],
+            [sys.executable, str(CHECKER), "--repo", str(self.repo), "--root", "packets",
+             *extra],
             capture_output=True,
             text=True,
         )
@@ -109,6 +118,16 @@ class MemoryValidityUnitTests(unittest.TestCase):
         result = self.run_checker()
         self.assertEqual(result.returncode, 1, msg=result.stdout)
         self.assertIn("stale: source content drifted", result.stdout)
+
+    def test_generation_mismatch_is_stale_only_when_flag_supplied(self):
+        write_packet(self.repo / "packets", "generation.v0.yaml", GENERATION_PACKET)
+        result = self.run_checker()
+        self.assertEqual(result.returncode, 0, msg=result.stdout)
+        result = self.run_checker("--generation", "claude-fable-5")
+        self.assertEqual(result.returncode, 0, msg=result.stdout)
+        result = self.run_checker("--generation", "claude-fable-6")
+        self.assertEqual(result.returncode, 1, msg=result.stdout)
+        self.assertIn("declared runtime_generation", result.stdout)
 
 
 if __name__ == "__main__":
