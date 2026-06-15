@@ -1,0 +1,71 @@
+# MEMORY-COMPILED-SURFACE-DISCIPLINE.v0 | approved shared memory: compiled-surface discipline heuristic, promoted T4->T3
+# related: [MEMORY-PLANE-HARNESS, PROMOTION-GATE-SEMANTICS, review_promote_compiled_surface_discipline]
+# phase: approved_shared
+
+packet_uid: memory-compiled-surface-discipline-shared-v0-001
+packet_type: memory_packet
+schema_version: v0
+created_at: "2026-06-12T01:14:41Z"
+created_by: claude_code_session
+owner: repo_owner
+supervision_mode: human_available_delegate
+risk: r1_routine
+status: approved_shared
+
+memory_kind: operational_heuristic
+memory_scope: shadowmas_repo
+summary: >-
+  Any hand-maintained surface that mirrors facts owned by other files
+  (indexes, entry lists, count claims, vocabulary) will drift; the fix
+  that held is to compile the surface from its owning sources and gate
+  freshness in CI, not to ask authors to remember synchronization.
+structured_payload:
+  heuristic: >-
+    When the same fact must appear in more than one file, designate one
+    owner file, compile every other appearance from it, and add a
+    --check freshness gate to CI. Manual-discipline rules catch
+    design-level impact but do not survive repetition; deterministic
+    checks do.
+  validated_instances:
+    - tools/build_rationale_index.py
+    - tools/build_rework_guard.py
+    - tools/check_anchor_drift.py
+  boundary: >-
+    Applies to mechanically extractable facts (lists, counts, names,
+    paths). Judgment-bearing prose still needs the human change-impact path.
+source_refs:
+  - source_type: file
+    source_path: tools/build_rationale_index.py
+    relation: derived_from
+  - source_type: file
+    source_path: tools/build_rework_guard.py
+    relation: derived_from
+  - source_type: file
+    source_path: tools/check_anchor_drift.py
+    relation: derived_from
+  - source_type: memory_packet
+    source_id: memory-compiled-surface-discipline-v0-001
+    relation: promoted_from
+invalidation_triggers:
+  - any cited tool is removed or its compiled-surface contract changes
+  - CI stops gating compiled-surface freshness
+  - a counterexample appears where compilation caused worse drift than hand-maintenance
+validity:
+  applies_to: shadowMAS repo surfaces; portable to any repo with multi-file fact duplication
+  stale_on:
+    - cited tools removed or repurposed
+    - CI freshness gates removed
+  review_after: next significant audit cycle
+confidence: 0.8
+promotion_candidate: "no"
+promotion_notes: >-
+  Promoted T4->T3 on 2026-06-15 via review-promote-compiled-surface-discipline-v0-001
+  (owner-delegated) under PROMOTION-GATE-SEMANTICS. This is the first approved
+  shared-memory placement. approved_shared is below canonical truth and must not
+  be cited as T2.
+promoted:
+  from_packet: memory-compiled-surface-discipline-v0-001
+  via_review: review-promote-compiled-surface-discipline-v0-001
+  promoted_at: "2026-06-15T07:01:22Z"
+  promoted_by: owner_delegated
+  tier_transition: T4_to_T3

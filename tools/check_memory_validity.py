@@ -38,7 +38,7 @@ from pathlib import Path
 import yaml
 
 REPO = Path(__file__).resolve().parents[1]
-DEFAULT_ROOTS = ["07_working", "examples/packets"]
+DEFAULT_ROOTS = ["07_working", "examples/packets", "03_memory/shared_memory"]
 
 
 def sha256_of(path: Path) -> str:
