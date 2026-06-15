@@ -1,0 +1,52 @@
+# task_boundary_tooling_batch | umbrella task packet: implement five recorded direction items as working primitives
+# related: [REJECTION-KNOWLEDGE-DIRECTION, RATIONALE-attention-budget-review, MEMORY-PLANE-HARNESS, deferred_state_inventory]
+# phase: task_awaiting_review
+
+packet_uid: task-boundary-tooling-batch-v0-001
+packet_type: task_packet
+schema_version: v0
+created_at: "2026-06-12T02:50:12Z"
+created_by: claude_code_session
+owner: repo_owner
+supervision_mode: human_away_autonomous
+risk: r1_routine
+status: awaiting_review
+
+task_id: boundary-tooling-batch-v0
+goal: >-
+  Implement five recorded direction items as working, testable primitives
+  in tool and working-draft space, per the owner's explicit instruction to
+  proceed without further interaction until they are realized. Promotion to
+  canonical surfaces is NOT included and still flows through the normal
+  review path later.
+scope:
+  - "rejection_record family: proposal under 07_working/ plus two real instances rendered from existing DECISION records; extend tools/build_rework_guard.py to compile instances. Owner override 2026-06-12 lifts the third-instance precondition recorded in REJECTION-KNOWLEDGE-DIRECTION."
+  - "review-queue ordering: tools/order_review_queue.py — deterministic agenda over ready_for_human review packets, ordered by risk tier, with estimated reading cost and low-risk batching; no empirical or cognitive-science claim."
+  - "packet-chain reconstruction: tools/trace_packet_chain.py — given a packet_uid, reconstruct its evidence chain across packets (source_refs, related_packets) and cited files."
+  - "cross-owner memory import: tools/import_memory_candidate.py — import an external memory packet with forced downgrade to candidate status, confidence cap, and re-validation invalidation entry."
+  - "generation staleness: extend tools/check_memory_validity.py with --generation comparison against a packet-declared validity.runtime_generation."
+  - Unit tests for every new or extended tool; all ride the existing CI unittest step.
+out_of_scope:
+  - No changes under 02_packets/ or 01_truth/.
+  - No promotion of any artifact to canonical truth or approved shared memory.
+  - No empirical claims about review quality, attention, or oversight improvement.
+  - No runtime enforcement; all tools are read-only or write only into working space on explicit invocation.
+truth_touchpoints:
+  - None changed; this is the evidence basis for r1_routine. All five primitives implement vocabulary already recorded in MEMORY-PLANE-HARNESS, the direction drafts, and the deferred inventory.
+worker_plan:
+  preferred_worker: claude_code_session
+  fallback_worker: human_reviewer
+  allow_fanout: false
+  fanout_limit: 1
+  retry_limit: 1
+acceptance_criteria:
+  - Each primitive runs green against the current repo and has at least one negative-path unit test.
+  - rejection_record instances are compiled into the DO-NOT-REDO surface by the rework guard.
+  - The review agenda tool produces a stable ordering for the current pending review packets.
+  - The chain tracer reconstructs the memory-validity-checker loop (task -> review -> tools) from its packet_uid.
+  - The import tool demonstrably downgrades status and caps confidence on a fixture.
+  - Full test suite passes; compiled surfaces stay fresh.
+stop_conditions:
+  - Stop if any primitive cannot be expressed without changing a packet schema.
+  - Stop if a primitive would need to mutate existing packet statuses automatically.
+  - Stop if the scoped evidence no longer supports r1_routine.
