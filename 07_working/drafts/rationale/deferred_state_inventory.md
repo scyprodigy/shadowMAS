@@ -119,8 +119,9 @@ listed below with its declared unlock trigger.
 - declared purpose: let one person's lessons / memory packets be
   imported by another owner as downgraded candidates with forced
   re-validation, instead of inherited trust
-- v0 state: not designed; memory_packet already carries source_refs,
-  confidence, and promotion gating, which are the prerequisites
+- v0 state: import primitive exists (`tools/import_memory_candidate.py`:
+  forced status downgrade, confidence cap, provenance, re-validation
+  trigger); full exchange format and placement semantics remain deferred
 - why deferred: solo scale has no second owner; designing import
   semantics without a real importer invites speculation
 - unlock trigger: first real second human (collaborator or team
@@ -131,9 +132,10 @@ listed below with its declared unlock trigger.
 - declared purpose: answer, from packet chains alone, "what did the
   agent see, under which truth version, and who approved it" after an
   agent-caused incident
-- v0 state: raw material exists (SESSION-LOG-INTEGRITY hash chain,
-  promotion_snapshot source hashes, packet source_refs); no
-  reconstruction surface assembles them
+- v0 state: reconstruction primitive exists
+  (`tools/trace_packet_chain.py`: inbound referencers, outbound
+  citations, cited-file existence from a packet_uid); the incident
+  workflow and session-log assembly remain deferred
 - why deferred: no incident has required it; building forensics
   before the first real reconstruction request risks designing for
   imagined incidents

@@ -49,8 +49,17 @@ plausible home for attention accounting.
   AGENTS.md until evidence exists in-repo)
 - no medical or neuroscientific authority claim
 
+## v0 primitive (2026-06-12)
+`tools/order_review_queue.py` implements the deterministic part of this
+direction: pending review packets ordered by risk tier (high risk while
+attention is fresh, low risk batched), with visible word-count reading
+cost per item. It removes arrival-order randomness and makes cost
+visible; it makes no attention or quality claim and does not schedule
+against a measured budget.
+
 ## Promotion path
-Blocked on data: the review-card experiment must produce at least one
-measured compression/coverage result before any field proposal.
-Then: candidate field sketch under `07_working/`, governance review
-per change-impact rules before anything touches `02_packets/`.
+The empirical half stays blocked on data: the review-card experiment
+must produce at least one measured compression/coverage result before
+any budget-calibration field proposal. Then: candidate field sketch
+under `07_working/`, governance review per change-impact rules before
+anything touches `02_packets/`.
