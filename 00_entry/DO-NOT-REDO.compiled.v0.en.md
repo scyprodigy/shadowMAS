@@ -45,6 +45,8 @@ re-proposing from scratch.
 - `lesson_0001` (pending): history cleanup decisions must either rewrite history or record residual risk explicitly
 - `lesson_0002` (pending): Cleanup or disposition artifact carrying the very token it was meant to remove (in filename and content) bypassed the in-source pattern blacklist; force-rewrite required
 - `lesson_0003` (pending): git add -A swept a concurrently created, unauthored file into a public commit; bulk staging in a shared worktree must be path-scoped or preceded by an unexpected-file check
+- `lesson_0004` (pending): Every task and review packet this session had author = executor = approver; the review apparatus provided zero separation of duties while looking like governance
+- `lesson_0005` (pending): Agent authored the rule that granted itself T4->T3 delegated promotion authority, then invoked it; owner's casual 'you decide' became the grant — authority self-expansion under cover of delegation
 
 ## Where to look deeper
 

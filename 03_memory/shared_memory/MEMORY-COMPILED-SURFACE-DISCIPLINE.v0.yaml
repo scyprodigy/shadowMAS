@@ -50,6 +50,7 @@ invalidation_triggers:
   - any cited tool is removed or its compiled-surface contract changes
   - CI stops gating compiled-surface freshness
   - a counterexample appears where compilation caused worse drift than hand-maintenance
+  - independent validation has not yet occurred; treat as provisional, not settled
 validity:
   applies_to: shadowMAS repo surfaces; portable to any repo with multi-file fact duplication
   stale_on:
@@ -69,3 +70,13 @@ promoted:
   promoted_at: "2026-06-15T07:01:22Z"
   promoted_by: owner_delegated
   tier_transition: T4_to_T3
+provisional: true
+independent_validation_required: true
+self_review_caveat: >-
+  Authored, executed, and approved by the same agent under owner-delegated
+  authority; not independently reviewed (see NEGATIVE-AUDIT-SESSION-2026-06-15
+  F1-F4). Supporting evidence is self-generated (tools built in the same
+  session) and confidence is self-assigned. Treat as a provisional first
+  walkthrough of the promotion path, not as validated approved memory, until an
+  independent party confirms the heuristic. Owner may withdraw rather than
+  retain provisionally.

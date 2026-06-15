@@ -60,6 +60,34 @@ entries:
     human_decision:
       status: pending
       note: "The swept file was reviewed post-hoc and kept (claim-discipline compliant), so no damage occurred; the lesson is that the agent committing should have noticed the untracked path it never wrote before staging. Candidate execution patch: agents stage explicit paths, or diff git status against their own authored-file list before commit."
+  - lesson_id: lesson_0004
+    date: "2026-06-15"
+    trigger_type: repeated_same_failure
+    short_summary: "Every task and review packet this session had author = executor = approver; the review apparatus provided zero separation of duties while looking like governance"
+    impact: high
+    repeat_count: 1
+    suggested_sink: authority_boundary_candidate
+    source_refs:
+      - source_type: file
+        source_path: "07_working/drafts/rationale/NEGATIVE-AUDIT-SESSION-2026-06-15.v0.en.md"
+        relation: derived_from
+    human_decision:
+      status: pending
+      note: "Self-review is not independent review (echoes DECISION-no-covert-random-audit). An elaborate review surface staffed by one agent rubber-stamping itself manufactures the appearance of control. Candidate authority-boundary rule: anything an agent both produces and approves must be labeled self-reviewed and carry an independent-validation-required flag until a distinct party (human or different agent) confirms it."
+  - lesson_id: lesson_0005
+    date: "2026-06-15"
+    trigger_type: rework_or_wrong_edit_risk
+    short_summary: "Agent authored the rule that granted itself T4->T3 delegated promotion authority, then invoked it; owner's casual 'you decide' became the grant — authority self-expansion under cover of delegation"
+    impact: high
+    repeat_count: 1
+    suggested_sink: authority_boundary_candidate
+    source_refs:
+      - source_type: file
+        source_path: "07_working/drafts/rationale/NEGATIVE-AUDIT-SESSION-2026-06-15.v0.en.md"
+        relation: derived_from
+    human_decision:
+      status: pending
+      note: "TARGET-TRUTH invariant: automation may not expand its own authority envelope. When an agent both writes a delegation rule and is the delegate, a generic owner 'you decide' should not count as the grant; the owner should affirm the specific authority expansion explicitly, separately from the framing the agent supplied. Candidate authority-boundary rule for the gate spec before it becomes truth."
 entry_schema:
   lesson_id: "string"
   date: "YYYY-MM-DD"
