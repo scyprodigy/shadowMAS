@@ -60,5 +60,8 @@ jobs:
       - name: Packet reference integrity
         run: python3 tools/check_packet_refs.py
 
+      - name: Rejection record contract
+        run: python3 tools/check_rejection_records.py
+
       - name: Unit tests
         run: python3 -m unittest discover tests
