@@ -15,6 +15,9 @@ active reusable memory. Finding classes use harness vocabulary:
 
 Declared-but-not-mechanically-checkable conditions (validity.stale_on entries
 such as a model or runtime generation change) are echoed as NOTE lines only.
+When --generation is supplied, a packet declaring validity.runtime_generation
+different from the supplied value is reported stale (the model-churn
+invalidation class becomes mechanically checkable for packets that opt in).
 The checker never mutates packet status; marking a packet stale or
 broken_reference remains a human/review action.
 
@@ -57,7 +60,8 @@ def load_memory_packets(roots: list[Path]) -> list[tuple[Path, dict]]:
     return packets
 
 
-def check_packet(packet_path: Path, data: dict, repo: Path) -> tuple[list[str], list[str]]:
+def check_packet(packet_path: Path, data: dict, repo: Path,
+                 generation: str | None = None) -> tuple[list[str], list[str]]:
     findings: list[str] = []
     notes: list[str] = []
     uid = data.get("packet_uid", packet_path.name)
@@ -96,6 +100,12 @@ def check_packet(packet_path: Path, data: dict, repo: Path) -> tuple[list[str], 
 
     validity = data.get("validity")
     if isinstance(validity, dict):
+        declared_generation = validity.get("runtime_generation")
+        if generation and declared_generation and str(declared_generation) != generation:
+            findings.append(
+                f"{uid}: stale: declared runtime_generation "
+                f"{declared_generation!r} != current {generation!r}"
+            )
         for condition in validity.get("stale_on") or []:
             notes.append(
                 f"{uid}: NOTE declared stale_on condition (not mechanically checkable here): {condition}"
@@ -111,6 +121,9 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--root", action="append",
                         help="search root for memory packets (repeatable)")
     parser.add_argument("--repo", help="repo root for resolving source_refs (default: this repo)")
+    parser.add_argument("--generation",
+                        help="current model/runtime generation id; packets declaring a "
+                             "different validity.runtime_generation are reported stale")
     args = parser.parse_args(argv)
 
     repo = Path(args.repo).resolve() if args.repo else REPO
@@ -123,7 +136,7 @@ def main(argv: list[str]) -> int:
     packets = load_memory_packets(roots)
     all_findings: list[str] = []
     for packet_path, data in packets:
-        findings, notes = check_packet(packet_path, data, repo)
+        findings, notes = check_packet(packet_path, data, repo, generation=args.generation)
         all_findings.extend(findings)
         for line in findings + notes:
             print(line)
