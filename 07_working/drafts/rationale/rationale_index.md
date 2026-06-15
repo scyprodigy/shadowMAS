@@ -32,6 +32,9 @@
 | `negative_audit_cycle_routine.md` | working rationale capturing the negative-audit + cleanup methodology proven in session 2026-05. |
 | `policy_filename_memo.md` | path-sensitive filename policy memo for shadowMAS source surfaces. |
 | `rationale_evaluation_drift.md` | second-order evaluation drift rationale for shadowMAS. |
+| `rejection_no_covert_random_audit.v0.yaml` | covert/random post-delivery audit rejected for v0; deterministic visible checks win at solo scale. |
+| `rejection_no_mass_filename_rename.v0.yaml` | mass filename normalization rejected; mixed naming in flexible zones is policy, not accident. |
+| `rejection_record.PROPOSAL.v0.yaml` | YAML artifact `rejection_record_family` (no top-level purpose line). |
 | `residual_action_value_candidate_review.yaml` | YAML artifact `residual_action_value_candidate_review` (no top-level purpose line). |
 | `shared_state_capability_check_candidate_review.yaml` | YAML artifact `shared_state_capability_check_candidate_review` (no top-level purpose line). |
 | `rationale_index.md` | This file (compiled). |

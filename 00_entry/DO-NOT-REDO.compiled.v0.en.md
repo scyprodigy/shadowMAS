@@ -22,6 +22,8 @@ re-proposing from scratch.
 
 - draft rationale for not building covert random audit in v0 — `07_working/drafts/rationale/DECISION-no-covert-random-audit-v0.v0.en.md`
 - decision record: mixed legacy naming in working drafts stays; no mass rename — `07_working/drafts/rationale/DECISION-no-mass-filename-rename.v0.en.md`
+- covert/random post-delivery audit rejected for v0; deterministic visible checks win at solo scale; reopen via 6 recorded condition(s) — `07_working/drafts/rationale/rejection_no_covert_random_audit.v0.yaml`
+- mass filename normalization rejected; mixed naming in flexible zones is policy, not accident; reopen via 3 recorded condition(s) — `07_working/drafts/rationale/rejection_no_mass_filename_rename.v0.yaml`
 
 ## Deferred with explicit unlock triggers (do not build early)
 

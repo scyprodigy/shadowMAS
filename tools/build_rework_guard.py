@@ -8,6 +8,8 @@ its owning source file, and the source file always wins.
 
 Sources compiled:
 - 07_working/drafts/rationale/DECISION-*.md          (line-1 header purpose)
+- 07_working/drafts/rationale/rejection_*.v0.yaml    (rejection_record instances:
+                                                      purpose + reopen conditions)
 - 07_working/drafts/rationale/deferred_state_inventory.md
                                                      (section title + unlock trigger)
 - 07_working/drafts/SHADOWMAS-LESSONS-QUEUE.v0.yaml  (lesson id + summary)
@@ -77,6 +79,20 @@ def decided_lines() -> list[str]:
         match = MD_HEADER_RE.match(first)
         purpose = match.group("purpose") if match else "(unparseable header)"
         lines.append(f"- {purpose} — `{path.relative_to(REPO)}`")
+    for path in sorted(RATIONALE_DIR.glob("rejection_*.v0.yaml")):
+        if ".PROPOSAL." in path.name:
+            continue
+        try:
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except yaml.YAMLError:
+            data = None
+        if not isinstance(data, dict):
+            lines.append(f"- (unparseable rejection_record) — `{path.relative_to(REPO)}`")
+            continue
+        purpose = data.get("purpose", "(no purpose field)")
+        reopen = data.get("reopen_conditions") or []
+        reopen_note = f"; reopen via {len(reopen)} recorded condition(s)" if reopen else ""
+        lines.append(f"- {purpose}{reopen_note} — `{path.relative_to(REPO)}`")
     return lines
 
 
