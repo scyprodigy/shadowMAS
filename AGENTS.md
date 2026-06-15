@@ -36,6 +36,9 @@ CI fails if they are stale.
 These advisory tools read packets and report; none mutate status, schemas, or
 truth. Use them instead of re-deriving the same facts by hand:
 
+- `python3 tools/audit_shadow_state.py` — one-screen consolidated health
+  snapshot (anchor drift, compiled-surface freshness, memory validity, packet
+  reference integrity, pending review count); start here for a quick state read.
 - `python3 tools/order_review_queue.py` — agenda of pending review packets by
   risk tier with reading-cost estimates; use to pick what to review first.
 - `python3 tools/trace_packet_chain.py <packet_uid>` — reconstruct a packet's

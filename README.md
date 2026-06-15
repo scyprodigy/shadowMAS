@@ -151,6 +151,7 @@ shadowMAS ships three small read-only command surfaces. Each handles a different
 | `python3 tools/order_review_queue.py` | Pending review packets under `07_working/` (or `--root`) | Deterministic review agenda: risk-tier ordering, word-count reading cost, low-risk batching; no quality or attention claim | `0` agenda printed · `2` setup error |
 | `python3 tools/trace_packet_chain.py <packet_uid>` | Any packet by uid across `07_working/` and `examples/packets/` | Evidence-chain reconstruction: inbound referencers, outbound citations to depth, cited-file existence | `0` chain printed · `1` uid not found · `2` setup error |
 | `python3 tools/check_packet_refs.py` | All packets under `07_working/` and `examples/packets/` | Reference-integrity gate: dangling `source_id`, `source_path`, `related_packets`, `must_read`, and promotion-snapshot paths | `0` no dangling refs · `1` findings (advisory) · `2` setup error |
+| `python3 tools/audit_shadow_state.py` | The repo (orchestrates the advisory checks above) | Consolidated authority-boundary health snapshot in one screen: drift, compiled-surface freshness, memory validity, reference integrity, pending review count | `0` no findings · `1` findings · `2` a check could not run |
 
 None of these run agents, write back to product repos, or promote artifacts into truth. They check shape and contract only. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
 
