@@ -3,10 +3,23 @@
 # phase: proposal_non_canonical
 
 > status: DRAFT / working-only / non-canonical / authority: none
-> owner review required before this becomes truth and before any artifact is placed in 03_memory/shared_memory/
+> owner review required before this becomes truth; the two design choices below
+> were settled by owner-delegated decision 2026-06-15
 > this specifies a gate; it does not itself promote anything
 
 # Minimum T4->T3 Promotion Gate Semantics
+
+## Settled design choices (owner-delegated 2026-06-15)
+1. T4->T3 promotion may be decided by a human OR by delegated decision
+   authority under an explicit owner grant. T3->T2 (promotion into canonical
+   truth) remains human-only and is out of scope here. Rationale: T3 is
+   approved memory below canonical truth, and GOVERNANCE-MATRIX already permits
+   bounded T1 delegated decisions; the stronger human-only gate is reserved for
+   canonical truth.
+2. No `confidence` threshold gates promotion. Confidence stays visible evidence
+   for the reviewer, never an arbiter, consistent with the core principle that
+   confidence is not promotion. The seven preconditions below stand as the v0
+   gate.
 
 ## Why this exists
 `deferred_state_inventory.md` blocks placing any artifact in
