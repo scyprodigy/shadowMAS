@@ -1,6 +1,6 @@
 # review_promote_compiled_surface_discipline | promotion review packet: T4->T3 for the compiled-surface-discipline memory
 # related: [memory_compiled_surface_discipline, PROMOTION-GATE-SEMANTICS.PROPOSAL, check_promotion_eligibility, MEMORY-PLANE-HARNESS]
-# phase: approved
+# phase: closed
 
 packet_uid: review-promote-compiled-surface-discipline-v0-001
 packet_type: review_packet
@@ -10,8 +10,8 @@ created_by: claude_code_session
 owner: repo_owner
 supervision_mode: human_away_autonomous
 risk: r2_guarded
-status: approved
-decision_note: owner-delegated approval 2026-06-15; first T4->T3 promotion under the settled gate. PROVISIONAL — subsequent negative audit (NEGATIVE-AUDIT-SESSION-2026-06-15, F1-F4) found this was self-authored, self-executed, and self-approved on self-generated evidence; it requires independent validation and the owner may withdraw it.
+status: closed
+decision_note: WITHDRAWN 2026-06-15. This packet approved the first T4->T3 promotion under owner-delegated authority, but the negative audit (NEGATIVE-AUDIT-SESSION-2026-06-15, F1/F3/F4) found it self-authored, self-executed, and self-approved on self-generated evidence. The promotion was withdrawn the same day: the shared_memory artifact was removed and the candidate returned to candidate status. The underlying heuristic is not rejected; it needs independent validation before any re-promotion, which must also pass the now-enforced shared_memory provenance gate.
 
 decision_needed: Promote memory candidate memory-compiled-surface-discipline-v0-001 from T4 execution-feed candidate to T3 approved shared memory, placing it in 03_memory/shared_memory/.
 why_you_are_seeing_this: The candidate passed all seven eligibility preconditions (check_promotion_eligibility). Promotion to approved_shared requires a review packet and a human/delegated decision per the promotion-gate spec.

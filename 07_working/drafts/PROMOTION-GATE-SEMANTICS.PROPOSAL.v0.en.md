@@ -16,6 +16,15 @@
    approved memory below canonical truth, and GOVERNANCE-MATRIX already permits
    bounded T1 delegated decisions; the stronger human-only gate is reserved for
    canonical truth.
+   - Separation guard (added after NEGATIVE-AUDIT F1/F4): when the SAME agent
+     authored the artifact, executed it, AND would approve the promotion, a
+     generic owner "you decide" does NOT count as the grant. Self-everything
+     promotion must be labeled self-reviewed, carry
+     `independent_validation_required`, and obtain either (a) an independent
+     reviewer (a different agent or the human reading the actual content), or
+     (b) the owner's explicit affirmation of that specific promotion, separate
+     from any framing the agent supplied. The first promotion attempt violated
+     this and was withdrawn.
 2. No `confidence` threshold gates promotion. Confidence stays visible evidence
    for the reviewer, never an arbiter, consistent with the core principle that
    confidence is not promotion. The seven preconditions below stand as the v0

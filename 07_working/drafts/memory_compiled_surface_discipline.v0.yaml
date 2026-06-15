@@ -1,6 +1,6 @@
 # memory_compiled_surface_discipline | first real (non-example) memory packet: compiled-surface heuristic candidate
 # related: [MEMORY-PLANE-HARNESS, build_rework_guard, build_rationale_index, check_anchor_drift]
-# phase: superseded
+# phase: candidate_for_human_review
 
 packet_uid: memory-compiled-surface-discipline-v0-001
 packet_type: memory_packet
@@ -10,9 +10,8 @@ created_by: claude_code_session
 owner: repo_owner
 supervision_mode: human_available_delegate
 risk: r1_routine
-status: superseded
-superseded_by: 03_memory/shared_memory/MEMORY-COMPILED-SURFACE-DISCIPLINE.v0.yaml
-superseded_note: promoted T4->T3 on 2026-06-15 via review-promote-compiled-surface-discipline-v0-001; the active approved copy lives in shared_memory.
+status: candidate
+withdrawn_promotion_note: A provisional T4->T3 promotion of this candidate (2026-06-15, review-promote-compiled-surface-discipline-v0-001) was WITHDRAWN the same day after the negative audit (NEGATIVE-AUDIT-SESSION-2026-06-15, F1/F3/F4) found it self-authored, self-executed, and self-approved on self-generated evidence. The candidate remains a candidate; any future promotion needs independent validation and the now-enforced shared_memory provenance gate.
 
 memory_kind: operational_heuristic
 memory_scope: shadowmas_repo

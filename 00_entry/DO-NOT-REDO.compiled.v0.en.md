@@ -29,7 +29,7 @@ re-proposing from scratch.
 
 - **`03_memory/session_log/`** — unlock: first concrete need to record a session trace across a session boundary, OR first request to audit a past session, OR first explicit feature requiring tamper-evidence
 - **`03_memory/working_memory/`** — unlock: first concrete agent workflow that needs cross-call state that does not fit in a packet or a session log
-- **`03_memory/shared_memory/`** — unlock: SATISFIED (first reusable memory candidate survived promotion review and was placed); further placements follow the same gate
+- **`03_memory/shared_memory/`** — unlock: NOT satisfied. A candidate exists and the path was exercised once, but no placement survives. A real unlock needs a candidate that passes independent validation, not self-promotion.
 - **`AGENT-JOIN-CONTRACT.v0.en.md`** — unlock: packet contract reaches `.v1` candidacy and a delegated-envelope schema is drafted
 - **`PROJECT-INTAKE-CONTRACT.v0.en.md`** — unlock: write-back automation contract drafted
 - **`LEGACY-INTAKE-NORMALIZATION.v0.en.md`** — unlock: `PACKET-COMPATIBILITY-LAYER.v0.en.md` reaches approved status

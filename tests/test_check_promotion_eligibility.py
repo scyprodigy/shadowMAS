@@ -50,18 +50,17 @@ class PromotionEligibilityTests(unittest.TestCase):
         finally:
             path.unlink()
 
-    def test_promoted_artifact_is_not_eligible(self):
-        # the first real candidate was promoted T4->T3 on 2026-06-15; the
-        # approved shared-memory artifact must no longer read as eligible
-        # (status is approved_shared, not candidate)
+    def test_real_candidate_is_eligible(self):
+        # the candidate's provisional promotion was withdrawn (negative audit);
+        # it is back to status candidate and mechanically eligible again.
+        # Eligible is not the same as should-be-promoted (see negative audit F2).
         result = subprocess.run(
             [sys.executable, str(TOOL),
-             "03_memory/shared_memory/MEMORY-COMPILED-SURFACE-DISCIPLINE.v0.yaml"],
+             "07_working/drafts/memory_compiled_surface_discipline.v0.yaml"],
             capture_output=True, text=True, cwd=REPO_ROOT,
         )
-        self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
-        self.assertIn("3 status is candidate", result.stdout)
-        self.assertIn("NOT ELIGIBLE", result.stdout)
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+        self.assertIn("ELIGIBLE FOR REVIEW", result.stdout)
 
     def test_eligible_fixture_passes(self):
         result = self._run(ELIGIBLE)

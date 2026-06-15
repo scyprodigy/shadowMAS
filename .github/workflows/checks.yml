@@ -63,5 +63,8 @@ jobs:
       - name: Rejection record contract
         run: python3 tools/check_rejection_records.py
 
+      - name: Shared-memory placement provenance (enforcing)
+        run: python3 tools/check_placement_provenance.py
+
       - name: Unit tests
         run: python3 -m unittest discover tests
