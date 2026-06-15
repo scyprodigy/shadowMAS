@@ -153,6 +153,7 @@ shadowMAS ships three small read-only command surfaces. Each handles a different
 | `python3 tools/check_packet_refs.py` | All packets under `07_working/` and `examples/packets/` | Reference-integrity gate: dangling `source_id`, `source_path`, `related_packets`, `must_read`, and promotion-snapshot paths | `0` no dangling refs · `1` findings (advisory) · `2` setup error |
 | `python3 tools/audit_shadow_state.py` | The repo (orchestrates the advisory checks above) | Consolidated authority-boundary health snapshot in one screen: drift, compiled-surface freshness, memory validity, reference integrity, pending review count | `0` no findings · `1` findings · `2` a check could not run |
 | `python3 tools/check_promotion_eligibility.py <memory_packet>` | One memory packet | The seven T4→T3 promotion preconditions (validator, promotion_candidate, status, source resolution, invalidation triggers, no ghost-dependency findings, confidence visible); eligibility is not approval | `0` eligible · `1` not eligible · `2` setup error |
+| `python3 tools/check_placement_provenance.py` | `03_memory/shared_memory/` artifacts (CI-enforcing) | Every placed artifact must have an approved promotion review packet referencing it; direct placement without provenance fails the build | `0` all have provenance · `1` violation · `2` setup error |
 
 None of these run agents, write back to product repos, or promote artifacts into truth. They check shape and contract only. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
 

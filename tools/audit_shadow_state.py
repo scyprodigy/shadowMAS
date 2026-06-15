@@ -61,6 +61,7 @@ def main(argv: list[str]) -> int:
         run_check("memory validity", memory_cmd),
         run_check("packet reference integrity", [py, "tools/check_packet_refs.py"]),
         run_check("rejection record contract", [py, "tools/check_rejection_records.py"]),
+        run_check("shared-memory provenance", [py, "tools/check_placement_provenance.py"]),
     ]
 
     setup_error = any(code == 2 for _, code, _ in checks)

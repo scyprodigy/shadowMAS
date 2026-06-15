@@ -43,19 +43,21 @@ placeholder README files. Each is intentionally unimplemented in v0.
 
 ### `03_memory/shared_memory/`
 - declared purpose: approved reusable memory below canonical truth
-- v0 state: **first placement made 2026-06-15** —
-  `03_memory/shared_memory/MEMORY-COMPILED-SURFACE-DISCIPLINE.v0.yaml`
-  (status `approved_shared`), promoted T4->T3 under owner-delegated
-  authority via review-promote-compiled-surface-discipline-v0-001
-- unlock trigger: SATISFIED (first reusable memory candidate survived
-  promotion review and was placed); further placements follow the same
-  gate
+- v0 state: empty. A first provisional placement was made and withdrawn
+  on 2026-06-15 after the negative audit found it self-authored,
+  self-executed, and self-approved on self-generated evidence
+  (NEGATIVE-AUDIT-SESSION-2026-06-15 F1/F3/F4). The candidate
+  (`07_working/drafts/memory_compiled_surface_discipline.v0.yaml`)
+  returned to status `candidate`.
+- unlock trigger: NOT satisfied. A candidate exists and the path was
+  exercised once, but no placement survives. A real unlock needs a
+  candidate that passes independent validation, not self-promotion.
 - implementation gate: promotion gate semantics specified in draft at
   `07_working/drafts/PROMOTION-GATE-SEMANTICS.PROPOSAL.v0.en.md`
-  (T4->T3) with a mechanical checker
-  (`tools/check_promotion_eligibility.py`). The proposal itself is
-  still working-only and needs owner review to become truth; the first
-  placement was made under owner-delegated authority.
+  (T4->T3) with a mechanical eligibility checker
+  (`tools/check_promotion_eligibility.py`) and now a CI-enforced
+  provenance gate (`tools/check_placement_provenance.py`). The
+  proposal is still working-only and needs owner review to become truth.
 
 ## Runtime adapter drafts under lock
 Five drafts under `07_working/drafts/runtime_adapter/` are locked by
