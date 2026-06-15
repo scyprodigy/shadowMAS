@@ -1,0 +1,53 @@
+# review_boundary_tooling_batch | review packet for the executed boundary-tooling batch
+# related: [task_boundary_tooling_batch, rejection_record.PROPOSAL, order_review_queue, trace_packet_chain, import_memory_candidate]
+# phase: ready_for_human
+
+packet_uid: review-boundary-tooling-batch-v0-001
+packet_type: review_packet
+schema_version: v0
+created_at: "2026-06-15T02:03:16Z"
+created_by: claude_code_session
+owner: repo_owner
+supervision_mode: human_available_delegate
+risk: r1_routine
+status: ready_for_human
+
+decision_needed: Accept or reject the executed boundary-tooling batch (task-boundary-tooling-batch-v0-001) and its delivered primitives.
+why_you_are_seeing_this: The umbrella task packet declared awaiting_review on completion; per the packet loop, execution output is evidence and the human decides acceptance.
+change_summary: >-
+  Delivered five working primitives plus tests, all in tool and
+  working-draft space, no schema or canonical-truth change. (1) rejection_record
+  working family: proposal plus two real instances, compiled into the DO-NOT-REDO
+  surface by build_rework_guard. (2) order_review_queue.py: deterministic review
+  agenda by risk tier with reading-cost estimates. (3) trace_packet_chain.py:
+  evidence-chain reconstruction from a packet_uid. (4) import_memory_candidate.py:
+  cross-owner memory import with forced downgrade and re-validation. (5)
+  check_memory_validity --generation: model/runtime generation staleness. Test
+  suite grew to 130, all green; compiled surfaces fresh.
+risk_summary: Risk stays r1_routine as scoped; every tool is read-only or writes only into working space on explicit invocation; none mutate packet status, schemas, or canonical truth, and none make empirical claims.
+recommendation: approve
+
+source_refs:
+  - source_type: task_packet
+    source_id: task-boundary-tooling-batch-v0-001
+    relation: reviews
+  - source_type: file
+    source_path: tools/order_review_queue.py
+    relation: derived_from
+  - source_type: file
+    source_path: tools/trace_packet_chain.py
+    relation: derived_from
+  - source_type: file
+    source_path: tools/import_memory_candidate.py
+    relation: derived_from
+  - source_type: file
+    source_path: 07_working/drafts/rationale/rejection_record.PROPOSAL.v0.yaml
+    relation: derived_from
+
+related_packets:
+  - task-boundary-tooling-batch-v0-001
+
+minimal_checks:
+  must_read:
+    - 07_working/drafts/task_boundary_tooling_batch.v0.yaml
+    - 07_working/drafts/rationale/rejection_record.PROPOSAL.v0.yaml

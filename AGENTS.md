@@ -31,6 +31,20 @@ queue, regenerate the compiled surfaces before finishing:
 `python3 tools/build_rework_guard.py && python3 tools/build_rationale_index.py`.
 CI fails if they are stale.
 
+## Read-only inspection tooling
+
+These advisory tools read packets and report; none mutate status, schemas, or
+truth. Use them instead of re-deriving the same facts by hand:
+
+- `python3 tools/order_review_queue.py` — agenda of pending review packets by
+  risk tier with reading-cost estimates; use to pick what to review first.
+- `python3 tools/trace_packet_chain.py <packet_uid>` — reconstruct a packet's
+  evidence chain (who references it, what it cites, cited-file existence).
+- `python3 tools/check_memory_validity.py [--generation <id>]` — ghost-dependency
+  scan over memory packets (`broken_reference`, `stale`).
+- `python3 tools/import_memory_candidate.py <packet>` — import an external memory
+  packet as a downgraded candidate; import is not approval.
+
 ## Authority boundaries
 
 - `01_truth/` contains canonical project truth surfaces. Do not edit unless the task explicitly allows truth-surface changes.
@@ -86,6 +100,7 @@ Validation commands should be read-only with respect to the repository.
 - If asked to prepare a commit, report the exact paths changed and a suggested commit message; let the human review and execute.
 - If a task touches multiple unrelated surfaces, propose splitting into separate commits.
 - Do not force-push, rebase published history, or rewrite shared branches.
+- Commit messages, filenames, and `task_id`/`packet_uid` values must use the repository's own vocabulary, not conversational or brainstorming labels carried over from a chat (for example a placeholder like "niche-3" or "phase-2"). Name things by their function.
 
 ## Safety and non-claims
 
