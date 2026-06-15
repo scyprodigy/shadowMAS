@@ -1,0 +1,48 @@
+# review_promote_compiled_surface_discipline | promotion review packet: T4->T3 for the compiled-surface-discipline memory
+# related: [memory_compiled_surface_discipline, PROMOTION-GATE-SEMANTICS.PROPOSAL, check_promotion_eligibility, MEMORY-PLANE-HARNESS]
+# phase: approved
+
+packet_uid: review-promote-compiled-surface-discipline-v0-001
+packet_type: review_packet
+schema_version: v0
+created_at: "2026-06-15T07:01:22Z"
+created_by: claude_code_session
+owner: repo_owner
+supervision_mode: human_away_autonomous
+risk: r2_guarded
+status: approved
+decision_note: owner-delegated approval 2026-06-15; first T4->T3 promotion under the settled gate.
+
+decision_needed: Promote memory candidate memory-compiled-surface-discipline-v0-001 from T4 execution-feed candidate to T3 approved shared memory, placing it in 03_memory/shared_memory/.
+why_you_are_seeing_this: The candidate passed all seven eligibility preconditions (check_promotion_eligibility). Promotion to approved_shared requires a review packet and a human/delegated decision per the promotion-gate spec.
+change_summary: The candidate records the compiled-surface discipline heuristic (hand-maintained mirror surfaces drift; compile from owner files and gate freshness in CI). On approval it is placed at 03_memory/shared_memory/compiled_surface_discipline.v0.yaml with status approved_shared, the working candidate is marked superseded, and the memory-validity and packet-reference checkers extend their roots to include 03_memory/shared_memory/ so the placed artifact stays under the ghost-dependency rule.
+risk_summary: r2_guarded because this is the first placement into a previously-deferred surface and sets promotion precedent; it is reversible (a file plus status flips) and stays below canonical truth (approved_shared is not T2). No schema or canonical-truth change.
+recommendation: approve
+
+source_refs:
+  - source_type: memory_packet
+    source_id: memory-compiled-surface-discipline-v0-001
+    relation: reviews
+  - source_type: file
+    source_path: 07_working/drafts/memory_compiled_surface_discipline.v0.yaml
+    relation: reviews
+
+related_packets:
+  - memory-compiled-surface-discipline-v0-001
+
+promotion_snapshot:
+  snapshot_at: "2026-06-15T07:01:22Z"
+  source_hashes:
+    - source_path: tools/build_rationale_index.py
+      sha256: edb9e5b5cfb43a9cb85191ded103895b90e73df9c46c2f56f3945a77551810e6
+    - source_path: tools/build_rework_guard.py
+      sha256: f909d44741b74dd8de35be4828c15b261d9094becee550c4e9841e8ef896e7d3
+    - source_path: tools/check_anchor_drift.py
+      sha256: e80082f362e80536b988b442e9fe56117464750c06d7ba9cf02914d38d625568
+    - source_path: 07_working/drafts/rationale/RATIONALE-calibrated-trust-gates.v0.draft.en.md
+      sha256: 14d1134912f51fed00106986a91e489a4db265fec65edf64222367d3817a329d
+
+minimal_checks:
+  must_read:
+    - 07_working/drafts/memory_compiled_surface_discipline.v0.yaml
+    - 07_working/drafts/PROMOTION-GATE-SEMANTICS.PROPOSAL.v0.en.md
