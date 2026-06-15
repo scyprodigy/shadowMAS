@@ -83,6 +83,19 @@ approval.
 - A registry entry (in the existing candidate/file-status registries) records
   the promotion outcome.
 
+## Enforcement gap (honest limitation)
+This gate is advisory. The checkers report; they do not prevent. Nothing on the
+filesystem stops any actor from writing a file directly into
+`03_memory/shared_memory/` with no eligibility check, no review packet, and no
+promotion_snapshot. The GOVERNANCE-MATRIX forbids T5/T4 -> T3 direct jumps, but
+that prohibition is convention, not mechanism. Treat a clean
+`check_promotion_eligibility` run and a placed artifact as evidence that the
+process WAS followed when invoked — never as proof that it COULD NOT have been
+bypassed. Real enforcement would require a pre-write hook or a CI gate that
+rejects shared_memory additions lacking an approved promotion review packet;
+that does not exist in v0 and is not promised here. (See
+NEGATIVE-AUDIT-SESSION-2026-06-15 F7.)
+
 ## Explicitly still deferred
 - automatic or scheduled promotion (human/delegated act only for v0)
 - `T3 -> T2` promotion semantics

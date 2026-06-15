@@ -82,13 +82,18 @@ def main(argv: list[str]) -> int:
     print("  (run tools/order_review_queue.py for the full agenda)")
 
     print()
+    print("  scope: this snapshot verifies representation consistency only —")
+    print("  NOT content correctness, authority legitimacy, or enforcement.")
+    print("  A clean result means shapes are consistent, not that the shadow's")
+    print("  memories or decisions are true or safe. (NEGATIVE-AUDIT F6)")
+    print()
     if setup_error:
         print("RESULT: ERROR — a check could not run")
         return 2
     if findings:
         print("RESULT: FINDINGS — see the FINDING rows above; human review decides")
         return 1
-    print("RESULT: OK — no authority-boundary findings")
+    print("RESULT: shapes consistent — no representation-level findings")
     return 0
 
 

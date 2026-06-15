@@ -188,7 +188,7 @@ tracked_files:
     owner: human_governance
     writable_by:
       - human_governance
-    notes: First approved shared-memory placement; promoted T4->T3 on 2026-06-15 (owner-delegated) via review-promote-compiled-surface-discipline-v0-001 under PROMOTION-GATE-SEMANTICS. Reusable non-canonical; below T2.
+    notes: First shared-memory placement; promoted T4->T3 on 2026-06-15 (owner-delegated) via review-promote-compiled-surface-discipline-v0-001 under PROMOTION-GATE-SEMANTICS. PROVISIONAL — self-authored/executed/approved, evidence self-generated; needs independent validation per NEGATIVE-AUDIT-SESSION-2026-06-15. Reusable non-canonical; below T2.
 
   - path: 04_runtime/LOCAL-MODEL-BASELINE.v0.en.md
     artifact_type: runtime_baseline

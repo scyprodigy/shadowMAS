@@ -15,7 +15,9 @@ class AuditShadowStateTests(unittest.TestCase):
             capture_output=True, text=True, cwd=REPO_ROOT,
         )
         self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
-        self.assertIn("RESULT: OK", result.stdout)
+        self.assertIn("shapes consistent", result.stdout)
+        # the snapshot must disclose what it does not verify, not imply health
+        self.assertIn("representation consistency only", result.stdout)
         # every underlying check should be represented as a row
         for label in ("anchor drift", "memory validity", "packet reference integrity"):
             self.assertIn(label, result.stdout)
