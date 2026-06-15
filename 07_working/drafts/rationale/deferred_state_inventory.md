@@ -43,16 +43,19 @@ placeholder README files. Each is intentionally unimplemented in v0.
 
 ### `03_memory/shared_memory/`
 - declared purpose: approved reusable memory below canonical truth
-- v0 state: placeholder README only; a first concrete candidate now
-  exists (`07_working/drafts/memory_compiled_surface_discipline.v0.yaml`,
-  status `candidate`)
-- unlock trigger: first concrete reusable memory candidate that
-  survives promotion review and needs a placement, OR first cross
-  -agent reuse case
-- implementation gate: promotion gate semantics must be specified
-  before any artifact is placed here. A draft now exists at
+- v0 state: **first placement made 2026-06-15** —
+  `03_memory/shared_memory/MEMORY-COMPILED-SURFACE-DISCIPLINE.v0.yaml`
+  (status `approved_shared`), promoted T4->T3 under owner-delegated
+  authority via review-promote-compiled-surface-discipline-v0-001
+- unlock trigger: SATISFIED (first reusable memory candidate survived
+  promotion review and was placed); further placements follow the same
+  gate
+- implementation gate: promotion gate semantics specified in draft at
   `07_working/drafts/PROMOTION-GATE-SEMANTICS.PROPOSAL.v0.en.md`
-  (T4->T3); it needs owner review before any placement.
+  (T4->T3) with a mechanical checker
+  (`tools/check_promotion_eligibility.py`). The proposal itself is
+  still working-only and needs owner review to become truth; the first
+  placement was made under owner-delegated authority.
 
 ## Runtime adapter drafts under lock
 Five drafts under `07_working/drafts/runtime_adapter/` are locked by
