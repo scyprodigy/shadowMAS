@@ -1,6 +1,6 @@
 # review_target_truth_axis3_personalization | review packet for the axis-3 personalization status line update
 # related: [SHADOWMAS-TARGET-TRUTH, USER-PROJECT-ADAPTATION-PROFILE-SCHEMA, SHADOWMAS-LESSONS-QUEUE]
-# phase: ready_for_human
+# phase: approved
 
 packet_uid: review-target-truth-axis3-personalization-v0-001
 packet_type: review_packet
@@ -10,7 +10,8 @@ created_by: claude_code_session
 owner: repo_owner
 supervision_mode: human_available_delegate
 risk: r1_routine
-status: ready_for_human
+status: approved
+decision_note: owner-delegated approval 2026-06-15; recommendation was approve.
 
 decision_needed: Confirm the one-line axis-3 status correction in TARGET-TRUTH now that a personalization schema draft exists in the working area.
 why_you_are_seeing_this: The change touches a 01_truth/ canonical file; truth-change discipline requires a referencing review packet even for a status-line correction.
