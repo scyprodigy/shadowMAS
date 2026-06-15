@@ -1,0 +1,44 @@
+# rejection_record.PROPOSAL | candidate working-family proposal: structured record of a rejected idea with reopen conditions
+# related: [REJECTION-KNOWLEDGE-DIRECTION, DECISION-no-covert-random-audit-v0, DECISION-no-mass-filename-rename, build_rework_guard]
+# phase: proposal_non_canonical
+
+proposal_name: rejection_record_family
+status: working_family_proposal
+authority: none
+
+provenance:
+  derived_from: 07_working/drafts/rationale/REJECTION-KNOWLEDGE-DIRECTION.v0.draft.en.md
+  paper_simulation: 2026-06-11 (shape held; rejection_scope split into applies_to/exceptions)
+  precondition_note: >-
+    The direction draft set a third-strongly-shaped-instance precondition
+    before drafting this proposal. The owner explicitly lifted that
+    precondition on 2026-06-12 and instructed implementation to proceed.
+    This is recorded here so the override is visible, not silent.
+
+boundary:
+  is_packet_family: false
+  note: >-
+    This is a working-record format under 07_working/, not a 02_packets/
+    packet family. It has no validator in shadowmas_validate.py and no
+    schema_version contract. Elevation to a real packet family requires
+    governance review per the change-impact map.
+
+required_fields:
+  purpose: one-line summary used by compiled indexes
+  rejected_claim: the idea, feature, or adoption being rejected
+  rejection_scope:
+    applies_to: scale or context in which the rejection holds
+    exceptions: actions that remain allowed despite the rejection
+  rejection_reasons: list; each reason must survive reading without the original conversation
+  reopen_conditions: list; "never" must be stated explicitly, not implied
+  source_refs: list of the owning decision/policy records
+  anti_resurrection_note: one line telling a future reader why this record exists
+
+optional_fields:
+  rejected_at: ISO date of the original decision
+  rejection_class: feature_not_built | adoption_declined | action_not_taken | claim_withdrawn
+
+consumer:
+  - tools/build_rework_guard.py compiles instances matching
+    07_working/drafts/rationale/rejection_*.v0.yaml into the
+    DO-NOT-REDO "Already decided" section

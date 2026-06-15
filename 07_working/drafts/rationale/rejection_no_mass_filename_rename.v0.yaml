@@ -1,0 +1,26 @@
+# rejection_no_mass_filename_rename | rejection_record instance: no mass rename of grandfathered filenames
+# related: [DECISION-no-mass-filename-rename, policy_filename_memo, rejection_record.PROPOSAL]
+# phase: rejection_record_instance
+
+purpose: mass filename normalization rejected; mixed naming in flexible zones is policy, not accident
+rejected_claim: mass-rename existing files to a single naming convention
+rejected_at: "2026-06-11"
+rejection_class: action_not_taken
+rejection_scope:
+  applies_to: all tracked layers; strongest in 07_working/drafts/** (flexible_research zone)
+  exceptions:
+    - single-file renames with a concrete cause (collision, pollution, broken reference) remain allowed with reference updates
+    - new files still follow the path policy table at write time
+rejection_reasons:
+  - references are load-bearing; mass rename maximizes blast radius for zero semantic gain
+  - machine surfaces depend on existing prefixes (DECISION-* and rejection_* globs, test_* discovery)
+  - git log --follow ergonomics degrade across the whole working area at once
+  - the apparent inconsistency is path-scoped policy, not accident
+reopen_conditions:
+  - filename policy memo promoted and grandfathering clause dropped
+  - release milestone budgets a one-time normalization pass with full reference updates
+  - atomic rename+reference-rewrite+regeneration tooling approved
+source_refs:
+  - 07_working/drafts/rationale/DECISION-no-mass-filename-rename.v0.en.md
+  - 07_working/drafts/rationale/policy_filename_memo.md
+anti_resurrection_note: a repo audit re-flagged sanctioned mixed naming as drift before reading the policy owner; this record absorbs that rework class

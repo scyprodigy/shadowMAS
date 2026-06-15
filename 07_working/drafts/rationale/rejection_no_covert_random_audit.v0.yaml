@@ -1,0 +1,29 @@
+# rejection_no_covert_random_audit | rejection_record instance: covert/random post-delivery audit not built in v0
+# related: [DECISION-no-covert-random-audit-v0, rejection_record.PROPOSAL]
+# phase: rejection_record_instance
+
+purpose: covert/random post-delivery audit rejected for v0; deterministic visible checks win at solo scale
+rejected_claim: build covert and/or randomly sampled post-delivery audit of agent work in v0
+rejected_at: "2026-06-09"
+rejection_class: feature_not_built
+rejection_scope:
+  applies_to: solo / beachhead scale, v0, where audited party, operator, verifier, and log owner are one person and machine
+  exceptions:
+    - deterministic visible validation surfaces remain in scope and documented
+    - optional personal hash-chained chronology log (OFF by default) remains allowed
+rejection_reasons:
+  - self-audit, not independent audit; no auditor/audited separation exists at solo scale
+  - deterministic visible CI/pre-commit checks strictly dominate hidden random sampling of the same checks for regression detection
+  - low delivery volume x low sampling rate yields no statistical power; hash chaining gives tamper evidence, not statistics
+  - no structural covertness when the agent shares the machine and repo
+  - inspection-game deterrence is a category error for stateless per-call agents
+reopen_conditions:
+  - audited agent/operator distinct from the auditor
+  - trigger, seed, decision, log, and checks live outside the working agent's read scope
+  - checks pre-registered by an owner/orchestrator/spec or agent-independent by construction
+  - isolated delivery snapshots exist
+  - delivery volume large enough for statistics
+  - escalation owned by an independent reviewer / CI / operator
+source_refs:
+  - 07_working/drafts/rationale/DECISION-no-covert-random-audit-v0.v0.en.md
+anti_resurrection_note: prevents the words "random audit" from resurrecting the feature at the wrong scale
