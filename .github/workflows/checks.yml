@@ -57,5 +57,8 @@ jobs:
       - name: Memory validity check
         run: python3 tools/check_memory_validity.py
 
+      - name: Packet reference integrity
+        run: python3 tools/check_packet_refs.py
+
       - name: Unit tests
         run: python3 -m unittest discover tests
