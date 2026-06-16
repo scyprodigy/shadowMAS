@@ -87,7 +87,7 @@ entries:
         relation: derived_from
     human_decision:
       status: pending
-      note: "TARGET-TRUTH invariant: automation may not expand its own authority envelope. When an agent both writes a delegation rule and is the delegate, a generic owner 'you decide' should not count as the grant; the owner should affirm the specific authority expansion explicitly, separately from the framing the agent supplied. Candidate authority-boundary rule for the gate spec before it becomes truth."
+      note: "TARGET-TRUTH invariant: automation may not expand its own authority envelope. When an agent both writes a delegation rule and is the delegate, a generic owner 'you decide' should not count as the grant; the owner should affirm the specific authority expansion explicitly, after reviewing the actual content rather than only the agent's summary (phrasing kept consistent with the gate spec's separation guard). Candidate authority-boundary rule for the gate spec before it becomes truth."
 entry_schema:
   lesson_id: "string"
   date: "YYYY-MM-DD"
