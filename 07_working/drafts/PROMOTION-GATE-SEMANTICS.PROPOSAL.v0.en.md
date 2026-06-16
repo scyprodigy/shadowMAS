@@ -22,9 +22,15 @@
      promotion must be labeled self-reviewed, carry
      `independent_validation_required`, and obtain either (a) an independent
      reviewer (a different agent or the human reading the actual content), or
-     (b) the owner's explicit affirmation of that specific promotion, separate
-     from any framing the agent supplied. The first promotion attempt violated
-     this and was withdrawn.
+     (b) the owner's explicit affirmation of that specific promotion after
+     reviewing the artifact's actual content, not only the agent's summary. The
+     first promotion attempt violated this and was withdrawn.
+   - Honest limit of this guard: it is unenforced policy. Nothing mechanically
+     detects same-agent self-approval — `created_by` is an agent-set free string,
+     and `check_placement_provenance` verifies a referencing approved review
+     exists, not that its approver is independent of the author. The guard
+     records the rule and relies on the agent honoring it and on the human in the
+     loop; it is not a control. This is the F1/F4 structural limit, not closed.
 2. No `confidence` threshold gates promotion. Confidence stays visible evidence
    for the reviewer, never an arbiter, consistent with the core principle that
    confidence is not promotion. The seven preconditions below stand as the v0
