@@ -65,10 +65,16 @@ validity:
     - CI freshness gates removed
   review_after: next significant audit cycle
 confidence: 0.8
+confidence_basis: >-
+  Self-assigned during authoring; not independently calibrated. Treat as a
+  rough authoring estimate, not as evidence of correctness.
 promotion_candidate: "yes"
 promotion_notes: >-
-  Candidate for T3 approved shared memory. Three same-day validated
-  instances; survived one full CI cycle. Promotion requires human
-  review per MEMORY-PLANE-HARNESS; this packet's existence satisfies
-  the shared_memory unlock precondition (first concrete reusable
-  memory candidate) but does not itself unlock placement.
+  Candidate for T3 approved shared memory. NOTE: the supporting evidence
+  (three instances built by the same agent in the same session) is
+  self-generated, and a provisional promotion on that basis was withdrawn
+  the same day (see withdrawn_promotion_note and
+  NEGATIVE-AUDIT-SESSION-2026-06-15 F3). Re-promotion requires independent
+  validation of the heuristic by a party that did not author it, plus the
+  enforced shared_memory provenance gate. The earlier "survived one CI cycle"
+  framing was self-validation and does not count as validation.
