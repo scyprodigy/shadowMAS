@@ -100,10 +100,17 @@ promotion_snapshot. The GOVERNANCE-MATRIX forbids T5/T4 -> T3 direct jumps, but
 that prohibition is convention, not mechanism. Treat a clean
 `check_promotion_eligibility` run and a placed artifact as evidence that the
 process WAS followed when invoked — never as proof that it COULD NOT have been
-bypassed. Real enforcement would require a pre-write hook or a CI gate that
-rejects shared_memory additions lacking an approved promotion review packet;
-that does not exist in v0 and is not promised here. (See
-NEGATIVE-AUDIT-SESSION-2026-06-15 F7.)
+bypassed. A CI gate now exists (`tools/check_placement_provenance.py`, wired into
+`.github/workflows/checks.yml`) and rejects shared_memory additions lacking an
+approved promotion review packet. But on the current direct-push-to-main
+workflow it is POST-HOC: the commit lands on main, then the job goes red.
+Confirmed factually — direct pushes to main succeed, so main has no branch
+protection. Full pre-merge PREVENTION additionally requires (a) GitHub branch
+protection on main requiring the `checks` status, and (b) a PR-based workflow
+instead of direct pushes. Both are owner repo-admin settings, not codeable from
+this repo. Until then, treat the gate as automatic detection that turns the
+build red, not as something that could not have been bypassed at write time.
+(See NEGATIVE-AUDIT-SESSION-2026-06-15 F7.)
 
 ## Explicitly still deferred
 - automatic or scheduled promotion (human/delegated act only for v0)

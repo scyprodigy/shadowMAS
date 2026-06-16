@@ -63,7 +63,14 @@ jobs:
       - name: Rejection record contract
         run: python3 tools/check_rejection_records.py
 
-      - name: Shared-memory placement provenance (enforcing)
+      # Provenance gate: fails the job for any 03_memory/shared_memory/ artifact
+      # lacking an approved promotion review packet. NOTE: on the current
+      # direct-push-to-main workflow this is POST-HOC detection (the commit lands,
+      # then CI goes red), not pre-merge prevention. True prevention additionally
+      # requires GitHub branch protection requiring this check plus a PR-based
+      # workflow — an owner repo setting, not configurable from this file.
+      # See NEGATIVE-AUDIT-SESSION-2026-06-15 F7.
+      - name: Shared-memory placement provenance
         run: python3 tools/check_placement_provenance.py
 
       - name: Unit tests
