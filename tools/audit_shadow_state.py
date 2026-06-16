@@ -86,7 +86,8 @@ def main(argv: list[str]) -> int:
     print("  scope: this snapshot verifies representation consistency only —")
     print("  NOT content correctness, authority legitimacy, or enforcement.")
     print("  A clean result means shapes are consistent, not that the shadow's")
-    print("  memories or decisions are true or safe. (NEGATIVE-AUDIT F6)")
+    print("  memories or decisions are true or safe.")
+    print("  (see 07_working/drafts/rationale/NEGATIVE-AUDIT-SESSION-2026-06-15.v0.en.md F6)")
     print()
     if setup_error:
         print("RESULT: ERROR — a check could not run")
