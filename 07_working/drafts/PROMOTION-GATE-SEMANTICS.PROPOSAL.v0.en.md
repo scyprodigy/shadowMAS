@@ -16,7 +16,7 @@
    approved memory below canonical truth, and GOVERNANCE-MATRIX already permits
    bounded T1 delegated decisions; the stronger human-only gate is reserved for
    canonical truth.
-   - Separation guard (added after NEGATIVE-AUDIT F1/F4): when the SAME agent
+   - Separation guard (added after NEGATIVE-AUDIT-SESSION-2026-06-15 F1/F4): when the SAME agent
      authored the artifact, executed it, AND would approve the promotion, a
      generic owner "you decide" does NOT count as the grant. Self-everything
      promotion must be labeled self-reviewed, carry

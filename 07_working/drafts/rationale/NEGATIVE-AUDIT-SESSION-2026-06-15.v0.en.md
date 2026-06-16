@@ -5,6 +5,10 @@
 > status: DRAFT / working-only / non-canonical / authority: none
 > this file attacks the author's own recent work; it records findings, not fixes
 > most findings here are NOT closable by more tooling; they are limits to hold in view
+> citation: cite findings as `NEGATIVE-AUDIT-SESSION-2026-06-15 Fn`; each Fn is
+> defined only by its `### Fn` heading below — there is no other definition source,
+> index, or schema for these labels. References elsewhere are prose pointers and
+> are not verified by any checker.
 
 # Negative Audit: This Session's Conclusions
 
