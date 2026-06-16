@@ -10,10 +10,17 @@ CI instead of silently passing.
 
 Provenance requirement, per file in 03_memory/shared_memory/ (excluding README):
 - it parses as a memory_packet, AND
-- some review_packet under 07_working/ with status `approved` references it,
-  either by the artifact's packet_uid (in the review's source_refs source_id or
-  related_packets) or by the artifact's `promoted.via_review` naming that
-  review's packet_uid.
+- some review_packet under 07_working/ with status `approved` covers it, where
+  "covers" means EITHER
+    (a) the review references the artifact's own packet_uid (in source_refs
+        source_id or related_packets), OR
+    (b) the artifact's `promoted.via_review` names that review AND the same
+        review references the artifact's `promoted.from_packet` (the candidate
+        it was promoted from).
+  Path (b) requires the named review to have actually reviewed the source
+  candidate; merely pointing `via_review` at any approved review is not enough,
+  which closes the forgeable-via_review hole noted in
+  NEGATIVE-AUDIT-SESSION-2026-06-15 (Step 4 review).
 
 A withdrawn promotion sets the review status to `closed`; such a review no
 longer counts as provenance, so a withdrawn artifact must also be removed from
@@ -55,17 +62,31 @@ def load_approved_reviews() -> list[dict]:
     return reviews
 
 
-def review_covers(uid: str, via_review: str | None, reviews: list[dict]) -> bool:
+def review_referenced_ids(review: dict) -> set[str]:
+    ids = set()
+    for ref in review.get("source_refs") or []:
+        if isinstance(ref, dict) and ref.get("source_id"):
+            ids.add(str(ref["source_id"]))
+    for rid in review.get("related_packets") or []:
+        ids.add(str(rid))
+    return ids
+
+
+def review_covers(uid: str, via_review: str | None, from_packet: str | None,
+                  reviews: list[dict]) -> bool:
     for review in reviews:
-        if via_review and str(review.get("packet_uid")) == str(via_review):
+        refs = review_referenced_ids(review)
+        # (a) an approved review references this artifact's own uid
+        if uid and uid in refs:
             return True
-        ids = set()
-        for ref in review.get("source_refs") or []:
-            if isinstance(ref, dict) and ref.get("source_id"):
-                ids.add(str(ref["source_id"]))
-        for rid in review.get("related_packets") or []:
-            ids.add(str(rid))
-        if uid in ids:
+        # (b) the artifact names the review that promoted it, AND that review
+        # actually reviewed the candidate this artifact was promoted from.
+        # via_review alone is not sufficient: the named review must reference
+        # from_packet, so pointing via_review at an unrelated approved review
+        # (forgery) does not pass.
+        if (via_review and from_packet
+                and str(review.get("packet_uid")) == str(via_review)
+                and from_packet in refs):
             return True
     return False
 
@@ -90,9 +111,10 @@ def main() -> int:
             findings.append(f"{path.name}: not a memory_packet (only promoted memory belongs here)")
             continue
         uid = str(data.get("packet_uid", ""))
-        promoted = data.get("promoted")
-        via = promoted.get("via_review") if isinstance(promoted, dict) else None
-        if not review_covers(uid, via, reviews):
+        promoted = data.get("promoted") if isinstance(data.get("promoted"), dict) else {}
+        via = promoted.get("via_review")
+        from_packet = str(promoted.get("from_packet")) if promoted.get("from_packet") else None
+        if not review_covers(uid, via, from_packet, reviews):
             findings.append(
                 f"{path.name}: no approved promotion review_packet references {uid or '(no uid)'} "
                 f"— shared_memory placement without provenance is forbidden"
