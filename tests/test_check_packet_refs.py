@@ -85,6 +85,51 @@ class PacketRefsUnitTests(unittest.TestCase):
         self.assertIn("dangling source_path (no such file): gone/missing.md", result.stdout)
         self.assertIn("dangling related_packet (no such packet): t-ghost-999", result.stdout)
 
+    def test_malformed_yaml_is_a_setup_error_not_a_silent_skip(self):
+        (self.repo / "packets" / "broken.yaml").write_text(
+            "packet_type: [\n", encoding="utf-8"
+        )
+
+        result = self.run_tool()
+
+        self.assertEqual(result.returncode, 2, msg=result.stdout + result.stderr)
+        self.assertIn("unable to parse YAML file", result.stderr)
+
+    def test_duplicate_packet_uid_is_an_integrity_finding(self):
+        (self.repo / "packets" / "duplicate.yaml").write_text(TASK, encoding="utf-8")
+
+        result = self.run_tool()
+
+        self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+        self.assertIn("duplicate packet_uid t-real-001", result.stdout)
+
+    def test_packet_family_document_without_uid_is_a_finding(self):
+        (self.repo / "packets" / "missing-uid.yaml").write_text(
+            "packet_type: task_packet\n", encoding="utf-8"
+        )
+
+        result = self.run_tool()
+
+        self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+        self.assertIn("invalid packet_uid", result.stdout)
+
+    def test_repository_path_escape_is_rejected_without_following_it(self):
+        review = """\
+packet_type: review_packet
+packet_uid: r-escape-001
+source_refs:
+  - source_type: file
+    source_path: ../outside.md
+    relation: derived_from
+"""
+        (self.repo / "packets" / "escape.yaml").write_text(review, encoding="utf-8")
+
+        result = self.run_tool()
+
+        self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+        self.assertIn("invalid source_path", result.stdout)
+        self.assertIn("parent traversal is not allowed", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

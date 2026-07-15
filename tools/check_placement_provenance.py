@@ -30,7 +30,9 @@ Usage:
   python3 tools/check_placement_provenance.py
 
 Exit: 0 = every shared_memory artifact has approved provenance (or folder empty);
-      1 = at least one artifact lacks it; 2 = setup error.
+      1 = at least one artifact lacks it; 2 = setup or review-scan error.
+Unreadable, malformed, duplicate-key, or duplicate-UID review evidence fails
+closed instead of being skipped.
 """
 
 from __future__ import annotations
@@ -40,26 +42,45 @@ from pathlib import Path
 
 import yaml
 
+from _shadowmas_readonly import UniqueKeyLoader, load_yaml_documents
+
 REPO = Path(__file__).resolve().parents[1]
 SHARED = REPO / "03_memory" / "shared_memory"
 REVIEW_ROOTS = [REPO / "07_working"]
 
 
-def load_approved_reviews() -> list[dict]:
+def load_approved_reviews() -> tuple[list[dict], list[str]]:
+    documents, errors = load_yaml_documents(REVIEW_ROOTS)
     reviews = []
-    for root in REVIEW_ROOTS:
-        if not root.exists():
+    review_paths: dict[str, Path] = {}
+    for path, data in documents:
+        if not (
+            isinstance(data, dict)
+            and data.get("packet_type") == "review_packet"
+            and data.get("status") == "approved"
+        ):
             continue
-        for path in list(root.rglob("*.yaml")) + list(root.rglob("*.yml")):
-            try:
-                data = yaml.safe_load(path.read_text(encoding="utf-8"))
-            except (OSError, yaml.YAMLError):
-                continue
-            if (isinstance(data, dict)
-                    and data.get("packet_type") == "review_packet"
-                    and data.get("status") == "approved"):
-                reviews.append(data)
-    return reviews
+        uid = data.get("packet_uid")
+        if not isinstance(uid, str) or not uid.strip():
+            errors.append(f"approved review has invalid packet_uid: {path}")
+            continue
+        if uid in review_paths:
+            errors.append(f"duplicate approved review packet_uid {uid}: {review_paths[uid]}, {path}")
+            continue
+        source_refs = data.get("source_refs")
+        related_packets = data.get("related_packets")
+        if source_refs is not None and (
+            not isinstance(source_refs, list)
+            or any(not isinstance(item, dict) for item in source_refs)
+        ):
+            errors.append(f"approved review has invalid source_refs shape: {path}")
+            continue
+        if related_packets is not None and not isinstance(related_packets, list):
+            errors.append(f"approved review has invalid related_packets shape: {path}")
+            continue
+        review_paths[uid] = path
+        reviews.append(data)
+    return reviews, errors
 
 
 def review_referenced_ids(review: dict) -> set[str]:
@@ -98,22 +119,40 @@ def main() -> int:
 
     artifacts = [p for p in sorted(SHARED.iterdir())
                  if p.is_file() and p.suffix in {".yaml", ".yml"}]
-    reviews = load_approved_reviews()
+    reviews, review_errors = load_approved_reviews()
+    if review_errors:
+        for error in review_errors:
+            print(f"ERROR: {error}", file=sys.stderr)
+        return 2
 
     findings = []
     for path in artifacts:
         try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+            data = yaml.load(
+                path.read_text(encoding="utf-8"),
+                Loader=UniqueKeyLoader,
+            )
+        except (OSError, UnicodeError) as exc:
+            print(f"ERROR: unable to read {path}: {exc}", file=sys.stderr)
+            return 2
         except yaml.YAMLError as exc:
             findings.append(f"{path.name}: not parseable yaml: {exc}")
             continue
         if not isinstance(data, dict) or data.get("packet_type") != "memory_packet":
             findings.append(f"{path.name}: not a memory_packet (only promoted memory belongs here)")
             continue
-        uid = str(data.get("packet_uid", ""))
+        raw_uid = data.get("packet_uid")
+        if not isinstance(raw_uid, str) or not raw_uid.strip():
+            findings.append(f"{path.name}: memory_packet has no valid packet_uid")
+            continue
+        uid = raw_uid
         promoted = data.get("promoted") if isinstance(data.get("promoted"), dict) else {}
-        via = promoted.get("via_review")
-        from_packet = str(promoted.get("from_packet")) if promoted.get("from_packet") else None
+        via_value = promoted.get("via_review")
+        from_value = promoted.get("from_packet")
+        via = via_value if isinstance(via_value, str) and via_value.strip() else None
+        from_packet = (
+            from_value if isinstance(from_value, str) and from_value.strip() else None
+        )
         if not review_covers(uid, via, from_packet, reviews):
             findings.append(
                 f"{path.name}: no approved promotion review_packet references {uid or '(no uid)'} "

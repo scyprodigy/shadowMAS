@@ -23,6 +23,8 @@ from pathlib import Path
 
 import yaml
 
+from _shadowmas_readonly import UniqueKeyLoader, resolve_repo_reference
+
 REPO = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO / "05_scripts" / "validate" / "shadowmas_validate.py"
 
@@ -46,7 +48,13 @@ def evaluate(path: Path, data: dict) -> list[tuple[str, bool, str]]:
 
     refs = data.get("source_refs") or []
     paths = [r.get("source_path") for r in refs if isinstance(r, dict) and r.get("source_path")]
-    unresolved = [p for p in paths if not (REPO / str(p)).exists()]
+    unresolved = []
+    for source_path in paths:
+        target, error = resolve_repo_reference(REPO, source_path)
+        if error:
+            unresolved.append(f"{source_path!r} ({error})")
+        elif target is not None and not target.is_file():
+            unresolved.append(str(source_path))
     ok4 = bool(refs) and not unresolved
     detail4 = "OK" if ok4 else (
         "source_refs empty" if not refs else f"unresolved: {unresolved}")
@@ -76,7 +84,10 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: not a file: {path}", file=sys.stderr)
         return 2
     try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        data = yaml.load(path.read_text(encoding="utf-8"), Loader=UniqueKeyLoader)
+    except (OSError, UnicodeError) as exc:
+        print(f"ERROR: unable to read packet: {exc}", file=sys.stderr)
+        return 2
     except yaml.YAMLError as exc:
         print(f"ERROR: yaml parse failed: {exc}", file=sys.stderr)
         return 2

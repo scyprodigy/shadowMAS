@@ -315,10 +315,17 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
                 )
 
     def test_review_packet_reviewers_required_valid_values_pass(self):
-        for reviewers_required in (1, 2):
+        cases = {
+            1: [],
+            2: ["consensus_kind: unanimous"],
+        }
+        for reviewers_required, extra_lines in cases.items():
             with self.subTest(reviewers_required=reviewers_required):
                 tmp_path = write_temp_packet(
-                    self._review_packet_with_lines(f"reviewers_required: {reviewers_required}")
+                    self._review_packet_with_lines(
+                        f"reviewers_required: {reviewers_required}",
+                        *extra_lines,
+                    )
                 )
                 self.addCleanup(tmp_path.unlink, missing_ok=True)
 
@@ -362,7 +369,10 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
         for consensus_kind in ("unanimous", "majority", "first_to_decide"):
             with self.subTest(consensus_kind=consensus_kind):
                 tmp_path = write_temp_packet(
-                    self._review_packet_with_lines(f"consensus_kind: {consensus_kind}")
+                    self._review_packet_with_lines(
+                        "reviewers_required: 2",
+                        f"consensus_kind: {consensus_kind}",
+                    )
                 )
                 self.addCleanup(tmp_path.unlink, missing_ok=True)
 
@@ -398,6 +408,31 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
                 self.assertIn("ERROR INVALID_CONSENSUS_KIND", result.stdout)
                 self.assertIn("field: consensus_kind", result.stdout)
                 self.assertIn("path: $.consensus_kind", result.stdout)
+
+    def test_review_packet_multi_reviewer_dependency_is_enforced(self):
+        cases = {
+            "missing_consensus": (
+                ["reviewers_required: 2"],
+                "MISSING_CONSENSUS_KIND",
+            ),
+            "consensus_with_default_one_reviewer": (
+                ["consensus_kind: majority"],
+                "UNEXPECTED_CONSENSUS_KIND",
+            ),
+            "consensus_with_explicit_one_reviewer": (
+                ["reviewers_required: 1", "consensus_kind: majority"],
+                "UNEXPECTED_CONSENSUS_KIND",
+            ),
+        }
+        for name, (lines, error_code) in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(self._review_packet_with_lines(*lines))
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+                self.assertIn(f"ERROR {error_code}", result.stdout)
 
     def test_review_packet_promotion_snapshot_valid_values_pass(self):
         cases = {
@@ -521,6 +556,23 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
         self.assertIn("field: snapshot_at", result.stdout)
         self.assertIn("path: $.promotion_snapshot.snapshot_at", result.stdout)
 
+    def test_review_packet_promotion_snapshot_impossible_date_fails(self):
+        tmp_path = write_temp_packet(
+            self._review_packet_with_lines(
+                "promotion_snapshot:",
+                "  source_hashes:",
+                "    - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md",
+                "      hash: sha256:example-current-truth",
+                '  snapshot_at: "2026-02-30T00:00:00Z"',
+            )
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+        self.assertIn("ERROR INVALID_PROMOTION_SNAPSHOT", result.stdout)
+
     def test_review_packet_invalid_recommendation_fails(self):
         base_text = VALID_REVIEW_PACKET.read_text(encoding="utf-8")
         tmp_path = write_temp_packet(
@@ -550,10 +602,26 @@ class ShadowmasPacketValidatorTests(unittest.TestCase):
                 "field: packet_type",
             ),
             (
+                "packet_type_list",
+                VALID_TASK_PACKET,
+                "packet_type: task_packet",
+                "packet_type: []",
+                "UNKNOWN_PACKET_TYPE",
+                "field: packet_type",
+            ),
+            (
                 "status_boolean",
                 VALID_TASK_PACKET,
                 "status: draft",
                 "status: false",
+                "INVALID_STATUS",
+                "field: status",
+            ),
+            (
+                "status_map",
+                VALID_TASK_PACKET,
+                "status: draft",
+                "status: {}",
                 "INVALID_STATUS",
                 "field: status",
             ),
@@ -789,6 +857,77 @@ promotion_snapshot: invalid-for-review-packet
             msg=f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
         self.assertIn("INVALID_TIMESTAMP", result.stdout)
+
+    def test_impossible_created_at_fails_even_when_shape_matches(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        tmp_path = write_temp_packet(
+            base_text.replace(
+                'created_at: "2026-05-06T00:00:00Z"',
+                'created_at: "2026-02-30T00:00:00Z"',
+            )
+        )
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+        self.assertIn("ERROR INVALID_TIMESTAMP", result.stdout)
+
+    def test_duplicate_yaml_keys_are_parse_errors(self):
+        text = VALID_TASK_PACKET.read_text(encoding="utf-8") + "\nowner: duplicate_owner\n"
+        tmp_path = write_temp_packet(text)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(result.returncode, 2, msg=result.stdout + result.stderr)
+        self.assertIn("ERROR YAML_PARSE_ERROR", result.stdout)
+        self.assertIn("duplicate key", result.stdout)
+
+    def test_created_by_and_owner_must_be_non_empty_strings(self):
+        cases = {
+            "created_by_list": ("created_by: example_author", "created_by: []"),
+            "owner_empty": ("owner: example_owner", 'owner: ""'),
+        }
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        for name, (old, new) in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(base_text.replace(old, new))
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+                self.assertIn("ERROR INVALID_SHARED_FIELD", result.stdout)
+
+    def test_task_required_field_shapes_are_enforced(self):
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        cases = {
+            "goal": base_text.replace(
+                "goal: Create a short illustrative status note from provided source material.",
+                "goal: []",
+            ),
+            "scope": base_text.replace(
+                "scope:\n", "scope: not-a-list\noriginal_scope:\n", 1
+            ),
+            "worker_plan": base_text.replace(
+                "worker_plan:\n", "worker_plan: []\noriginal_worker_plan:\n", 1
+            ),
+            "acceptance_criteria": base_text.replace(
+                "acceptance_criteria:\n",
+                "acceptance_criteria: not-a-list\noriginal_acceptance_criteria:\n",
+                1,
+            ),
+        }
+        for name, text in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(text)
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+                self.assertIn("ERROR INVALID_", result.stdout)
 
     def test_empty_packet_uid_fails(self):
         base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
@@ -1367,6 +1506,57 @@ promotion_snapshot: invalid-for-review-packet
                 self.assertIn("ERROR INVALID_REFERENCE_SHAPE", result.stdout)
                 self.assertIn("source_refs item requires source_path or source_id", result.stdout)
 
+    def test_artifact_refs_declared_field_types_are_enforced(self):
+        cases = {
+            "artifact_type": [
+                "artifact_refs:",
+                "  - artifact_type: 123",
+                "    artifact_path: output.md",
+                "    change_kind: created",
+            ],
+            "artifact_path": [
+                "artifact_refs:",
+                "  - artifact_type: report",
+                "    artifact_path: []",
+                "    change_kind: created",
+            ],
+            "exists": [
+                "artifact_refs:",
+                "  - artifact_type: report",
+                "    artifact_path: output.md",
+                "    change_kind: created",
+                '    exists: "yes"',
+            ],
+        }
+        base_text = VALID_TASK_PACKET.read_text(encoding="utf-8")
+        for field, lines in cases.items():
+            with self.subTest(field=field):
+                tmp_path = write_temp_packet(base_text + "\n" + "\n".join(lines) + "\n")
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+                self.assertIn("ERROR INVALID_REFERENCE_SHAPE", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
+
+    def test_artifact_refs_valid_declared_shape_passes(self):
+        text = VALID_TASK_PACKET.read_text(encoding="utf-8") + """
+artifact_refs:
+  - artifact_type: report
+    artifact_path: output.md
+    exists: false
+    change_kind: created
+    produced_by: documentation_helper
+    task_role: deliverable
+"""
+        tmp_path = write_temp_packet(text)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+
     def _run_task_packet_with_handoff(self, handoff_text):
         tmp_path = write_temp_packet(VALID_TASK_PACKET.read_text(encoding="utf-8") + "\n" + handoff_text)
         self.addCleanup(tmp_path.unlink, missing_ok=True)
@@ -1401,6 +1591,33 @@ promotion_snapshot: invalid-for-review-packet
         )
         self.assertIn("ERROR INVALID_HANDOFF_SHAPE", result.stdout)
         self.assertIn("field: handoff", result.stdout)
+
+    def test_handoff_optional_declared_field_types_are_enforced(self):
+        cases = {
+            "from_packet_ref": "  from_packet_ref: []",
+            "delegation_depth": "  delegation_depth: true",
+        }
+        for field, extra_line in cases.items():
+            with self.subTest(field=field):
+                result = self._run_task_packet_with_handoff(
+                    "\n".join(
+                        [
+                            "handoff:",
+                            "  to_role: L3",
+                            "  needed_action: implement",
+                            "  reason: continue scoped packet work",
+                            "  resume_from:",
+                            "    - read task scope",
+                            "  blockers: []",
+                            extra_line,
+                        ]
+                    )
+                    + "\n"
+                )
+
+                self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+                self.assertIn("ERROR INVALID_HANDOFF_SHAPE", result.stdout)
+                self.assertIn(f"field: {field}", result.stdout)
 
     def test_handoff_missing_required_fields_fail(self):
         base_lines = {
@@ -1628,7 +1845,7 @@ promotion_candidate: "no"
                 self.assertIn("path: $.confidence", result.stdout)
 
     def test_memory_packet_confidence_invalid_range_fails(self):
-        for confidence in ("-0.1", "1.1"):
+        for confidence in ("-0.1", "1.1", ".nan", ".inf", "-.inf"):
             with self.subTest(confidence=confidence):
                 result = self._run_with_memory_field(
                     "confidence: 0.5", f"confidence: {confidence}"
@@ -1715,6 +1932,67 @@ promotion_candidate: "no"
                 self.assertIn("ERROR INVALID_MEMORY_SCOPE", result.stdout)
                 self.assertIn("field: memory_scope", result.stdout)
                 self.assertIn("path: $.memory_scope", result.stdout)
+
+    def test_memory_packet_required_payload_shapes_are_enforced(self):
+        cases = {
+            "summary": (
+                "summary: regression baseline for memory_packet field validation",
+                "summary: []",
+                "INVALID_MEMORY_SUMMARY",
+            ),
+            "structured_payload": (
+                "structured_payload:\n  note: minimal payload for validator exercise",
+                "structured_payload: []",
+                "INVALID_STRUCTURED_PAYLOAD",
+            ),
+            "invalidation_triggers": (
+                "invalidation_triggers:\n  - source file changes",
+                "invalidation_triggers: not-a-list",
+                "INVALID_INVALIDATION_TRIGGERS",
+            ),
+        }
+        for name, (old, new, error_code) in cases.items():
+            with self.subTest(name=name):
+                result = self._run_with_memory_field(old, new)
+
+                self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+                self.assertIn(f"ERROR {error_code}", result.stdout)
+
+    def test_memory_packet_optional_validity_shapes_are_enforced(self):
+        cases = {
+            "validity_scalar": "validity: not-an-object",
+            "applies_to_list": "validity:\n  applies_to: []",
+            "modules_scalar": (
+                "validity:\n"
+                "  applies_to:\n"
+                "    modules: not-a-list"
+            ),
+            "stale_on_item": "validity:\n  stale_on:\n    - {}",
+        }
+        for name, block in cases.items():
+            with self.subTest(name=name):
+                tmp_path = write_temp_packet(self._BASE_MEMORY_PACKET + "\n" + block + "\n")
+                self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+                result = run_packet_validator(tmp_path)
+
+                self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+                self.assertIn("ERROR INVALID_VALIDITY", result.stdout)
+
+    def test_memory_packet_legacy_scalar_applies_to_remains_compatible(self):
+        text = (
+            self._BASE_MEMORY_PACKET
+            + "\nvalidity:\n"
+            + "  applies_to: shadowMAS repo surfaces\n"
+            + "  stale_on:\n"
+            + "    - source changes\n"
+        )
+        tmp_path = write_temp_packet(text)
+        self.addCleanup(tmp_path.unlink, missing_ok=True)
+
+        result = run_packet_validator(tmp_path)
+
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
 
     # --- promotion_candidate YAML 1.1 boolean trap regression ---
     # Background: PyYAML defaults to YAML 1.1, which implicitly coerces

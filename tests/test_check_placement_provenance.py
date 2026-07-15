@@ -1,7 +1,9 @@
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOL = REPO_ROOT / "tools" / "check_placement_provenance.py"
@@ -57,6 +59,36 @@ class ReviewCoversUnitTests(unittest.TestCase):
 
     def test_uncovered_uid_fails(self):
         self.assertFalse(self.cover("mem-999", None, None))
+
+
+class ApprovedReviewLoadTests(unittest.TestCase):
+    def test_malformed_review_yaml_is_not_silently_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "broken.yaml").write_text("packet_type: [\n", encoding="utf-8")
+            with patch.object(check_placement_provenance, "REVIEW_ROOTS", [root]):
+                reviews, errors = check_placement_provenance.load_approved_reviews()
+
+        self.assertEqual(reviews, [])
+        self.assertTrue(errors)
+        self.assertIn("unable to parse YAML file", errors[0])
+
+    def test_duplicate_approved_review_uid_is_a_scan_error(self):
+        review = """\
+packet_type: review_packet
+packet_uid: review-duplicate-001
+status: approved
+source_refs: []
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "one.yaml").write_text(review, encoding="utf-8")
+            (root / "two.yaml").write_text(review, encoding="utf-8")
+            with patch.object(check_placement_provenance, "REVIEW_ROOTS", [root]):
+                reviews, errors = check_placement_provenance.load_approved_reviews()
+
+        self.assertEqual(len(reviews), 1)
+        self.assertTrue(any("duplicate approved review packet_uid" in error for error in errors))
 
 
 if __name__ == "__main__":

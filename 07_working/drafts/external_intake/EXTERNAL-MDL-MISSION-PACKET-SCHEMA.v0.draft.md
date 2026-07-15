@@ -506,7 +506,7 @@ ROUTE:
   external_project_kind: "VendorProduct"
 EVID:
   changed_paths_summary:
-    summary_note: "Changed /home/vendor/product/src/AuthClient.ts"
+    summary_note: "Changed an absolute private project path ending in src/AuthClient.ts"
 ```
 
 Expected gate result: `reject`. Route identity, tracker IDs, and real paths are

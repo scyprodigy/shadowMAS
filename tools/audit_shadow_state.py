@@ -35,12 +35,21 @@ REPO = Path(__file__).resolve().parents[1]
 
 def last_meaningful_line(text: str) -> str:
     lines = [ln for ln in text.splitlines() if ln.strip()]
-    return lines[-1] if lines else "(no output)"
+    return lines[-1] if lines else ""
 
 
 def run_check(label: str, command: list[str]) -> tuple[str, int, str]:
     proc = subprocess.run(command, cwd=REPO, capture_output=True, text=True)
-    summary = last_meaningful_line(proc.stdout) or last_meaningful_line(proc.stderr)
+    primary, fallback = (
+        (proc.stderr, proc.stdout)
+        if proc.returncode not in (0, 1)
+        else (proc.stdout, proc.stderr)
+    )
+    summary = (
+        last_meaningful_line(primary)
+        or last_meaningful_line(fallback)
+        or "(no output)"
+    )
     return label, proc.returncode, summary
 
 
@@ -64,13 +73,13 @@ def main(argv: list[str]) -> int:
         run_check("shared-memory provenance", [py, "tools/check_placement_provenance.py"]),
     ]
 
-    setup_error = any(code == 2 for _, code, _ in checks)
+    setup_error = any(code not in (0, 1) for _, code, _ in checks)
     findings = any(code == 1 for _, code, _ in checks)
 
     print("shadowMAS authority-boundary health\n")
     width = max(len(label) for label, _, _ in checks)
     for label, code, summary in checks:
-        mark = {0: "PASS", 1: "FINDING", 2: "ERROR"}.get(code, "?")
+        mark = {0: "PASS", 1: "FINDING"}.get(code, "ERROR")
         print(f"  [{mark:7}] {label:<{width}}  {summary}")
 
     # review agenda is informational context, not a pass/fail signal;
@@ -78,9 +87,17 @@ def main(argv: list[str]) -> int:
     agenda = subprocess.run([py, "tools/order_review_queue.py"], cwd=REPO,
                             capture_output=True, text=True)
     agenda_lines = [ln for ln in agenda.stdout.splitlines() if ln.strip()]
-    agenda_summary = agenda_lines[0] if agenda_lines else "(no output)"
-    print(f"\n  review queue: {agenda_summary}")
+    agenda_summary = (
+        agenda_lines[0]
+        if agenda_lines
+        else last_meaningful_line(agenda.stderr) or "(no output)"
+    )
+    agenda_mark = "ERROR" if agenda.returncode else "INFO"
+    print(f"\n  [{agenda_mark:5}] review queue: {agenda_summary}")
     print("  (run tools/order_review_queue.py for the full agenda)")
+
+    if agenda.returncode:
+        setup_error = True
 
     print()
     print("  scope: this snapshot verifies representation consistency only —")
