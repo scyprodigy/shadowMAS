@@ -17,7 +17,8 @@ Usage:
   python3 tools/order_review_queue.py --root <dir>   # explicit roots (repeatable)
   python3 tools/order_review_queue.py --all-statuses # include non-pending packets
 
-Exit: 0 = agenda printed (even if empty); 2 = setup error.
+Exit: 0 = agenda printed (even if empty); 2 = setup or scan error. Malformed
+YAML fails closed, and must_read paths outside --repo are never opened.
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ import argparse
 import sys
 from pathlib import Path
 
-import yaml
+from _shadowmas_readonly import load_yaml_documents, resolve_repo_reference
 
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_ROOTS = ["07_working"]
@@ -39,33 +40,38 @@ def word_count(text: str) -> int:
     return len(text.split())
 
 
-def load_review_packets(roots: list[Path]) -> list[tuple[Path, dict]]:
-    packets = []
-    for root in roots:
-        if not root.exists():
-            continue
-        for path in sorted(root.rglob("*.yaml")) + sorted(root.rglob("*.yml")):
-            try:
-                data = yaml.safe_load(path.read_text(encoding="utf-8"))
-            except (OSError, yaml.YAMLError):
-                continue
-            if isinstance(data, dict) and data.get("packet_type") == "review_packet":
-                packets.append((path, data))
-    return packets
+def load_review_packets(
+    roots: list[Path],
+) -> tuple[list[tuple[Path, dict]], list[str]]:
+    documents, errors = load_yaml_documents(roots)
+    packets = [
+        (path, data)
+        for path, data in documents
+        if isinstance(data, dict) and data.get("packet_type") == "review_packet"
+    ]
+    return packets, errors
 
 
 def reading_cost(packet_path: Path, data: dict, repo: Path) -> tuple[int, list[str]]:
     cost = word_count(packet_path.read_text(encoding="utf-8"))
-    missing = []
+    warnings = []
     checks = data.get("minimal_checks")
-    if isinstance(checks, dict):
-        for ref in checks.get("must_read") or []:
-            target = repo / str(ref)
-            if target.exists():
-                cost += word_count(target.read_text(encoding="utf-8"))
-            else:
-                missing.append(str(ref))
-    return cost, missing
+    if checks is not None and not isinstance(checks, dict):
+        warnings.append("minimal_checks has invalid shape (expected object)")
+    elif isinstance(checks, dict):
+        must_read = checks.get("must_read")
+        if must_read is not None and not isinstance(must_read, list):
+            warnings.append("must_read has invalid shape (expected list)")
+        elif isinstance(must_read, list):
+            for ref in must_read:
+                target, error = resolve_repo_reference(repo, ref)
+                if error:
+                    warnings.append(f"must_read invalid: {ref!r} ({error})")
+                elif target is not None and target.is_file():
+                    cost += word_count(target.read_text(encoding="utf-8"))
+                else:
+                    warnings.append(f"must_read missing: {ref}")
+    return cost, warnings
 
 
 def risk_rank(risk: str) -> int:
@@ -87,19 +93,48 @@ def main(argv: list[str]) -> int:
     roots = [Path(r) if Path(r).is_absolute() else repo / r
              for r in (args.root or DEFAULT_ROOTS)]
 
+    packets, load_errors = load_review_packets(roots)
+    if load_errors:
+        for error in load_errors:
+            print(f"ERROR: {error}", file=sys.stderr)
+        return 2
+
+    uid_paths: dict[str, Path] = {}
+    for path, data in packets:
+        uid = data.get("packet_uid")
+        if not isinstance(uid, str) or not uid.strip():
+            print(
+                f"ERROR: invalid review packet_uid in {path}: expected non-empty string",
+                file=sys.stderr,
+            )
+            return 2
+        if uid in uid_paths:
+            print(
+                f"ERROR: duplicate review packet_uid {uid}: {uid_paths[uid]}, {path}",
+                file=sys.stderr,
+            )
+            return 2
+        uid_paths[uid] = path
+
     rows = []
-    for path, data in load_review_packets(roots):
+    for path, data in packets:
         status = data.get("status", "?")
-        if not args.all_statuses and status not in PENDING_STATUSES:
+        if not args.all_statuses and (
+            not isinstance(status, str) or status not in PENDING_STATUSES
+        ):
             continue
-        cost, missing = reading_cost(path, data, repo)
+        try:
+            cost, warnings = reading_cost(path, data, repo)
+        except (OSError, UnicodeError) as exc:
+            print(f"ERROR: unable to read review evidence for {path}: {exc}", file=sys.stderr)
+            return 2
         rows.append({
-            "uid": data.get("packet_uid", path.name),
-            "risk": data.get("risk", "?"),
-            "status": status,
+            "uid": str(data.get("packet_uid", path.name)),
+            "risk": str(data.get("risk", "?")),
+            "status": str(status),
             "cost_words": cost,
             "decision": str(data.get("decision_needed", "")).strip(),
-            "missing": missing,
+            "warnings": warnings,
         })
 
     # deterministic: risk severity first, then larger items inside a tier,
@@ -119,8 +154,8 @@ def main(argv: list[str]) -> int:
             print(f"  {i}. [{r['risk']}] {r['uid']} (~{r['cost_words']} words, {r['status']})")
             if r["decision"]:
                 print(f"     decision: {r['decision']}")
-            for m in r["missing"]:
-                print(f"     WARNING must_read missing: {m}")
+            for warning in r["warnings"]:
+                print(f"     WARNING {warning}")
     if not rows:
         print("nothing pending")
     return 0

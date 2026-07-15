@@ -77,6 +77,23 @@ class PromotionEligibilityTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, msg=result.stdout)
         self.assertIn("NOT ELIGIBLE", result.stdout)
 
+    def test_source_path_escape_is_ineligible(self):
+        packet = ELIGIBLE.replace("source_path: README.md", "source_path: ../README.md")
+
+        result = self._run(packet)
+
+        self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+        self.assertIn("parent traversal is not allowed", result.stdout)
+
+    def test_duplicate_yaml_key_is_a_setup_error(self):
+        packet = ELIGIBLE + "\nstatus: candidate\n"
+
+        result = self._run(packet)
+
+        self.assertEqual(result.returncode, 2, msg=result.stdout + result.stderr)
+        self.assertIn("yaml parse failed", result.stderr)
+        self.assertIn("duplicate key", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

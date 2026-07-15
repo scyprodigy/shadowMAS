@@ -8,13 +8,21 @@ Direct use: python3 05_scripts/validate/shadowmas_validate.py <packet-file>
 from __future__ import annotations
 
 import argparse
+import math
 import re
 import sys
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+TOOLS_DIR = Path(__file__).resolve().parents[2] / "tools"
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+from _shadowmas_readonly import UniqueKeyLoader  # noqa: E402
 
 
 PACKET_TYPES = {"task_packet", "memory_packet", "review_packet"}
@@ -118,6 +126,33 @@ SOURCE_REF_STRING_FIELDS = {
 DEPRECATED_HANDOFF_FIELDS = {"next_owner", "handoff_reason"}
 HANDOFF_REQUIRED_STRING_FIELDS = {"to_role", "needed_action", "reason"}
 HANDOFF_REQUIRED_LIST_FIELDS = {"resume_from", "blockers"}
+SHARED_NON_EMPTY_STRING_FIELDS = {
+    "created_by",
+    "owner",
+    "packet_id",
+    "task_id",
+    "run_id",
+    "session_id",
+}
+SHARED_STRING_LIST_FIELDS = {"writable_by", "related_packets", "tags"}
+TASK_NON_EMPTY_STRING_FIELDS = {"goal", "why_now"}
+TASK_STRING_LIST_FIELDS = {
+    "scope",
+    "out_of_scope",
+    "truth_touchpoints",
+    "acceptance_criteria",
+    "stop_conditions",
+    "deliverables",
+    "constraints",
+    "expected_outputs",
+}
+REVIEW_NON_EMPTY_STRING_FIELDS = {
+    "decision_needed",
+    "why_you_are_seeing_this",
+    "change_summary",
+    "risk_summary",
+}
+REVIEW_STRING_LIST_FIELDS = {"must_compare", "do_not_need_to_read"}
 
 
 @dataclass
@@ -176,14 +211,14 @@ def load_yaml(path: Path) -> tuple[Any | None, int]:
 
     try:
         text = path.read_text(encoding="utf-8")
-    except OSError as exc:
+    except (OSError, UnicodeError) as exc:
         print_error(
             make_error("INPUT_FILE_ERROR", str(path), "<input>", "$", f"unable to read file: {exc}")
         )
         return None, 2
 
     try:
-        return yaml.safe_load(text), 0
+        return yaml.load(text, Loader=UniqueKeyLoader), 0
     except yaml.YAMLError as exc:
         print_error(make_error("YAML_PARSE_ERROR", str(path), "<yaml>", "$", str(exc)))
         return None, 2
@@ -191,6 +226,77 @@ def load_yaml(path: Path) -> tuple[Any | None, int]:
 
 def required_missing(data: dict[str, Any], field: str) -> bool:
     return field not in data or data[field] is None
+
+
+def validate_non_empty_string_fields(
+    data: dict[str, Any], fields: set[str], file_name: str, code: str
+) -> list[ValidationError]:
+    errors: list[ValidationError] = []
+    for field in sorted(fields):
+        if field not in data or data[field] is None:
+            continue
+        value = data[field]
+        if not isinstance(value, str) or not value.strip():
+            errors.append(
+                make_error(
+                    code,
+                    file_name,
+                    field,
+                    f"$.{field}",
+                    f"{field} must be a non-empty string",
+                )
+            )
+    return errors
+
+
+def validate_string_list_value(
+    value: Any,
+    file_name: str,
+    field: str,
+    path: str,
+    code: str,
+) -> list[ValidationError]:
+    if not isinstance(value, list):
+        return [
+            make_error(code, file_name, field, path, f"{field} must be a list of strings")
+        ]
+
+    errors: list[ValidationError] = []
+    for index, item in enumerate(value):
+        if not isinstance(item, str) or not item.strip():
+            errors.append(
+                make_error(
+                    code,
+                    file_name,
+                    field,
+                    f"{path}[{index}]",
+                    f"{field} items must be non-empty strings",
+                )
+            )
+    return errors
+
+
+def validate_string_list_fields(
+    data: dict[str, Any], fields: set[str], file_name: str, code: str
+) -> list[ValidationError]:
+    errors: list[ValidationError] = []
+    for field in sorted(fields):
+        if field not in data or data[field] is None:
+            continue
+        errors.extend(
+            validate_string_list_value(data[field], file_name, field, f"$.{field}", code)
+        )
+    return errors
+
+
+def is_rfc3339_utc(value: Any) -> bool:
+    if not isinstance(value, str) or not RFC3339_UTC_RE.fullmatch(value):
+        return False
+    try:
+        datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return False
+    return True
 
 
 def schema_major(schema_version: Any) -> int | None:
@@ -261,7 +367,7 @@ def validate_status(data: dict[str, Any], packet_type: str, file_name: str) -> l
     status = data.get("status")
     if status is None:
         return []
-    if status not in STATUS_VALUES[packet_type]:
+    if not isinstance(status, str) or status not in STATUS_VALUES[packet_type]:
         allowed = ", ".join(sorted(STATUS_VALUES[packet_type]))
         return [
             make_error(
@@ -279,7 +385,10 @@ def validate_review_recommendation(data: dict[str, Any], file_name: str) -> list
     recommendation = data.get("recommendation")
     if recommendation is None:
         return []
-    if recommendation not in REVIEW_RECOMMENDATION_VALUES:
+    if (
+        not isinstance(recommendation, str)
+        or recommendation not in REVIEW_RECOMMENDATION_VALUES
+    ):
         allowed = ", ".join(sorted(REVIEW_RECOMMENDATION_VALUES))
         return [
             make_error(
@@ -297,10 +406,12 @@ def validate_review_multi_reviewer_fields(
     data: dict[str, Any], file_name: str
 ) -> list[ValidationError]:
     errors: list[ValidationError] = []
+    reviewers_required = data.get("reviewers_required", 1)
+    reviewers_required_valid = True
 
     if "reviewers_required" in data:
-        reviewers_required = data["reviewers_required"]
         if isinstance(reviewers_required, bool) or not isinstance(reviewers_required, int):
+            reviewers_required_valid = False
             errors.append(
                 make_error(
                     "INVALID_REVIEWERS_REQUIRED",
@@ -311,6 +422,7 @@ def validate_review_multi_reviewer_fields(
                 )
             )
         elif reviewers_required < 1:
+            reviewers_required_valid = False
             errors.append(
                 make_error(
                     "INVALID_REVIEWERS_REQUIRED",
@@ -332,6 +444,29 @@ def validate_review_multi_reviewer_fields(
                     "consensus_kind",
                     "$.consensus_kind",
                     f"consensus_kind must be one of: {allowed}",
+                )
+            )
+
+    has_consensus = "consensus_kind" in data and data["consensus_kind"] is not None
+    if reviewers_required_valid and isinstance(reviewers_required, int):
+        if reviewers_required > 1 and not has_consensus:
+            errors.append(
+                make_error(
+                    "MISSING_CONSENSUS_KIND",
+                    file_name,
+                    "consensus_kind",
+                    "$.consensus_kind",
+                    "consensus_kind is required when reviewers_required is greater than 1",
+                )
+            )
+        elif reviewers_required <= 1 and has_consensus:
+            errors.append(
+                make_error(
+                    "UNEXPECTED_CONSENSUS_KIND",
+                    file_name,
+                    "consensus_kind",
+                    "$.consensus_kind",
+                    "consensus_kind applies only when reviewers_required is greater than 1",
                 )
             )
 
@@ -408,14 +543,14 @@ def validate_review_promotion_snapshot(
                         )
 
     snapshot_at = promotion_snapshot.get("snapshot_at")
-    if snapshot_at is not None and not isinstance(snapshot_at, str):
+    if snapshot_at is not None and not is_rfc3339_utc(snapshot_at):
         errors.append(
             make_error(
                 "INVALID_PROMOTION_SNAPSHOT",
                 file_name,
                 "snapshot_at",
                 "$.promotion_snapshot.snapshot_at",
-                "promotion_snapshot.snapshot_at must be a string",
+                "promotion_snapshot.snapshot_at must be RFC3339 UTC with a Z suffix",
             )
         )
 
@@ -465,16 +600,18 @@ def validate_source_refs(data: dict[str, Any], file_name: str) -> list[Validatio
                 )
 
         for field in SOURCE_REF_STRING_FIELDS:
-            if field in item and item[field] is not None and not isinstance(item[field], str):
-                errors.append(
-                    make_error(
-                        "INVALID_REFERENCE_SHAPE",
-                        file_name,
-                        field,
-                        f"{item_path}.{field}",
-                        f"source_refs item {field} must be a string when present",
+            if field in item and item[field] is not None:
+                value = item[field]
+                if not isinstance(value, str) or not value.strip():
+                    errors.append(
+                        make_error(
+                            "INVALID_REFERENCE_SHAPE",
+                            file_name,
+                            field,
+                            f"{item_path}.{field}",
+                            f"source_refs item {field} must be a non-empty string when present",
+                        )
                     )
-                )
 
         source_path = item.get("source_path")
         source_id = item.get("source_id")
@@ -532,6 +669,40 @@ def validate_artifact_refs(data: dict[str, Any], file_name: str) -> list[Validat
                         field,
                         f"{item_path}.{field}",
                         f"artifact_refs item requires {field}",
+                    )
+                )
+            elif not isinstance(item[field], str) or not item[field].strip():
+                errors.append(
+                    make_error(
+                        "INVALID_REFERENCE_SHAPE",
+                        file_name,
+                        field,
+                        f"{item_path}.{field}",
+                        f"artifact_refs item {field} must be a non-empty string",
+                    )
+                )
+
+        if "exists" in item and not isinstance(item["exists"], bool):
+            errors.append(
+                make_error(
+                    "INVALID_REFERENCE_SHAPE",
+                    file_name,
+                    "exists",
+                    f"{item_path}.exists",
+                    "artifact_refs item exists must be a boolean when present",
+                )
+            )
+        for field in ("produced_by", "task_role"):
+            if field in item and (
+                not isinstance(item[field], str) or not item[field].strip()
+            ):
+                errors.append(
+                    make_error(
+                        "INVALID_REFERENCE_SHAPE",
+                        file_name,
+                        field,
+                        f"{item_path}.{field}",
+                        f"artifact_refs item {field} must be a non-empty string when present",
                     )
                 )
     return errors
@@ -606,6 +777,32 @@ def validate_handoff(data: dict[str, Any], file_name: str) -> list[ValidationErr
                     )
                 )
 
+    if "from_packet_ref" in handoff:
+        value = handoff["from_packet_ref"]
+        if not isinstance(value, str) or not value.strip():
+            errors.append(
+                make_error(
+                    "INVALID_HANDOFF_SHAPE",
+                    file_name,
+                    "from_packet_ref",
+                    "$.handoff.from_packet_ref",
+                    "handoff.from_packet_ref must be a non-empty string when present",
+                )
+            )
+
+    if "delegation_depth" in handoff:
+        value = handoff["delegation_depth"]
+        if isinstance(value, bool) or not isinstance(value, int):
+            errors.append(
+                make_error(
+                    "INVALID_HANDOFF_SHAPE",
+                    file_name,
+                    "delegation_depth",
+                    "$.handoff.delegation_depth",
+                    "handoff.delegation_depth must be an integer when present",
+                )
+            )
+
     for field in DEPRECATED_HANDOFF_FIELDS:
         if field in handoff:
             errors.append(
@@ -624,7 +821,7 @@ def validate_supervision_mode(data: dict[str, Any], file_name: str) -> list[Vali
     value = data.get("supervision_mode")
     if value is None:
         return []
-    if value not in SUPERVISION_MODE_VALUES:
+    if not isinstance(value, str) or value not in SUPERVISION_MODE_VALUES:
         allowed = ", ".join(sorted(SUPERVISION_MODE_VALUES))
         return [
             make_error(
@@ -642,7 +839,7 @@ def validate_risk(data: dict[str, Any], file_name: str) -> list[ValidationError]
     value = data.get("risk")
     if value is None:
         return []
-    if value not in RISK_VALUES:
+    if not isinstance(value, str) or value not in RISK_VALUES:
         allowed = ", ".join(sorted(RISK_VALUES))
         return [
             make_error(
@@ -660,7 +857,7 @@ def validate_created_at(data: dict[str, Any], file_name: str) -> list[Validation
     value = data.get("created_at")
     if value is None:
         return []
-    if not isinstance(value, str) or not RFC3339_UTC_RE.match(value):
+    if not is_rfc3339_utc(value):
         return [
             make_error(
                 "INVALID_TIMESTAMP",
@@ -741,12 +938,148 @@ def validate_data_class(data: dict[str, Any], file_name: str) -> list[Validation
     return []
 
 
+def validate_shared_field_shapes(
+    data: dict[str, Any], file_name: str
+) -> list[ValidationError]:
+    errors = validate_non_empty_string_fields(
+        data,
+        SHARED_NON_EMPTY_STRING_FIELDS,
+        file_name,
+        "INVALID_SHARED_FIELD",
+    )
+    errors.extend(
+        validate_string_list_fields(
+            data,
+            SHARED_STRING_LIST_FIELDS,
+            file_name,
+            "INVALID_SHARED_FIELD",
+        )
+    )
+    if "signed_by" in data and data["signed_by"] is not None:
+        if not isinstance(data["signed_by"], dict):
+            errors.append(
+                make_error(
+                    "INVALID_SHARED_FIELD",
+                    file_name,
+                    "signed_by",
+                    "$.signed_by",
+                    "signed_by must be an object when present",
+                )
+            )
+    return errors
+
+
 def validate_task_packet_fields(data: dict[str, Any], file_name: str) -> list[ValidationError]:
+    errors = validate_non_empty_string_fields(
+        data,
+        TASK_NON_EMPTY_STRING_FIELDS,
+        file_name,
+        "INVALID_TASK_FIELD",
+    )
+    errors.extend(
+        validate_string_list_fields(
+            data,
+            TASK_STRING_LIST_FIELDS,
+            file_name,
+            "INVALID_TASK_FIELD",
+        )
+    )
+
+    worker_plan = data.get("worker_plan")
+    if worker_plan is not None:
+        if not isinstance(worker_plan, dict):
+            errors.append(
+                make_error(
+                    "INVALID_WORKER_PLAN",
+                    file_name,
+                    "worker_plan",
+                    "$.worker_plan",
+                    "worker_plan must be an object",
+                )
+            )
+        else:
+            for field in ("preferred_worker", "fallback_worker"):
+                if field in worker_plan and (
+                    not isinstance(worker_plan[field], str)
+                    or not worker_plan[field].strip()
+                ):
+                    errors.append(
+                        make_error(
+                            "INVALID_WORKER_PLAN",
+                            file_name,
+                            field,
+                            f"$.worker_plan.{field}",
+                            f"worker_plan.{field} must be a non-empty string when present",
+                        )
+                    )
+            if "allow_fanout" in worker_plan and not isinstance(
+                worker_plan["allow_fanout"], bool
+            ):
+                errors.append(
+                    make_error(
+                        "INVALID_WORKER_PLAN",
+                        file_name,
+                        "allow_fanout",
+                        "$.worker_plan.allow_fanout",
+                        "worker_plan.allow_fanout must be a boolean when present",
+                    )
+                )
+            for field in ("fanout_limit", "retry_limit"):
+                if field in worker_plan:
+                    value = worker_plan[field]
+                    if isinstance(value, bool) or not isinstance(value, int):
+                        errors.append(
+                            make_error(
+                                "INVALID_WORKER_PLAN",
+                                file_name,
+                                field,
+                                f"$.worker_plan.{field}",
+                                f"worker_plan.{field} must be an integer when present",
+                            )
+                        )
+
+    if "on_blocked" in data:
+        on_blocked = data["on_blocked"]
+        if not isinstance(on_blocked, dict):
+            errors.append(
+                make_error(
+                    "INVALID_ON_BLOCKED",
+                    file_name,
+                    "on_blocked",
+                    "$.on_blocked",
+                    "on_blocked must be an object when present",
+                )
+            )
+        else:
+            if "action" in on_blocked and (
+                not isinstance(on_blocked["action"], str)
+                or not on_blocked["action"].strip()
+            ):
+                errors.append(
+                    make_error(
+                        "INVALID_ON_BLOCKED",
+                        file_name,
+                        "action",
+                        "$.on_blocked.action",
+                        "on_blocked.action must be a non-empty string when present",
+                    )
+                )
+            if "next_allowed_work" in on_blocked:
+                errors.extend(
+                    validate_string_list_value(
+                        on_blocked["next_allowed_work"],
+                        file_name,
+                        "next_allowed_work",
+                        "$.on_blocked.next_allowed_work",
+                        "INVALID_ON_BLOCKED",
+                    )
+                )
+
     if "inputs" not in data:
-        return []
+        return errors
     value = data["inputs"]
     if not isinstance(value, dict):
-        return [
+        errors.append(
             make_error(
                 "INVALID_INPUTS",
                 file_name,
@@ -754,35 +1087,21 @@ def validate_task_packet_fields(data: dict[str, Any], file_name: str) -> list[Va
                 "$.inputs",
                 "inputs must be an object when present",
             )
-        ]
+        )
+        return errors
 
-    errors: list[ValidationError] = []
     for field in ("required_context", "optional_context"):
-        if field not in value or value[field] is None:
+        if field not in value:
             continue
-        context_list = value[field]
-        if not isinstance(context_list, list):
-            errors.append(
-                make_error(
-                    "INVALID_INPUTS",
-                    file_name,
-                    field,
-                    f"$.inputs.{field}",
-                    f"inputs.{field} must be a list when present",
-                )
+        errors.extend(
+            validate_string_list_value(
+                value[field],
+                file_name,
+                field,
+                f"$.inputs.{field}",
+                "INVALID_INPUTS",
             )
-            continue
-        for index, item in enumerate(context_list):
-            if not isinstance(item, str) or not item.strip():
-                errors.append(
-                    make_error(
-                        "INVALID_INPUTS",
-                        file_name,
-                        field,
-                        f"$.inputs.{field}[{index}]",
-                        f"inputs.{field} items must be non-empty strings",
-                    )
-                )
+        )
     if "trust_class" in value:
         trust_class = value["trust_class"]
         if not isinstance(trust_class, str) or trust_class not in TRUST_CLASS_VALUES:
@@ -816,6 +1135,49 @@ def validate_promotion_candidate(data: dict[str, Any], file_name: str) -> list[V
     return []
 
 
+def validate_review_packet_fields(
+    data: dict[str, Any], file_name: str
+) -> list[ValidationError]:
+    errors = validate_non_empty_string_fields(
+        data,
+        REVIEW_NON_EMPTY_STRING_FIELDS,
+        file_name,
+        "INVALID_REVIEW_FIELD",
+    )
+    errors.extend(
+        validate_string_list_fields(
+            data,
+            REVIEW_STRING_LIST_FIELDS,
+            file_name,
+            "INVALID_REVIEW_FIELD",
+        )
+    )
+
+    if "minimal_checks" in data:
+        minimal_checks = data["minimal_checks"]
+        if not isinstance(minimal_checks, dict):
+            errors.append(
+                make_error(
+                    "INVALID_REVIEW_FIELD",
+                    file_name,
+                    "minimal_checks",
+                    "$.minimal_checks",
+                    "minimal_checks must be an object when present",
+                )
+            )
+        elif "must_read" in minimal_checks:
+            errors.extend(
+                validate_string_list_value(
+                    minimal_checks["must_read"],
+                    file_name,
+                    "must_read",
+                    "$.minimal_checks.must_read",
+                    "INVALID_REVIEW_FIELD",
+                )
+            )
+    return errors
+
+
 def validate_memory_packet_fields(data: dict[str, Any], file_name: str) -> list[ValidationError]:
     errors: list[ValidationError] = []
 
@@ -831,7 +1193,7 @@ def validate_memory_packet_fields(data: dict[str, Any], file_name: str) -> list[
                     "confidence must be a number between 0.0 and 1.0",
                 )
             )
-        elif confidence < 0.0 or confidence > 1.0:
+        elif not math.isfinite(confidence) or confidence < 0.0 or confidence > 1.0:
             errors.append(
                 make_error(
                     "INVALID_CONFIDENCE",
@@ -868,6 +1230,148 @@ def validate_memory_packet_fields(data: dict[str, Any], file_name: str) -> list[
             )
         )
 
+    summary = data.get("summary")
+    if summary is not None and (not isinstance(summary, str) or not summary.strip()):
+        errors.append(
+            make_error(
+                "INVALID_MEMORY_SUMMARY",
+                file_name,
+                "summary",
+                "$.summary",
+                "summary must be a non-empty string",
+            )
+        )
+
+    structured_payload = data.get("structured_payload")
+    if structured_payload is not None and not isinstance(structured_payload, dict):
+        errors.append(
+            make_error(
+                "INVALID_STRUCTURED_PAYLOAD",
+                file_name,
+                "structured_payload",
+                "$.structured_payload",
+                "structured_payload must be an object",
+            )
+        )
+
+    if "invalidation_triggers" in data and data["invalidation_triggers"] is not None:
+        errors.extend(
+            validate_string_list_value(
+                data["invalidation_triggers"],
+                file_name,
+                "invalidation_triggers",
+                "$.invalidation_triggers",
+                "INVALID_INVALIDATION_TRIGGERS",
+            )
+        )
+
+    promotion_notes = data.get("promotion_notes")
+    if promotion_notes is not None and (
+        not isinstance(promotion_notes, str) or not promotion_notes.strip()
+    ):
+        errors.append(
+            make_error(
+                "INVALID_PROMOTION_NOTES",
+                file_name,
+                "promotion_notes",
+                "$.promotion_notes",
+                "promotion_notes must be a non-empty string when present",
+            )
+        )
+
+    if "validity" in data:
+        validity = data["validity"]
+        if not isinstance(validity, dict):
+            errors.append(
+                make_error(
+                    "INVALID_VALIDITY",
+                    file_name,
+                    "validity",
+                    "$.validity",
+                    "validity must be an object when present",
+                )
+            )
+        else:
+            applies_to = validity.get("applies_to")
+            if applies_to is not None:
+                # One existing v0 candidate stores this as a descriptive
+                # string. Preserve that working-packet compatibility until a
+                # human authority decision reconciles the packet and schema.
+                if isinstance(applies_to, str) and applies_to.strip():
+                    pass
+                elif not isinstance(applies_to, dict):
+                    errors.append(
+                        make_error(
+                            "INVALID_VALIDITY",
+                            file_name,
+                            "applies_to",
+                            "$.validity.applies_to",
+                            "validity.applies_to must be an object or a legacy "
+                            "non-empty string when present",
+                        )
+                    )
+                else:
+                    for field in ("modules", "task_types"):
+                        if field in applies_to:
+                            errors.extend(
+                                validate_string_list_value(
+                                    applies_to[field],
+                                    file_name,
+                                    field,
+                                    f"$.validity.applies_to.{field}",
+                                    "INVALID_VALIDITY",
+                                )
+                            )
+            if "stale_on" in validity:
+                errors.extend(
+                    validate_string_list_value(
+                        validity["stale_on"],
+                        file_name,
+                        "stale_on",
+                        "$.validity.stale_on",
+                        "INVALID_VALIDITY",
+                    )
+                )
+            for field in ("review_after", "runtime_generation"):
+                if field in validity and (
+                    not isinstance(validity[field], str) or not validity[field].strip()
+                ):
+                    errors.append(
+                        make_error(
+                            "INVALID_VALIDITY",
+                            file_name,
+                            field,
+                            f"$.validity.{field}",
+                            f"validity.{field} must be a non-empty string when present",
+                        )
+                    )
+
+    if "invalidation" in data:
+        invalidation = data["invalidation"]
+        if not isinstance(invalidation, dict):
+            errors.append(
+                make_error(
+                    "INVALID_INVALIDATION",
+                    file_name,
+                    "invalidation",
+                    "$.invalidation",
+                    "invalidation must be an object when present",
+                )
+            )
+        elif "current_state" in invalidation and (
+            not isinstance(invalidation["current_state"], str)
+            or not invalidation["current_state"].strip()
+        ):
+            errors.append(
+                make_error(
+                    "INVALID_INVALIDATION",
+                    file_name,
+                    "current_state",
+                    "$.invalidation.current_state",
+                    "invalidation.current_state must be a non-empty string when present",
+                )
+            )
+
     return errors
 
 
@@ -896,7 +1400,7 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
             )
         ], None
 
-    if packet_type not in PACKET_TYPES:
+    if not isinstance(packet_type, str) or packet_type not in PACKET_TYPES:
         return [
             make_error(
                 "UNKNOWN_PACKET_TYPE",
@@ -915,12 +1419,14 @@ def validate_packet(data: Any, path: Path) -> tuple[list[ValidationError], str |
     errors.extend(validate_risk(data, file_name))
     errors.extend(validate_created_at(data, file_name))
     errors.extend(validate_packet_uid(data, file_name))
+    errors.extend(validate_shared_field_shapes(data, file_name))
     errors.extend(validate_payload_repr(data, file_name))
     errors.extend(validate_cost_trace(data, file_name))
     errors.extend(validate_data_class(data, file_name))
     if packet_type == "task_packet":
         errors.extend(validate_task_packet_fields(data, file_name))
     if packet_type == "review_packet":
+        errors.extend(validate_review_packet_fields(data, file_name))
         errors.extend(validate_review_recommendation(data, file_name))
         errors.extend(validate_review_multi_reviewer_fields(data, file_name))
         errors.extend(validate_review_promotion_snapshot(data, file_name))

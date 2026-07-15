@@ -69,6 +69,43 @@ class TracePacketChainTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("NOT FOUND", result.stdout)
 
+    def test_malformed_yaml_is_a_setup_error_not_a_silent_skip(self):
+        (self.repo / "packets" / "broken.yaml").write_text(
+            "packet_type: [\n", encoding="utf-8"
+        )
+
+        result = self.run_tool("t-001")
+
+        self.assertEqual(result.returncode, 2, msg=result.stdout + result.stderr)
+        self.assertIn("unable to parse YAML file", result.stderr)
+
+    def test_duplicate_packet_uid_is_an_ambiguous_chain_error(self):
+        (self.repo / "packets" / "duplicate.yaml").write_text(TASK, encoding="utf-8")
+
+        result = self.run_tool("t-001")
+
+        self.assertEqual(result.returncode, 2, msg=result.stdout + result.stderr)
+        self.assertIn("duplicate packet_uid t-001", result.stderr)
+
+    def test_packet_family_document_without_uid_is_a_setup_error(self):
+        (self.repo / "packets" / "missing-uid.yaml").write_text(
+            "packet_type: task_packet\n", encoding="utf-8"
+        )
+
+        result = self.run_tool("t-001")
+
+        self.assertEqual(result.returncode, 2, msg=result.stdout + result.stderr)
+        self.assertIn("invalid packet_uid", result.stderr)
+
+    def test_path_escape_is_displayed_without_following_it(self):
+        review = REVIEW.replace("source_path: evidence.md", "source_path: ../outside.md")
+        (self.repo / "packets" / "review.yaml").write_text(review, encoding="utf-8")
+
+        result = self.run_tool("r-001")
+
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+        self.assertIn("[OUTSIDE_REPO] ../outside.md", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

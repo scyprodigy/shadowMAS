@@ -22,14 +22,17 @@ shadowmas validate <packet-file>
 It currently validates:
 
 - `packet_type`
-- required fields
+- required fields and their declared v0 scalar/list/object shapes
 - `schema_version: v0`
 - filename `.vN` major mismatch
 - family-specific status
+- RFC3339 UTC timestamps, including calendar validity
+- multi-reviewer `reviewers_required` / `consensus_kind` dependency
 - `source_refs`
 - `artifact_refs`
 - `handoff`
 - deprecated handoff fields
+- duplicate YAML mapping keys (reported as a parse failure)
 
 ## What it does not do
 It does not:

@@ -57,6 +57,15 @@ validity:
   runtime_generation: claude-fable-5
 """
 
+STRING_HASH_PACKET = """\
+packet_type: memory_packet
+packet_uid: test-memory-string-hash-001
+source_refs: []
+invalidation:
+  source_hashes:
+    - sha256:opaque-without-path-mapping
+"""
+
 
 class MemoryValidityCurrentStateTests(unittest.TestCase):
     def test_current_repo_is_clean(self):
@@ -128,6 +137,40 @@ class MemoryValidityUnitTests(unittest.TestCase):
         result = self.run_checker("--generation", "claude-fable-6")
         self.assertEqual(result.returncode, 1, msg=result.stdout)
         self.assertIn("declared runtime_generation", result.stdout)
+
+    def test_v0_string_source_hash_is_explicitly_uncheckable(self):
+        write_packet(self.repo / "packets", "string-hash.v0.yaml", STRING_HASH_PACKET)
+
+        result = self.run_checker()
+
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+        self.assertIn("uses the v0 string shape", result.stdout)
+        self.assertIn("not mechanically checkable", result.stdout)
+
+    def test_malformed_yaml_is_a_setup_error_not_a_silent_skip(self):
+        write_packet(self.repo / "packets", "broken.yaml", "packet_type: [\n")
+
+        result = self.run_checker()
+
+        self.assertEqual(result.returncode, 2, msg=result.stdout + result.stderr)
+        self.assertIn("unable to parse YAML file", result.stderr)
+
+    def test_source_path_escape_is_a_broken_reference(self):
+        packet = """\
+packet_type: memory_packet
+packet_uid: test-memory-escape-001
+source_refs:
+  - source_type: file
+    source_path: ../outside.md
+    relation: derived_from
+"""
+        write_packet(self.repo / "packets", "escape.yaml", packet)
+
+        result = self.run_checker()
+
+        self.assertEqual(result.returncode, 1, msg=result.stdout + result.stderr)
+        self.assertIn("broken_reference: invalid source_refs path", result.stdout)
+        self.assertIn("parent traversal is not allowed", result.stdout)
 
 
 if __name__ == "__main__":
