@@ -1,5 +1,5 @@
 # SHADOWMAS-POSITIONING-STATEMENT.v0.draft.en | draft positioning statement for controlled-alpha shadowMAS
-# related: [SHADOWMAS-CURRENT-TRUTH, SHADOWMAS-TARGET-TRUTH, README]
+# related: [SHADOWMAS-CURRENT-TRUTH, SHADOWMAS-TARGET-TRUTH, README, DECISION-review-brief-primary-direction]
 # phase: draft_non_canonical
 
 > status: DRAFT / working-only / non-canonical / authority: none
@@ -18,6 +18,8 @@ Two insistences:
 - Authority-integrity: schema validity does not make a label like "approved" or "truth" true. shadowMAS makes the packet's fields, evidence, and boundary visible for human review; v0 does not enforce authority at runtime.
 
 The long-term direction is to be usable by many people with their own tools. The first concrete form is one developer running several coding agents on a local machine, who wants AI-assisted work expressed as inspectable packets without adopting a heavyweight platform.
+
+The first concrete tool expression of that form is the task-scoped pre-sign-off review brief (`tools/scope_rework_guard.py`, `tools/compose_review_brief.py`; direction record: `DECISION-review-brief-primary-direction.v0.en.md`). Premise: as agent output grows, the scarce resource is human review attention. The brief compiles, for one bounded task, what the accountable human should know before signing off — prior rejections with reopen conditions, stale or broken cited evidence, risk and rollback, a bounded typed check list — and reveals the compiler recommendation only after the human records a judgment. The design goal is routing scarce attention, not faster review. Format decisions follow published cognitive-load and review-quality evidence as design rationale; this is not a claim that shadowMAS implements neuroscience or measurably improves oversight. The sign-off receipt (an ordinary v0 review_packet) is a by-product of the flow, not the pitch.
 
 Interoperability direction: the packet's common shell is kept self-contained so that a packet can travel as a data payload inside larger transport protocols (for example, as a data part of an agent-to-agent message). This is a design constraint on the shell, not a shipped integration; v0 ships no protocol binding.
 
