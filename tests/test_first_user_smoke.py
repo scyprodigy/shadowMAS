@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -90,6 +91,44 @@ class FirstUserSmokeTests(unittest.TestCase):
 
             self.assertTrue(module.is_under(child, root))
             self.assertFalse(module.is_under(outside, child))
+
+    def test_run_smoke_executes_the_declared_step_contract(self):
+        module = load_smoke_module()
+        required_steps = [
+            "task packet validator",
+            "review packet validator",
+            "memory packet validator",
+            "candidate registry checker",
+            "L1 positive fixture",
+            "L1 negative fixture",
+            "L2 inspector smoke",
+        ]
+
+        for skip_unit_tests in (True, False):
+            with self.subTest(skip_unit_tests=skip_unit_tests):
+                completed = subprocess.CompletedProcess(
+                    args=["probe"], returncode=0, stdout="", stderr=""
+                )
+                with (
+                    patch.object(module, "run_step", return_value=completed) as run_step,
+                    patch.object(module, "run_temp_workspace_flow") as workspace_flow,
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    code = module.run_smoke(skip_unit_tests=skip_unit_tests)
+
+                observed = [call.args[0] for call in run_step.call_args_list]
+                expected = required_steps
+                if not skip_unit_tests:
+                    expected = ["unit tests", *required_steps]
+                self.assertEqual(code, 0)
+                self.assertEqual(observed, expected)
+                negative_calls = [
+                    call for call in run_step.call_args_list
+                    if call.kwargs.get("expect_l1_negative")
+                ]
+                self.assertEqual(len(negative_calls), 1)
+                self.assertEqual(negative_calls[0].args[0], "L1 negative fixture")
+                workspace_flow.assert_called_once_with(module.repo_root())
 
 
 if __name__ == "__main__":
