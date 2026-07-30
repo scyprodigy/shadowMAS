@@ -1,3 +1,5 @@
+import contextlib
+import io
 import subprocess
 import sys
 import tempfile
@@ -22,6 +24,59 @@ class PlacementProvenanceCurrentStateTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
         self.assertIn("OK", result.stdout)
+
+
+class PlacementProvenanceScannerTests(unittest.TestCase):
+    def run_gate(self, artifact: str, review: str | None = None):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            shared = root / "shared_memory"
+            reviews = root / "reviews"
+            shared.mkdir()
+            reviews.mkdir()
+            (shared / "memory.v0.yaml").write_text(artifact, encoding="utf-8")
+            if review is not None:
+                (reviews / "review.v0.yaml").write_text(review, encoding="utf-8")
+
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                patch.object(check_placement_provenance, "SHARED", shared),
+                patch.object(check_placement_provenance, "REVIEW_ROOTS", [reviews]),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                code = check_placement_provenance.main()
+        return code, stdout.getvalue(), stderr.getvalue()
+
+    def test_nonempty_unreviewed_placement_is_rejected(self):
+        artifact = """\
+packet_type: memory_packet
+packet_uid: mem-unreviewed-001
+"""
+        code, stdout, stderr = self.run_gate(artifact)
+        self.assertEqual(code, 1, msg=stdout + stderr)
+        self.assertIn("checked 1 shared_memory artifact(s)", stdout)
+        self.assertIn("no approved promotion review_packet", stdout)
+
+    def test_nonempty_reviewed_placement_passes(self):
+        artifact = """\
+packet_type: memory_packet
+packet_uid: mem-reviewed-001
+"""
+        review = """\
+packet_type: review_packet
+packet_uid: review-placement-001
+status: approved
+source_refs:
+  - source_id: mem-reviewed-001
+"""
+        code, stdout, stderr = self.run_gate(artifact, review)
+        self.assertEqual(code, 0, msg=stdout + stderr)
+        self.assertIn(
+            "checked 1 shared_memory artifact(s) against 1 approved review packet(s)",
+            stdout,
+        )
 
 
 class ReviewCoversUnitTests(unittest.TestCase):

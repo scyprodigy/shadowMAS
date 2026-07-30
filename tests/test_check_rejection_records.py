@@ -1,8 +1,11 @@
+import contextlib
+import io
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOL = REPO_ROOT / "tools" / "check_rejection_records.py"
@@ -75,6 +78,39 @@ class RejectionRecordsUnitTests(unittest.TestCase):
     def test_contract_loaded_from_proposal(self):
         self.assertIn("rejected_claim", self.required)
         self.assertIn("reopen_conditions", self.required)
+
+    def test_main_discovers_and_rejects_invalid_instance(self):
+        proposal_body = """\
+required_fields:
+  rejected_claim: {}
+  reopen_conditions: {}
+"""
+        invalid_body = """\
+purpose: discovered but invalid
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            rationale = Path(tmp)
+            proposal = rationale / "rejection_record.PROPOSAL.v0.yaml"
+            proposal.write_text(proposal_body, encoding="utf-8")
+            (rationale / "rejection_probe.v0.yaml").write_text(
+                invalid_body, encoding="utf-8"
+            )
+            stdout = io.StringIO()
+            with (
+                patch.object(
+                    check_rejection_records, "RATIONALE_DIR", rationale
+                ),
+                patch.object(
+                    check_rejection_records, "PROPOSAL", proposal
+                ),
+                contextlib.redirect_stdout(stdout),
+            ):
+                code = check_rejection_records.main()
+
+        output = stdout.getvalue()
+        self.assertEqual(code, 1, msg=output)
+        self.assertIn("checked 1 rejection_record instance(s)", output)
+        self.assertIn("missing or empty required field", output)
 
 
 if __name__ == "__main__":
