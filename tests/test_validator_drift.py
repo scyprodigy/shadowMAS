@@ -1,5 +1,6 @@
 import contextlib
 import io
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -74,6 +75,65 @@ class ValidatorSchemaDriftTests(unittest.TestCase):
                 output = stdout.getvalue()
                 self.assertEqual(code, 1, msg=output)
                 self.assertIn(f"surface: {surface}", output)
+
+    def test_validator_side_only_drift_is_detected(self):
+        """Pairs with the schema-side test above so the contract is symmetric:
+        a value the validator gained and the schema never declared is drift
+        too. Without this, a checker that only reports yaml-side additions
+        looks healthy."""
+        with tempfile.TemporaryDirectory() as tmp:
+            # mirror the repo layout: the validator resolves its tools/ import
+            # relative to its own __file__, so a bare copy would not load
+            root = Path(tmp)
+            validate_dir = root / "05_scripts" / "validate"
+            tools_dir = root / "tools"
+            validate_dir.mkdir(parents=True)
+            tools_dir.mkdir()
+            shutil.copyfile(REPO_ROOT / "tools" / "_shadowmas_readonly.py",
+                            tools_dir / "_shadowmas_readonly.py")
+
+            source = check_validator_drift.VALIDATOR_PATH
+            mutated = validate_dir / source.name
+            mutated.write_text(
+                source.read_text(encoding="utf-8")
+                + '\nRISK_VALUES = RISK_VALUES | {"r_probe_validator_only"}\n',
+                encoding="utf-8",
+            )
+
+            stdout = io.StringIO()
+            with (
+                patch.object(check_validator_drift, "VALIDATOR_PATH", mutated),
+                contextlib.redirect_stdout(stdout),
+            ):
+                code = check_validator_drift.main()
+
+        output = stdout.getvalue()
+        self.assertEqual(code, 1, msg=output)
+        self.assertIn("surface: RISK_VALUES", output)
+
+    def test_missing_schema_path_fails_closed(self):
+        """A compared path that disappears from a schema must be reported. If
+        it is silently skipped, that surface stops being checked at all and
+        the tool still exits 0."""
+        with tempfile.TemporaryDirectory() as tmp:
+            source = check_validator_drift.REVIEW_PATH
+            data = yaml.safe_load(source.read_text(encoding="utf-8"))
+            del data["required_fields"]["recommendation"]["allowed"]
+
+            mutated = Path(tmp) / source.name
+            mutated.write_text(
+                yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+
+            stdout = io.StringIO()
+            with (
+                patch.object(check_validator_drift, "REVIEW_PATH", mutated),
+                contextlib.redirect_stdout(stdout),
+            ):
+                code = check_validator_drift.main()
+
+        output = stdout.getvalue()
+        self.assertEqual(code, 1, msg=output)
+        self.assertIn("surface: REVIEW_RECOMMENDATION_VALUES", output)
 
 
 if __name__ == "__main__":
