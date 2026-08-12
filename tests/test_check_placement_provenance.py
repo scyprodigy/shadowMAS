@@ -79,6 +79,32 @@ source_refs:
         )
 
 
+    def test_missing_shared_memory_directory_is_a_setup_error(self):
+        """This checker declares itself real enforcement that fails the build.
+        An absent provenance root must not be read as an empty one: exit 0
+        would mean 'every artifact has provenance' about a directory that was
+        never scanned."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reviews = root / "reviews"
+            reviews.mkdir()
+            absent = root / "shared_memory"  # deliberately never created
+
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                patch.object(check_placement_provenance, "SHARED", absent),
+                patch.object(check_placement_provenance, "REVIEW_ROOTS", [reviews]),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                code = check_placement_provenance.main()
+
+        self.assertEqual(code, 2, msg=stdout.getvalue() + stderr.getvalue())
+        self.assertTrue(stderr.getvalue().strip(),
+                        msg="a setup error must report something on stderr")
+
+
 class ReviewCoversUnitTests(unittest.TestCase):
     # an approved review that reviewed candidate cand-001 (not the placed uid)
     REVIEWS = [

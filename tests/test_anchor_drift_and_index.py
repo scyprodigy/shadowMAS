@@ -116,6 +116,34 @@ shadowMAS exists to reduce three recurring failure modes:
         self.assertEqual(code, 1, msg=output)
         self.assertIn("deprecated term", output)
 
+    def test_nested_markdown_below_the_root_is_scanned(self):
+        """Deliberately does NOT patch scannable_md_files: the tests above
+        inject a file list, so a scan that stopped descending into
+        subdirectories would still pass them. Only the repository root is
+        injected here; the walk itself must run. Asserts the finding names the
+        nested path, not that any particular traversal helper was used."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            truth = root / "CURRENT-TRUTH.md"
+            truth.write_text(self.BASE_TRUTH, encoding="utf-8")
+            nested = root / "docs" / "deep" / "note.md"
+            nested.parent.mkdir(parents=True)
+            nested.write_text("Coordination / Governance Shadow\n",
+                              encoding="utf-8")
+
+            stdout = io.StringIO()
+            with (
+                patch.object(check_anchor_drift, "REPO", root),
+                patch.object(check_anchor_drift, "CURRENT_TRUTH", truth),
+                patch.object(check_anchor_drift, "COUNT_CLAIM_FILES", [truth]),
+                contextlib.redirect_stdout(stdout),
+            ):
+                code = check_anchor_drift.main()
+
+        output = stdout.getvalue()
+        self.assertEqual(code, 1, msg=output)
+        self.assertIn("docs/deep/note.md", output)
+
 
 class ReworkGuardCompiledTests(unittest.TestCase):
     def test_do_not_redo_surface_is_up_to_date(self):
@@ -145,6 +173,22 @@ class ReworkGuardCompiledTests(unittest.TestCase):
 
         self.assertEqual(code, 1, msg=stdout.getvalue())
         self.assertIn("surface is stale", stdout.getvalue())
+
+    def test_check_rejects_a_missing_compiled_surface(self):
+        """An absent compiled surface is not 'up to date'. Treating a missing
+        file as fresh would let a deleted entry surface pass CI silently."""
+        with tempfile.TemporaryDirectory() as tmp:
+            absent = Path(tmp) / "DO-NOT-REDO.compiled.v0.en.md"  # never written
+            stdout = io.StringIO()
+            with (
+                patch.object(build_rework_guard, "OUTPUT", absent),
+                contextlib.redirect_stdout(stdout),
+            ):
+                code = build_rework_guard.main(["--check"])
+
+            self.assertEqual(code, 1, msg=stdout.getvalue())
+            self.assertFalse(absent.exists(),
+                             msg="--check must not write the surface it checks")
 
 
 class RationaleIndexCompiledTests(unittest.TestCase):
@@ -183,6 +227,28 @@ class RationaleIndexCompiledTests(unittest.TestCase):
 
         self.assertEqual(code, 1, msg=stdout.getvalue())
         self.assertIn("rationale_index.md is stale", stdout.getvalue())
+
+    def test_check_rejects_a_missing_rationale_index(self):
+        """Same contract as the compiled surface: absent is not up to date."""
+        with tempfile.TemporaryDirectory() as tmp:
+            rationale = Path(tmp)
+            (rationale / "DECISION-probe.v0.en.md").write_text(
+                "# DECISION-probe | mutation probe\n"
+                "# related: []\n"
+                "# phase: test\n",
+                encoding="utf-8",
+            )
+            # rationale_index.md deliberately absent
+            stdout = io.StringIO()
+            with (
+                patch.object(build_rationale_index, "RATIONALE_DIR", rationale),
+                contextlib.redirect_stdout(stdout),
+            ):
+                code = build_rationale_index.main(["--check"])
+
+            self.assertEqual(code, 1, msg=stdout.getvalue())
+            self.assertFalse((rationale / "rationale_index.md").exists(),
+                             msg="--check must not write the index it checks")
 
 
 if __name__ == "__main__":
