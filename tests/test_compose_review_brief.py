@@ -13,6 +13,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOL = REPO_ROOT / "tools" / "compose_review_brief.py"
+METRICS_TOOL = REPO_ROOT / "tools" / "review_brief_metrics.py"
 VALIDATOR = REPO_ROOT / "05_scripts" / "validate" / "shadowmas_validate.py"
 
 sys.path.insert(0, str(REPO_ROOT / "tools"))
@@ -140,7 +141,7 @@ class ComposeReviewBriefTests(unittest.TestCase):
                 "--rollback", "git revert HEAD", "--changed-loc", "42", *extra)
 
     def last_run_record(self) -> dict:
-        runs_file = self.workspace / "runs" / "review_brief_runs.v0.jsonl"
+        runs_file = self.workspace / "runs" / "review_brief_runs.v1.jsonl"
         lines = runs_file.read_text(encoding="utf-8").splitlines()
         return json.loads(lines[-1])
 
@@ -223,15 +224,33 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self.assertIn("must be zero or positive", result.stderr)
         self.assertNotIn("REVIEW BRIEF", result.stdout)
         self.assertFalse(
-            (self.workspace / "runs" / "review_brief_runs.v0.jsonl").exists(),
+            (self.workspace / "runs" / "review_brief_runs.v1.jsonl").exists(),
             msg="a refused invocation must not enter the metrics record")
+
+    def test_signoff_id_rejects_identity_or_authority_text(self):
+        result = self.run_tool(
+            *self.base_args("--signoff-id", "approver=alice@example.com"))
+        self.assertEqual(result.returncode, 2,
+                         msg=result.stdout + result.stderr)
+        self.assertIn("--signoff-id must be", result.stderr)
+        self.assertFalse(
+            (self.workspace / "runs" / "review_brief_runs.v1.jsonl").exists())
+
+    def test_task_path_refuses_repository_escape(self):
+        for path in ("/", "/tmp/outside.py", "../outside.py", "."):
+            with self.subTest(path=path):
+                result = self.run_tool(*self.base_args("--path", path))
+                self.assertEqual(result.returncode, 2,
+                                 msg=result.stdout + result.stderr)
+                self.assertIn("invalid task path", result.stderr)
 
     @unittest.skipUnless(hasattr(os, "forkpty"), "pty required")
     def test_pty_receipt_flow_writes_exactly_one_receipt(self):
         """Positive control: the pty harness really can produce a receipt, so
         'no receipt' in the negative tests below means something."""
         code, output = self.run_tool_pty(
-            self.base_args("--emit-receipt", "--owner", "human_owner"),
+            self.base_args("--emit-receipt", "--owner", "human_owner",
+                           "--risk", "r2_guarded"),
             replies="\napprove\nadded_check\n")
         self.assertEqual(code, 0, msg=output)
         self.assertIn("receipt written:", output)
@@ -241,6 +260,26 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self.assertTrue(record["brief_consulted"])
         self.assertEqual(record["judgment"], "approve")
         self.assertEqual(record["observable_action"], "added_check")
+        self.assertEqual(record["observable_action_source"],
+                         "operator_declared_unauthenticated")
+        self.assertEqual(record["interaction_channel"], "tty")
+        self.assertEqual(record["authentication"], "none")
+        self.assertEqual(record["consultation_claim"], "display_proxy_only")
+        self.assertTrue(record["receipt"].startswith("reviews/"))
+        self.assertNotIn(str(self.workspace), record["receipt"])
+        metrics = subprocess.run(
+            [sys.executable, str(METRICS_TOOL), "--workspace",
+             str(self.workspace), "--format", "json"],
+            capture_output=True, text=True)
+        self.assertEqual(metrics.returncode, 3,
+                         msg=metrics.stdout + metrics.stderr)
+        report = json.loads(metrics.stdout)
+        self.assertEqual(report["verdict"], "INSUFFICIENT_DATA")
+        self.assertEqual(report["admissible"]["signoff"], 1,
+                         msg=metrics.stdout)
+        self.assertEqual(
+            report["integrity"]["distinct_receipt_packet_uids"], 1)
+        self.assertEqual(report["excluded"], {})
 
     @unittest.skipUnless(hasattr(os, "forkpty"), "pty required")
     def test_negative_changed_loc_yields_no_receipt_on_a_pty(self):
@@ -304,6 +343,42 @@ class ComposeReviewBriefTests(unittest.TestCase):
             self.assertIn(heading, result.stdout,
                           msg=f"heading lost under load: {heading}")
 
+    def test_section_budget_drops_parent_and_children_atomically(self):
+        groups = [
+            ["1. EVIDENCE"],
+            ["   retained finding"],
+            ["   DISCONFIRM parent with enough words to exceed budget",
+             "     reopen: child must never survive alone"],
+        ]
+        rendered = compose_review_brief.fit_section(groups, budget=15)
+        self.assertIn("   retained finding", rendered)
+        self.assertNotIn(
+            "   DISCONFIRM parent with enough words to exceed budget",
+            rendered)
+        self.assertNotIn("     reopen: child must never survive alone",
+                         rendered)
+        self.assertIn("groups omitted", rendered[-1])
+
+    def test_section_budget_preserves_finding_priority_as_prefix(self):
+        groups = [
+            ["1. EVIDENCE"],
+            ["   DISCONFIRM [EXACT_PATH] rejection first"],
+            ["   DISCONFIRM [EXACT_PATH] rejection second with detail",
+             "     reopen: a condition that makes this group too large"],
+            ["   DISCONFIRM [STRONG_KEYWORD] lesson short"],
+        ]
+        rendered = compose_review_brief.fit_section(groups, budget=20)
+        joined = "\n".join(rendered)
+        self.assertIn("rejection first", joined)
+        self.assertNotIn("rejection second", joined)
+        self.assertNotIn("lesson short", joined)
+        self.assertIn("highest-tier=EXACT_PATH", rendered[-1])
+
+    def test_trimmed_line_preserves_visual_nesting(self):
+        text = "     reopen: " + "word " * 30
+        self.assertTrue(compose_review_brief.trim_line(text).startswith(
+            "     reopen:"))
+
     def test_ancestor_instruction_files_are_read_and_declared(self):
         (self.repo / "AGENTS.md").write_text("fixture agents guidance\n",
                                              encoding="utf-8")
@@ -315,6 +390,63 @@ class ComposeReviewBriefTests(unittest.TestCase):
                                "--changed-loc", "42")
         self.assertIn("task context read: AGENTS.md, src/CLAUDE.md",
                       result.stdout)
+        self.assertIn("relevance query: goal + acceptance only", result.stdout)
+
+    def test_instruction_text_does_not_overwhelm_task_relevance(self):
+        (self.repo / "AGENTS.md").write_text(
+            "adopt giant orchestration framework wholesale\n",
+            encoding="utf-8",
+        )
+        result = self.run_tool(*self.base_args("--path", "src/widget.py"))
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+        self.assertNotIn("ADVISORY FINDINGS", result.stdout)
+        self.assertIn("relevance query: goal + acceptance only", result.stdout)
+
+    def test_query_provenance_excludes_context_content(self):
+        (self.repo / "AGENTS.md").write_text(
+            "unique_context_token orchestration framework\n",
+            encoding="utf-8",
+        )
+        args = make_args(path=["src/widget.py"])
+        model, errors = compose_review_brief.compose(args, self.repo)
+        self.assertEqual(errors, [])
+        self.assertEqual(model["query_provenance"],
+                         "goal_and_acceptance_only")
+        self.assertNotIn("unique", model["query_tokens"])
+        self.assertNotIn("context", model["query_tokens"])
+
+    def test_broken_memory_evidence_is_scoped_and_rendered_stale(self):
+        memory_dir = self.repo / "07_working" / "memory_fixture"
+        memory_dir.mkdir()
+        (memory_dir / "missing_source.v0.yaml").write_text(
+            "packet_type: memory_packet\n"
+            "packet_uid: fixture_missing_source\n"
+            "source_refs:\n"
+            "  - source_path: src/missing_widget.py\n",
+            encoding="utf-8",
+        )
+        result = self.run_tool(*self.base_args(
+            "--path", "src/missing_widget.py"))
+        self.assertEqual(result.returncode, 1,
+                         msg=result.stdout + result.stderr)
+        self.assertIn("STALE fixture_missing_source: broken_reference",
+                      result.stdout)
+
+    def test_memory_path_substring_does_not_create_false_scope(self):
+        memory_dir = self.repo / "07_working" / "memory_fixture"
+        memory_dir.mkdir()
+        (memory_dir / "similar_source.v0.yaml").write_text(
+            "packet_type: memory_packet\n"
+            "packet_uid: fixture_similar_source\n"
+            "source_refs:\n"
+            "  - source_path: src/widget_backup.py\n",
+            encoding="utf-8",
+        )
+        args = make_args(path=["src/widget.py"])
+        model, errors = compose_review_brief.compose(args, self.repo)
+        self.assertEqual(errors, [])
+        self.assertEqual(model["memory_findings"], [])
+        self.assertEqual(model["memory_out_of_scope"], 1)
 
     def test_markdown_links_are_followed_one_hop_only(self):
         (self.repo / "start.md").write_text("see [hop1](hop_one.md)\n",
@@ -341,6 +473,14 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self.assertNotIn("recommendation", payload)
         self.assertTrue(payload["recommendation_withheld"])
 
+    def test_refused_json_receipt_does_not_create_signoff_salt(self):
+        result = self.run_tool(*self.base_args(
+            "--format", "json", "--emit-receipt", "--owner", "human_owner",
+            "--signoff-id", "ticket-4417"))
+        self.assertEqual(result.returncode, 2,
+                         msg=result.stdout + result.stderr)
+        self.assertFalse((self.workspace / ".signoff_salt").exists())
+
     def test_workspace_inside_repo_is_rejected(self):
         inner = self.repo / "workspace"
         (inner / "reviews").mkdir(parents=True)
@@ -359,13 +499,43 @@ class ComposeReviewBriefTests(unittest.TestCase):
         for field in ("record_kind", "run_id", "signoff_id",
                       "eligible_signoff", "brief_consulted", "judgment",
                       "observable_action", "compose_ms", "triage_ms",
-                      "exit_code"):
+                      "brief_displayed", "interaction_channel",
+                      "authentication", "judgment_source",
+                      "observable_action_source", "exit_code"):
             self.assertIn(field, record)
         self.assertEqual(record["record_kind"], "preview")
-        self.assertEqual(record["signoff_id"], "signoff-42")
+        self.assertEqual(record["record_version"], "review_brief_run.v1")
+        salt_path = self.workspace / ".signoff_salt"
+        salt = salt_path.read_bytes()
+        self.assertEqual(
+            record["signoff_id"],
+            compose_review_brief.opaque_signoff_id(
+                "signoff-42", "unused", salt))
+        self.assertNotIn("signoff-42", record["signoff_id"])
+        self.assertEqual(len(salt), 32)
+        self.assertEqual(salt_path.stat().st_mode & 0o077, 0)
         self.assertFalse(record["eligible_signoff"])  # r1 is not eligible
         self.assertEqual(record["judgment"], "none")
         self.assertEqual(record["observable_action"], "not_applicable")
+        self.assertEqual(record["interaction_channel"], "stdout")
+        self.assertEqual(record["authentication"], "none")
+
+    def test_declared_signoff_id_is_stable_only_within_one_workspace(self):
+        first_salt = compose_review_brief.load_or_create_signoff_salt(
+            self.workspace)
+        first = compose_review_brief.opaque_signoff_id(
+            "ticket-4417", "unused", first_salt)
+        repeated = compose_review_brief.opaque_signoff_id(
+            "ticket-4417", "unused", first_salt)
+        with tempfile.TemporaryDirectory() as other_tmp:
+            other = Path(other_tmp)
+            second_salt = compose_review_brief.load_or_create_signoff_salt(
+                other)
+            second = compose_review_brief.opaque_signoff_id(
+                "ticket-4417", "unused", second_salt)
+        self.assertEqual(first, repeated)
+        self.assertNotEqual(first, second)
+        self.assertNotIn(b"ticket-4417", first_salt)
 
     def test_refused_receipt_attempts_never_claim_brief_consultation(self):
         """A refusal is not a sign-off and is not a consultation; recording it
@@ -401,6 +571,8 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self.assertEqual(record["record_kind"], "signoff_attempt")
         self.assertTrue(record["brief_consulted"])
         self.assertEqual(record["judgment"], "cancelled")
+        self.assertEqual(record["interaction_channel"], "tty")
+        self.assertEqual(record["authentication"], "none")
 
     def test_record_skip_logs_eligible_signoff_without_consultation(self):
         result = self.run_tool("--record-skip", "--risk", "r2_guarded")
@@ -417,6 +589,17 @@ class ComposeReviewBriefTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             compose_review_brief.build_receipt(
                 model, args, "approve", ["fake-finding-id"],
+                compose_review_brief.utc_now(), self.repo)
+
+    def test_receipt_rejects_unconfirmed_weak_match_as_judgment_basis(self):
+        args = make_args(goal="improve framework docs")
+        model, errors = compose_review_brief.compose(args, self.repo)
+        self.assertEqual(errors, [])
+        self.assertTrue(model["guard_weak"])
+        weak_id = model["guard_weak"][0]["record_id"]
+        with self.assertRaises(ValueError):
+            compose_review_brief.build_receipt(
+                model, args, "approve", [weak_id],
                 compose_review_brief.utc_now(), self.repo)
 
     def test_receipt_is_honest_validator_clean_and_collision_safe(self):
