@@ -11,7 +11,9 @@ directly (sources always win over compiled views), so compiled-surface
 staleness cannot mislead it.
 
 Matching is deterministic keyword/path overlap only — no embeddings, no
-model calls. A no-hit result means "no hit within bounded coverage", never
+model calls. Path tiers use only each record's declared scope-bearing text,
+never incidental paths elsewhere in the source. A no-hit result means
+"no hit within bounded coverage", never
 "nothing relevant exists" (the coverage manifest is printed with every run).
 Weak matches are quarantined under a manual-confirmation heading and do not
 change the exit code.
@@ -21,9 +23,9 @@ Usage:
   python3 tools/scope_rework_guard.py --task-packet <task.yaml>   # or '-' for stdin
   python3 tools/scope_rework_guard.py --goal "..." --format json
 
-Exit: 0 = bounded scan complete, no exact/strong findings (weak may exist);
-1 = exact or strong findings; 2 = usage/setup error (no query subjects,
-missing sources, unreadable or malformed YAML).
+Exit: 0 = bounded scan complete, no exact/path-scope/strong findings (weak may
+exist); 1 = exact, path-scope, or strong findings; 2 = usage/setup error (no
+query subjects, missing sources, unreadable or malformed YAML).
 """
 
 from __future__ import annotations
@@ -36,7 +38,7 @@ from pathlib import Path
 
 import yaml
 
-from _shadowmas_readonly import UniqueKeyLoader
+from _shadowmas_readonly import UniqueKeyLoader, resolve_repo_reference
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -49,8 +51,13 @@ SECTION_RE = re.compile(
     r"^##+ (?!Purpose|Discipline|Reconsideration|Out of scope|Other deferred)(?P<title>.+)$"
 )
 TRIGGER_RE = re.compile(r"^- unlock trigger:\s*(?P<trigger>.*)$")
+HEADING_RE = re.compile(r"^#+\s+(?P<title>.+?)\s*$")
+SETEXT_UNDERLINE_RE = re.compile(r"^\s*(?:={3,}|-{3,})\s*$")
+LIST_ITEM_RE = re.compile(
+    r"^(?P<indent>\s*)(?:(?:[-+*])|(?:\d+[.)]))\s+(?P<text>.+?)\s*$")
 
 TIER_EXACT_PATH = "EXACT_PATH"
+TIER_PATH_SCOPE = "PATH_SCOPE"
 TIER_STRONG = "STRONG_KEYWORD"
 TIER_WEAK = "WEAK"
 
@@ -97,6 +104,106 @@ def flatten_strings(value: object) -> list[str]:
     return []
 
 
+def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
+    """Return list items under one unambiguous Markdown heading.
+
+    Exact matching plus a ``v-*`` prefix admits ``v-future Reopen Conditions``
+    without treating headings such as ``Rejected reopen conditions`` as live.
+    Markdown headings inside fenced code are ignored. Multiple live sections
+    are refused instead of silently selecting one.
+    """
+    wanted = heading_suffix.casefold()
+    sections: list[list[str]] = []
+    active: list[str] | None = None
+    fence: str | None = None
+    lines = text.splitlines()
+    index = 0
+    while index < len(lines):
+        raw = lines[index]
+        stripped = raw.strip()
+        marker = stripped[:3]
+        if marker in {"```", "~~~"}:
+            if fence is None:
+                fence = marker
+            elif marker == fence:
+                fence = None
+            index += 1
+            continue
+        if fence is not None:
+            index += 1
+            continue
+        heading = HEADING_RE.match(raw)
+        title_text: str | None = None
+        if heading:
+            title_text = heading.group("title")
+        elif (stripped and index + 1 < len(lines)
+              and SETEXT_UNDERLINE_RE.fullmatch(lines[index + 1])):
+            title_text = stripped
+            index += 1  # consume the underline with its heading
+        if title_text is not None:
+            title = title_text.strip().casefold()
+            title = title.strip("*_").strip()
+            title = title.removesuffix(":").strip()
+            title = title.strip("*_").strip()
+            if active is not None:
+                sections.append(active)
+                active = None
+            if (title == wanted
+                    or re.fullmatch(r"v-[a-z0-9_.-]+\s+" + re.escape(wanted),
+                                    title)):
+                active = []
+            index += 1
+            continue
+        if active is None:
+            index += 1
+            continue
+        item_match = LIST_ITEM_RE.match(raw)
+        if item_match:
+            item = item_match.group("text").strip()
+            if item_match.group("indent"):
+                if not active:
+                    raise ValueError("nested list item has no parent")
+                active[-1] += f" — nested: {item}"
+            else:
+                active.append(item)
+        elif raw[:1].isspace() and stripped and active:
+            active[-1] += " " + stripped
+        index += 1
+    if fence is not None:
+        raise ValueError("unclosed Markdown fence")
+    if active is not None:
+        sections.append(active)
+    if len(sections) > 1:
+        raise ValueError(f"multiple {heading_suffix!r} sections")
+    return sections[0] if sections else []
+
+
+def declared_path_match(path_scope: str, query_path: str
+                        ) -> tuple[str | None, str | None]:
+    """Match a query path only against declared scope-bearing record text.
+
+    A full file/path reference is EXACT_PATH. A nested directory ancestor is
+    PATH_SCOPE. Top-level parents such as ``tools/`` are deliberately excluded:
+    they are too broad to establish task relevance by themselves.
+    """
+    normalized_paths = normalize_paths([query_path])
+    normalized = normalized_paths[0] if normalized_paths else ""
+    if not normalized:
+        return None, None
+
+    boundary = r"(?<![A-Za-z0-9_./-]){}(?=$|[^A-Za-z0-9_./-])"
+    for candidate in (normalized, normalized + "/"):
+        if re.search(boundary.format(re.escape(candidate)), path_scope):
+            return TIER_EXACT_PATH, candidate
+
+    parts = Path(normalized).parts
+    for end in range(len(parts) - 1, 1, -1):
+        ancestor = "/".join(parts[:end]) + "/"
+        if re.search(boundary.format(re.escape(ancestor)), path_scope):
+            return TIER_PATH_SCOPE, ancestor
+    return None, None
+
+
 def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
     """Collect rejection, decision, deferral, and lesson records from their
     owning source files. Returns (records, errors); errors are fatal."""
@@ -133,6 +240,7 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
                 [str(data.get("purpose", "")), str(data.get("rejected_claim", ""))]
             ),
             "secondary": " ".join(reasons + [scope_text]),
+            "path_scope": scope_text,
             "conditions": flatten_strings(data.get("reopen_conditions")),
             "condition_label": "reopen",
             "source_path": str(path.relative_to(repo)),
@@ -148,13 +256,19 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
         first = text.splitlines()[0] if text.splitlines() else ""
         match = MD_HEADER_RE.match(first)
         purpose = match.group("purpose") if match else "(unparseable header)"
+        try:
+            conditions = markdown_list_section(text, "reopen conditions")
+        except ValueError as exc:
+            errors.append(f"ambiguous decision record {path}: {exc}")
+            continue
         records.append({
             "kind": "decision",
             "record_id": path.stem,
             "summary": purpose,
             "primary": purpose,
             "secondary": "",
-            "conditions": [],
+            "path_scope": purpose,
+            "conditions": conditions,
             "condition_label": "reopen",
             "source_path": str(path.relative_to(repo)),
             "raw": text,
@@ -185,6 +299,7 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
                 "summary": title,
                 "primary": title,
                 "secondary": " ".join(parts),
+                "path_scope": title,
                 "conditions": [" ".join(parts)],
                 "condition_label": "unlock",
                 "source_path": str(DEFERRED_FILE),
@@ -209,6 +324,7 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
                 "summary": str(entry.get("short_summary", "(no summary)")),
                 "primary": str(entry.get("short_summary", "")),
                 "secondary": note,
+                "path_scope": str(entry.get("short_summary", "")),
                 "conditions": [],
                 "condition_label": "reopen",
                 "source_path": str(LESSONS_FILE),
@@ -221,7 +337,12 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
 def normalize_paths(paths: list[str]) -> list[str]:
     normalized = []
     for raw in paths:
-        cleaned = raw.strip().lstrip("./").rstrip("/")
+        cleaned = raw.strip()
+        while cleaned.startswith("./"):
+            cleaned = cleaned[2:]
+        cleaned = str(Path(cleaned)) if cleaned else ""
+        if cleaned not in {"/", "//"}:
+            cleaned = cleaned.rstrip("/")
         if cleaned:
             normalized.append(cleaned)
     return normalized
@@ -230,7 +351,7 @@ def normalize_paths(paths: list[str]) -> list[str]:
 def match_records(
     records: list[dict], query_tokens: set[str], paths: list[str]
 ) -> tuple[list[dict], list[dict]]:
-    """Return (findings, weak) where findings are EXACT_PATH or STRONG."""
+    """Return findings (exact, path-scope, or strong) and quarantined weak."""
 
     findings: list[dict] = []
     weak: list[dict] = []
@@ -241,20 +362,15 @@ def match_records(
         secondary_overlap = sorted(query_tokens & secondary_tokens)
 
         path_hit = None
+        path_tier = None
         for path in paths:
-            candidates = [path]
-            parent = str(Path(path).parent)
-            if parent not in (".", ""):
-                candidates.append(parent + "/")
-            for candidate in candidates:
-                if candidate in record["raw"]:
-                    path_hit = path
-                    break
-            if path_hit:
+            path_tier, path_hit = declared_path_match(
+                record.get("path_scope", ""), path)
+            if path_tier:
                 break
 
-        if path_hit:
-            tier = TIER_EXACT_PATH
+        if path_tier:
+            tier = path_tier
         elif len(primary_overlap) >= 2:
             tier = TIER_STRONG
         elif len(primary_overlap) == 1 or len(secondary_overlap) >= 2:
@@ -264,6 +380,7 @@ def match_records(
 
         entry = dict(record)
         entry.pop("raw", None)
+        entry.pop("path_scope", None)
         entry["tier"] = tier
         entry["path_hit"] = path_hit
         entry["primary_overlap"] = primary_overlap
@@ -271,7 +388,12 @@ def match_records(
         (findings if tier != TIER_WEAK else weak).append(entry)
 
     def sort_key(entry: dict):
-        tier_rank = {TIER_EXACT_PATH: 0, TIER_STRONG: 1, TIER_WEAK: 2}[entry["tier"]]
+        tier_rank = {
+            TIER_EXACT_PATH: 0,
+            TIER_PATH_SCOPE: 1,
+            TIER_STRONG: 2,
+            TIER_WEAK: 3,
+        }[entry["tier"]]
         return (
             tier_rank,
             -len(entry["primary_overlap"]),
@@ -341,6 +463,15 @@ def main(argv: list[str]) -> int:
             query_parts.extend(flatten_strings(data.get(field)))
 
     paths = normalize_paths(args.path)
+    for path in paths:
+        if path == ".":
+            print("ERROR: invalid --path '.': repository root is not a "
+                  "bounded task path", file=sys.stderr)
+            return 2
+        _target, error = resolve_repo_reference(repo, path)
+        if error:
+            print(f"ERROR: invalid --path {path!r}: {error}", file=sys.stderr)
+            return 2
     query_tokens = tokenize(" ".join(query_parts))
     if not query_tokens and not paths:
         print("ERROR: no query subjects; provide --goal, --path, or --task-packet",
@@ -386,14 +517,15 @@ def main(argv: list[str]) -> int:
     print(f"paths: {', '.join(paths) or '(none)'}")
     print()
     if findings:
-        print("FINDINGS (exact/strong — read the owning source before proposing):")
+        print("FINDINGS (exact/path-scope/strong — read the owning source before proposing):")
         for entry in findings_shown:
             print("\n".join(render_entry(entry)))
         if suppressed:
-            print(f"(+{suppressed} more exact/strong findings suppressed by the "
+            print(f"(+{suppressed} more exact/path-scope/strong findings "
+                  "suppressed by the "
                   f"{effective_cap}-source cap; narrow the task scope)")
     else:
-        print("no exact or strong hit within bounded coverage")
+        print("no exact, path-scope, or strong hit within bounded coverage")
     if weak:
         print()
         print("WEAK — MANUAL CONFIRMATION REQUIRED (not scoped findings):")

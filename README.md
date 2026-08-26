@@ -140,7 +140,7 @@ Not available yet:
 
 ## Validator and inspector orientation
 
-shadowMAS ships three small read-only command surfaces. Each handles a different artifact kind; pick by the artifact you have on hand.
+shadowMAS ships small command surfaces for different artifact kinds; pick by the artifact you have on hand.
 
 | Command | Artifact it accepts | What it checks | Exit codes |
 |---|---|---|---|
@@ -155,7 +155,35 @@ shadowMAS ships three small read-only command surfaces. Each handles a different
 | `python3 tools/check_promotion_eligibility.py <memory_packet>` | One memory packet | The seven T4→T3 promotion preconditions (validator, promotion_candidate, status, source resolution, invalidation triggers, no ghost-dependency findings, confidence visible); eligibility is not approval | `0` eligible · `1` not eligible · `2` setup error |
 | `python3 tools/check_placement_provenance.py` | `03_memory/shared_memory/` artifacts (CI-enforcing) | Every placed artifact must have an approved promotion review packet referencing it; direct placement without provenance fails the build | `0` all have provenance · `1` violation · `2` setup error |
 
-None of these run agents, write back to product repos, or promote artifacts into truth. They check shape and contract only. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
+### Working review-brief dogfood
+
+The task-scoped pre-sign-off review brief is a working, non-canonical product-direction tool. Preview mode reads the repository and writes a local run record into an external shadowMAS workspace. When `--signoff-id` is declared, it also creates or reuses an owner-private 32-byte `.signoff_salt` in that workspace so the stored correlation UUID is stable only within that workspace:
+
+```bash
+python3 tools/compose_review_brief.py \
+  --workspace <external-shadowmas-workspace> \
+  --goal "review one bounded change" \
+  --path <repository-relative-path> \
+  --risk r2_guarded \
+  --rollback "describe the recovery path"
+```
+
+`--emit-receipt` additionally requires an interactive terminal and writes one existing `review_packet` into that external workspace. A terminal interaction is explicitly recorded as `authentication:none`; it is not proof of human identity, attention, competence, or approval quality.
+
+After at least 30 eligible dogfood units distributed across at least six distinct calendar months and spanning six calendar months end to end, inspect the recorded thresholds with:
+
+```bash
+python3 tools/review_brief_metrics.py \
+  --workspace <external-shadowmas-workspace>
+```
+
+The evaluator reports unauthenticated workflow proxies only. `PROXY_KILL_SIGNAL` requires human review; `NO_PROXY_KILL_SIGNAL` is not a success or oversight-quality claim. Exit codes are `0` for sufficient data with fewer than two proxy thresholds firing, `1` for a proxy kill signal, `2` for setup or malformed input, and `3` for insufficient or partial data.
+
+Run records live in `runs/review_brief_runs.v1.jsonl`. `--since` windows valid records only: invalid or replayed records anywhere in that file remain reported exclusions and prevent a clean verdict. Sign-offs count only when their receipt is a distinct, non-symlink `review_packet` with a distinct `packet_uid`; action-rate and overhead proxies additionally require at least ten admissible sign-offs. These are integrity and sample-size checks, not human authentication.
+
+The optional `.signoff_salt` protects declared identifiers only when run records are exported without the rest of the workspace; it is not anonymization against access to the workspace itself. Preserve the salt with a workspace when correlation must remain stable. Copying it exports that correlation scope; deleting it resets the mapping for later runs without rewriting old records.
+
+None of these run agents, write back to product repos, or promote artifacts into truth. Their outputs remain representation-level or advisory; they do not establish content correctness or human approval. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
 
 Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the shadow packet surfaces around that work: task packets, memory candidates, review packets, handoffs, lessons, workspace boundaries, invalidation, and promotion paths. Current shipped surfaces are controlled-alpha — fixtures, validators, inspectors, packet schemas, and the workspace registration tool — while the full dynamic coordination layer is not yet implemented (see [Current status](#current-status)).
 

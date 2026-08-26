@@ -24,9 +24,11 @@ Bounded intake (task side): reads only ancestor-chain AGENTS.md/CLAUDE.md
 above the --path targets, files named by --source, and repository-relative
 markdown links inside those files (one hop), collectively capped at
 MAX_CONTEXT_SOURCES; the cap check runs before any excess read. History is
-capped at MAX_HISTORY commit subjects. Corpus side reuses the rework-guard
-record set and the memory-validity roots existing advisory tools already
-scan; coverage output declares both sides.
+capped at MAX_HISTORY commit subjects. Context content is declared in coverage
+but excluded from relevance matching: generic repository instructions must not
+overwhelm the operator's task goal and acceptance criteria. Corpus side reuses
+the rework-guard record set and the memory-validity roots existing advisory
+tools already scan; coverage output declares both sides.
 
 Changed-line accounting: git-derived counts diff against HEAD and include
 untracked files via --untracked-files=all; binary or unreadable material is
@@ -35,9 +37,10 @@ declared_only and must be zero or positive; a negative declaration is a
 usage error refused before composition, never a way past the budget check.
 
 One-screen contract: every section carries its own word budget (budgets sum
-to <= 600 words) and always keeps its heading; overflow inside a section is
-dropped line-by-line with an explicit omission notice, so sections 1-7 are
-always present. Blocking and advisory findings render inside section 1, so
+to <= 600 words) and always keeps its heading; overflow preserves an ordered
+prefix of atomic finding groups with an explicit omission notice, so a reopen
+condition cannot outlive its finding and sections 1-7 are always present.
+Blocking and advisory findings render inside section 1, so
 counter-evidence precedes the decision frame; the compiler recommendation
 is always the last rendered section. Full content is via --format json.
 
@@ -54,13 +57,20 @@ direct_human_evaluation, signatures, identity, attention, or competence.
 JSON mode never emits a receipt. Human decisions do not change the exit
 code.
 
-Metrics (after workspace validation, local JSONL only): each record carries
+Metrics (after workspace validation, workspace-local artifacts only): each
+record carries
 record_kind (preview | signoff | signoff_attempt | skip), run_id,
-signoff_id (pass --signoff-id to correlate a preview with its later receipt
-run), compose_ms (frozen BEFORE any interaction), triage_ms (brief display
+signoff_id (pass --signoff-id to correlate a preview with its later receipt;
+the declared value is converted with a workspace-local owner-private salt and
+is not stored), compose_ms (frozen BEFORE any interaction), triage_ms (brief display
 to judgment), judgment, observable_action (human-declared at the terminal,
 or derived from the judgment; a behavioral proxy, not a causality claim),
-eligible_signoff, brief_consulted, exit_code. record_kind is signoff ONLY
+observable_action_source, interaction_channel, authentication (always none),
+eligible_signoff, brief_displayed, brief_consulted, exit_code. These provenance
+additions define review_brief_run.v1; legacy v0 records are never upgraded by
+inference. brief_consulted is
+retained as a compatibility alias for display and is not a human-attention
+claim. record_kind is signoff ONLY
 when a human judgment was recorded; a receipt run refused before the brief
 reached the terminal, or cancelled without a judgment, records as
 signoff_attempt, and brief_consulted states whether the brief was actually
@@ -80,8 +90,12 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import hashlib
+import hmac
 import json
+import os
 import re
+import secrets
+import stat
 import subprocess
 import sys
 import time
@@ -117,6 +131,14 @@ JUDGMENT_ACTION = {"approve": "none", "reject": "rejection",
                    "revise": "revision"}
 MEMORY_ROOTS = ["07_working", "examples/packets", "03_memory/shared_memory"]
 MD_LINK_RE = re.compile(r"\]\(([^)#\s]+)\)")
+SIGNOFF_ID_RE = re.compile(r"^[A-Za-z0-9_.:-]{1,64}$")
+FINDING_TIER_RE = re.compile(r"DISCONFIRM \[([A-Z_]+)\]")
+FINDING_TIER_ORDER = {
+    "EXACT_PATH": 0,
+    "PATH_SCOPE": 1,
+    "STRONG_KEYWORD": 2,
+    "WEAK": 3,
+}
 
 
 def utc_now() -> str:
@@ -128,29 +150,123 @@ def slugify(text: str) -> str:
     return slug[:40] or "task"
 
 
+def opaque_signoff_id(declared: str, fallback: str, salt: bytes) -> str:
+    """Return a workspace-scoped opaque correlation id.
+
+    The HMAC prevents recovery from a run-record-only export. It is stable only
+    within a workspace and is not anonymization against access to the salt.
+    """
+    if not declared:
+        return fallback
+    if len(salt) != 32:
+        raise ValueError("workspace sign-off salt must contain 32 bytes")
+    digest = hmac.new(
+        salt,
+        b"shadowmas:review-brief-signoff:" + declared.encode("utf-8"),
+        hashlib.sha256,
+    ).digest()[:16]
+    return str(uuid.UUID(bytes=digest, version=5))
+
+
+def read_signoff_salt(path: Path) -> bytes:
+    """Read one regular owner-private salt without following a symlink."""
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags)
+    except OSError as exc:
+        raise ValueError(f"unable to read workspace sign-off salt: {exc}") \
+            from exc
+    try:
+        metadata = os.fstat(fd)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError("workspace sign-off salt is not a regular file")
+        if stat.S_IMODE(metadata.st_mode) & 0o077:
+            raise ValueError(
+                "workspace sign-off salt must not be group/world accessible")
+        with os.fdopen(fd, "rb", closefd=False) as handle:
+            salt = handle.read(33)
+    finally:
+        os.close(fd)
+    if len(salt) != 32:
+        raise ValueError("workspace sign-off salt must contain exactly 32 bytes")
+    return salt
+
+
+def load_or_create_signoff_salt(workspace: Path) -> bytes:
+    """Load or atomically create the workspace-local sign-off salt."""
+    path = workspace / ".signoff_salt"
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags, 0o600)
+    except FileExistsError:
+        return read_signoff_salt(path)
+    except OSError as exc:
+        raise ValueError(f"unable to create workspace sign-off salt: {exc}") \
+            from exc
+    salt = secrets.token_bytes(32)
+    try:
+        with os.fdopen(fd, "wb", closefd=False) as handle:
+            handle.write(salt)
+            handle.flush()
+            os.fsync(handle.fileno())
+    finally:
+        os.close(fd)
+    return salt
+
+
+def prepare_record_signoff_id(args, workspace: Path) -> None:
+    """Resolve a declared id before any receipt or run record is written."""
+    if not args.signoff_id:
+        args.record_signoff_id = ""
+        return
+    salt = load_or_create_signoff_salt(workspace)
+    args.record_signoff_id = opaque_signoff_id(args.signoff_id, "", salt)
+
+
 def trim_line(text: str) -> str:
-    words = text.split()
+    indent = text[:len(text) - len(text.lstrip())]
+    words = text.lstrip().split()
     if len(words) <= LINE_WORD_LIMIT:
         return text
-    return " ".join(words[:LINE_WORD_LIMIT]) + " …[trimmed]"
+    return indent + " ".join(words[:LINE_WORD_LIMIT]) + " …[trimmed]"
 
 
-def fit_section(lines: list[str], budget: int) -> list[str]:
-    """Keep the section heading always; drop overflow lines with a notice so
-    every section survives within its word budget."""
+def line_groups(lines: list[str]) -> list[list[str]]:
+    return [[line] for line in lines]
+
+
+def fit_section(groups: list[list[str]], budget: int) -> list[str]:
+    """Fit an ordered prefix of atomic groups within a section budget."""
     out: list[str] = []
     used = 0
-    omitted = 0
-    for i, raw in enumerate(lines):
-        line = trim_line(raw)
-        words = len(line.split())
-        if i == 0 or used + words <= budget - 7:
-            out.append(line)
+    omitted_groups: list[list[str]] = []
+    for i, raw_group in enumerate(groups):
+        group = [trim_line(raw) for raw in raw_group]
+        words = sum(len(line.split()) for line in group)
+        if i == 0 or used + words <= budget - 8:
+            out.extend(group)
             used += words
         else:
-            omitted += 1
-    if omitted:
-        out.append(f"   (+{omitted} lines omitted — full in --format json)")
+            omitted_groups = groups[i:]
+            break
+    if omitted_groups:
+        tiers = [
+            match.group(1)
+            for group in omitted_groups
+            for line in group
+            if (match := FINDING_TIER_RE.search(line))
+        ]
+        tier_note = ""
+        if tiers:
+            highest = min(tiers, key=lambda tier: FINDING_TIER_ORDER.get(
+                tier, 99))
+            tier_note = f"; highest-tier={highest}"
+        out.append(f"   (+{len(omitted_groups)} groups omitted{tier_note}; "
+                   "full: --format json)")
     return out
 
 
@@ -203,9 +319,12 @@ def changed_loc_from_git(repo: Path, paths: list[str]
 
 
 def collect_context(repo: Path, paths: list[str], sources: list[str]
-                    ) -> tuple[list[str], list[str], str]:
-    """Bounded task-side intake. Returns (read_files, blocking_findings,
-    extra_query_text). Cap check runs before any excess read."""
+                    ) -> tuple[list[str], list[str]]:
+    """Return bounded ``(read_files, blocking_findings)`` task context.
+
+    Context is coverage evidence, not relevance-query material. The cap check
+    runs before any excess read.
+    """
     candidates: list[str] = []
     seen: set[str] = set()
 
@@ -227,7 +346,6 @@ def collect_context(repo: Path, paths: list[str], sources: list[str]
 
     blocking: list[str] = []
     read_files: list[str] = []
-    texts: list[str] = []
     hop_candidates: list[str] = []
 
     def read_bounded(rel_list: list[str], collect_links: bool) -> bool:
@@ -249,7 +367,6 @@ def collect_context(repo: Path, paths: list[str], sources: list[str]
                                 "(coverage incomplete)")
                 continue
             read_files.append(rel)
-            texts.append(text)
             if collect_links:
                 for link in MD_LINK_RE.findall(text):
                     if not link.startswith(("http://", "https://", "mailto:")):
@@ -261,7 +378,7 @@ def collect_context(repo: Path, paths: list[str], sources: list[str]
 
     if read_bounded(candidates, collect_links=True):
         read_bounded(hop_candidates, collect_links=False)  # one hop only
-    return read_files, blocking, " ".join(texts)
+    return read_files, blocking
 
 
 def gather_memory_findings(repo: Path, paths: list[str]
@@ -277,7 +394,9 @@ def gather_memory_findings(repo: Path, paths: list[str]
     for packet_path, data in packets:
         findings, _notes = memory_validity.check_packet(packet_path, data, repo)
         for finding in findings:
-            if any(p in finding for p in paths) or not paths:
+            if (not paths or any(
+                    rework_guard.declared_path_match(finding, path)[0]
+                    for path in paths)):
                 scoped.append(finding)
             else:
                 out_of_scope += 1
@@ -298,7 +417,14 @@ def compose(args, repo: Path) -> tuple[dict, list[str]]:
         return {}, errors
 
     paths = rework_guard.normalize_paths(list(args.path))
-    context_files, blocking, context_text = collect_context(
+    for path in paths:
+        if path == ".":
+            return {}, ["invalid task path '.': repository root is not a "
+                        "bounded task path"]
+        _target, error = resolve_repo_reference(repo, path)
+        if error:
+            return {}, [f"invalid task path {path!r}: {error}"]
+    context_files, blocking = collect_context(
         repo, paths, list(args.source))
 
     history: list[str] = []
@@ -308,7 +434,7 @@ def compose(args, repo: Path) -> tuple[dict, list[str]]:
             repo, ["log", f"-n{limit}", "--format=%h %s", "--", *paths]) or []
 
     query_tokens = rework_guard.tokenize(
-        " ".join([args.goal] + list(args.acceptance)) + " " + context_text)
+        " ".join([args.goal] + list(args.acceptance)))
     guard_findings, guard_weak = rework_guard.match_records(
         records, query_tokens, paths)
 
@@ -362,8 +488,8 @@ def compose(args, repo: Path) -> tuple[dict, list[str]]:
                         f"beyond the {MAX_CHECKS}-item limit; narrow the task")
 
     if guard_findings:
-        advisory.append(f"rework-guard: {len(guard_findings)} exact/strong "
-                        "prior-record hit(s)")
+        advisory.append(f"rework-guard: {len(guard_findings)} exact/path-"
+                        "scope/strong prior-record hit(s)")
     if memory_findings:
         advisory.append(f"memory-validity: {len(memory_findings)} "
                         "stale/broken citation(s) in scope")
@@ -385,6 +511,7 @@ def compose(args, repo: Path) -> tuple[dict, list[str]]:
         "irreversible": bool(args.irreversible),
         "acceptance": list(args.acceptance),
         "query_tokens": sorted(query_tokens),
+        "query_provenance": "goal_and_acceptance_only",
         "context_files": context_files,
         "history": history,
         "guard_findings": guard_findings,
@@ -411,47 +538,51 @@ def compose(args, repo: Path) -> tuple[dict, list[str]]:
 
 
 def render_brief(model: dict) -> str:
-    sections: list[list[str]] = []
+    sections: list[tuple[list[list[str]], int]] = []
     loc = model["changed_loc"]
     loc_text = "UNKNOWN (blocking)" if loc is None else (
         f"{loc}/{LOC_BUDGET} ({model['loc_source']})")
-    sections.append((["REVIEW BRIEF (advisory, read-only; recommendation "
-                      "withheld until judgment)",
-                      f"risk={model['risk']} changed_loc={loc_text} "
-                      f"session<={model['session_minutes']}m", ""],
-                     SECTION_WORD_BUDGETS["header"]))
+    sections.append((line_groups([
+        "REVIEW BRIEF (advisory, read-only; recommendation withheld until "
+        "judgment)",
+        f"risk={model['risk']} changed_loc={loc_text} "
+        f"session<={model['session_minutes']}m", "",
+    ]), SECTION_WORD_BUDGETS["header"]))
 
-    evidence = ["1. EVIDENCE AND COUNTER-EVIDENCE"]
+    evidence = [["1. EVIDENCE AND COUNTER-EVIDENCE"]]
     if model["blocking_findings"]:
-        evidence.append("   BLOCKING FINDINGS (no receipt until resolved):")
+        evidence.append(["   BLOCKING FINDINGS (no receipt until resolved):"])
         for finding in model["blocking_findings"]:
-            evidence.append(f"   - {finding}")
+            evidence.append([f"   - {finding}"])
     if model["advisory_findings"]:
-        evidence.append("   ADVISORY FINDINGS (visible to judgment; never "
-                        "auto-cleared):")
+        evidence.append(["   ADVISORY FINDINGS (visible to judgment; never "
+                         "auto-cleared):"])
         for finding in model["advisory_findings"]:
-            evidence.append(f"   - {finding}")
+            evidence.append([f"   - {finding}"])
     for entry in model["guard_findings"]:
-        evidence.append(
+        group = [
             f"   DISCONFIRM [{entry['tier']}] {entry['kind']} "
             f"{entry['record_id']}: {entry['summary']} — ref: "
-            f"{entry['source_path']}")
+            f"{entry['source_path']}"]
         for condition in entry["conditions"][:2]:
-            evidence.append(f"     {entry['condition_label']}: {condition}")
+            group.append(f"     {entry['condition_label']}: {condition}")
         if entry["kind"] == "lesson":
-            evidence.append("     PRIOR-OUTCOME: recorded lesson from a "
-                            "similar past decision (see ref)")
+            group.append("     PRIOR-OUTCOME: recorded lesson from a "
+                         "similar past decision (see ref)")
+        evidence.append(group)
     for finding in model["memory_findings"]:
-        evidence.append(f"   STALE {finding}")
+        evidence.append([f"   STALE {finding}"])
     if model["guard_weak"]:
-        evidence.append("   WEAK — MANUAL CONFIRMATION REQUIRED:")
+        evidence.append(["   WEAK — MANUAL CONFIRMATION REQUIRED:"])
         for entry in model["guard_weak"]:
-            evidence.append(f"   - {entry['kind']} {entry['record_id']}: "
-                            f"{entry['summary']} — ref: {entry['source_path']}")
+            evidence.append([
+                f"   - {entry['kind']} {entry['record_id']}: "
+                f"{entry['summary']} — ref: {entry['source_path']}"])
     if not (model["guard_findings"] or model["memory_findings"]
             or model["guard_weak"]):
-        evidence.append("   no exact or strong hit within bounded coverage")
-    evidence.append("")
+        evidence.append([
+            "   no exact, path-scope, or strong hit within bounded coverage"])
+    evidence.append([""])
     sections.append((evidence, SECTION_WORD_BUDGETS["evidence"]))
 
     frame = ["2. DECISION FRAME", f"   INTENT: {model['goal']}"]
@@ -469,7 +600,7 @@ def render_brief(model: dict) -> str:
         for item in model["history"]:
             frame.append(f"   - {item}")
     frame.append("")
-    sections.append((frame, SECTION_WORD_BUDGETS["frame"]))
+    sections.append((line_groups(frame), SECTION_WORD_BUDGETS["frame"]))
 
     scanned = model["guard_scanned"]
     coverage = ["3. COVERAGE MANIFEST",
@@ -478,13 +609,15 @@ def render_brief(model: dict) -> str:
                 f"deferrals={scanned['deferral']} lessons={scanned['lesson']}",
                 f"   task context read: "
                 f"{', '.join(model['context_files']) or '(none)'}"]
+    coverage.append("   relevance query: goal + acceptance only; context file "
+                    "content excluded")
     if model["memory_out_of_scope"]:
         coverage.append(f"   memory findings outside task paths: "
                         f"{model['memory_out_of_scope']} (not shown)")
     coverage.append("   a no-hit above means no hit within bounded coverage, "
                     "not all clear")
     coverage.append("")
-    sections.append((coverage, SECTION_WORD_BUDGETS["coverage"]))
+    sections.append((line_groups(coverage), SECTION_WORD_BUDGETS["coverage"]))
 
     risk = ["4. RISK AND REVERSIBILITY",
             f"   RISK TIER: {model['risk']}",
@@ -499,7 +632,7 @@ def render_brief(model: dict) -> str:
                 " — still over budget: split further before review"
             risk.append(f"   - unit {i}: {path} ({loc_note}){fit}")
     risk.append("")
-    sections.append((risk, SECTION_WORD_BUDGETS["risk"]))
+    sections.append((line_groups(risk), SECTION_WORD_BUDGETS["risk"]))
 
     checks = ["5. CHECKS (max seven, typed)"]
     for kind, text, ref in model["checks"]:
@@ -507,13 +640,13 @@ def render_brief(model: dict) -> str:
     if len(checks) == 1:
         checks.append("   - (none derivable; supply --acceptance and --rollback)")
     checks.append("")
-    sections.append((checks, SECTION_WORD_BUDGETS["checks"]))
+    sections.append((line_groups(checks), SECTION_WORD_BUDGETS["checks"]))
 
     judgment = ["6. HUMAN JUDGMENT",
                 "   record your own judgment (approve/reject/revise) BEFORE",
                 "   viewing the compiler recommendation; selected findings go",
                 "   into the receipt", ""]
-    sections.append((judgment, SECTION_WORD_BUDGETS["judgment"]))
+    sections.append((line_groups(judgment), SECTION_WORD_BUDGETS["judgment"]))
 
     recommendation = ["7. COMPILER RECOMMENDATION"]
     if model["receipt_blocked"]:
@@ -523,11 +656,12 @@ def render_brief(model: dict) -> str:
     else:
         recommendation.append("   withheld until a human judgment is recorded"
                               " (rerun with --emit-receipt on a terminal)")
-    sections.append((recommendation, SECTION_WORD_BUDGETS["recommendation"]))
+    sections.append((line_groups(recommendation),
+                     SECTION_WORD_BUDGETS["recommendation"]))
 
     out: list[str] = []
-    for lines, budget in sections:
-        out.extend(fit_section(lines, budget))
+    for groups, budget in sections:
+        out.extend(fit_section(groups, budget))
     return "\n".join(out)
 
 
@@ -572,7 +706,6 @@ def artifact_and_source_refs(repo: Path, model: dict
 def build_receipt(model: dict, args, judgment: str,
                   selected: list[str], created_at: str, repo: Path) -> dict:
     valid_ids = {e["record_id"] for e in model["guard_findings"]}
-    valid_ids |= {e["record_id"] for e in model["guard_weak"]}
     unknown = [fid for fid in selected if fid not in valid_ids]
     if unknown:
         raise ValueError(
@@ -652,18 +785,18 @@ def finalize_receipt(receipt: dict, workspace: Path) -> tuple[str | None, str | 
 
 
 def emit_receipt(model: dict, args, workspace: Path, repo: Path
-                 ) -> tuple[int, str | None, str, int, str, bool]:
+                 ) -> tuple[int, str | None, str, int, str, str, bool]:
     """Interactive receipt flow. Returns (exit_override, receipt_path,
-    judgment, triage_ms, observable_action, brief_displayed). -1 = no
-    override. brief_displayed is False when the refusal happened before the
-    brief reached the terminal, so metrics never claim consultation."""
+    judgment, triage_ms, observable_action, observable_action_source,
+    brief_displayed). -1 = no override. brief_displayed is False when the
+    refusal happened before the brief reached the terminal."""
     try:
         tty_in = open("/dev/tty", "r", encoding="utf-8")
         tty_out = open("/dev/tty", "w", encoding="utf-8")
     except OSError:
         print("ERROR: --emit-receipt refuses non-interactive execution "
               "(this refusal does not authenticate a human)", file=sys.stderr)
-        return 2, None, "none", 0, "not_applicable", False
+        return (2, None, "none", 0, "not_applicable", "none", False)
 
     triage_started = time.monotonic()
     with tty_in, tty_out:
@@ -677,14 +810,18 @@ def emit_receipt(model: dict, args, workspace: Path, repo: Path
         triage_ms = int((time.monotonic() - triage_started) * 1000)
         if judgment not in JUDGMENT_STATUS:
             tty_out.write("cancelled; no receipt written\n")
-            return -1, None, "cancelled", triage_ms, "none", True
+            return -1, None, "cancelled", triage_ms, "none", "none", True
         tty_out.write("observable action attributable to the brief "
                       f"[{'/'.join(OBSERVABLE_ACTIONS)}] "
                       "(empty = derived from judgment): ")
         tty_out.flush()
         declared = tty_in.readline().strip().lower()
-        observable = declared if declared in OBSERVABLE_ACTIONS else \
-            JUDGMENT_ACTION[judgment]
+        if declared in OBSERVABLE_ACTIONS:
+            observable = declared
+            observable_source = "operator_declared_unauthenticated"
+        else:
+            observable = JUDGMENT_ACTION[judgment]
+            observable_source = "derived_from_judgment"
         tty_out.write(f"compiler recommendation (advisory, computed before "
                       f"your judgment): {model['recommendation']}\n")
 
@@ -694,43 +831,58 @@ def emit_receipt(model: dict, args, workspace: Path, repo: Path
                                 repo)
     except ValueError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
-        return 2, None, judgment, triage_ms, observable, True
+        return (2, None, judgment, triage_ms, observable,
+                observable_source, True)
 
     final_path, error = finalize_receipt(receipt, workspace)
     if error:
         print(f"ERROR: {error}", file=sys.stderr)
-        return 2, None, judgment, triage_ms, observable, True
+        return (2, None, judgment, triage_ms, observable,
+                observable_source, True)
     print(f"receipt written: {final_path}")
-    return -1, final_path, judgment, triage_ms, observable, True
+    return (-1, final_path, judgment, triage_ms, observable,
+            observable_source, True)
 
 
 def append_run_record(workspace: Path, model: dict, args, record_kind: str,
                       compose_ms: int, triage_ms: int, judgment: str,
-                      observable: str, consulted: bool,
+                      observable: str, observable_source: str,
+                      displayed: bool, interaction_channel: str,
                       receipt_path: str | None, exit_code: int) -> None:
     run_id = str(uuid.uuid4())
+    receipt_reference = None
+    if receipt_path:
+        receipt_reference = str(
+            Path(receipt_path).resolve().relative_to(workspace.resolve()))
     record = {
-        "record_version": "review_brief_run.v0",
+        "record_version": "review_brief_run.v1",
         "record_kind": record_kind,
         "run_id": run_id,
-        "signoff_id": args.signoff_id or run_id,
+        "signoff_id": getattr(args, "record_signoff_id", "") or run_id,
         "at": utc_now(),
         "risk": model.get("risk", getattr(args, "risk", None)),
         "eligible_signoff": (model.get("risk") or getattr(args, "risk", ""))
         in ELIGIBLE_RISKS,
-        "brief_consulted": consulted,
+        "brief_displayed": displayed,
+        "brief_consulted": displayed,
+        "consultation_claim": "display_proxy_only",
+        "interaction_channel": interaction_channel,
+        "authentication": "none",
         "judgment": judgment,
+        "judgment_source": ("operator_input_unauthenticated"
+                            if judgment in JUDGMENT_STATUS else "none"),
         "observable_action": observable,
+        "observable_action_source": observable_source,
         "changed_loc": model.get("changed_loc"),
         "blocking_findings": len(model.get("blocking_findings", [])),
         "advisory_findings": len(model.get("advisory_findings", [])),
         "guard_hits": len(model.get("guard_findings", [])),
-        "receipt": receipt_path,
+        "receipt": receipt_reference,
         "compose_ms": compose_ms,
         "triage_ms": triage_ms,
         "exit_code": exit_code,
     }
-    runs_file = workspace / "runs" / "review_brief_runs.v0.jsonl"
+    runs_file = workspace / "runs" / "review_brief_runs.v1.jsonl"
     with runs_file.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(record) + "\n")
 
@@ -758,13 +910,14 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--session-minutes", type=int, default=90,
                         choices=range(60, 91), metavar="60..90")
     parser.add_argument("--signoff-id", default="",
-                        help="correlate this run with one sign-off across "
-                             "preview and receipt invocations")
+                        help="correlate preview and receipt invocations; the "
+                             "declared value is stored only as a workspace-"
+                             "scoped keyed UUID")
     parser.add_argument("--format", choices=("text", "json"), default="text")
     parser.add_argument("--emit-receipt", action="store_true")
     parser.add_argument("--record-skip", action="store_true",
-                        help="log an eligible sign-off that did not consult "
-                             "the brief; composes nothing")
+                        help="log an eligible sign-off unit where the brief "
+                             "was not displayed; composes nothing")
     parser.add_argument("--owner", default="")
     parser.add_argument("--supervision-mode", choices=SUPERVISION_MODES,
                         default="human_live_pair")
@@ -788,12 +941,23 @@ def main(argv: list[str]) -> int:
               "unit, and declared-only provenance does not make it one",
               file=sys.stderr)
         return 2
+    if args.signoff_id and not SIGNOFF_ID_RE.fullmatch(args.signoff_id):
+        print("ERROR: --signoff-id must be 1-64 characters from "
+              "A-Z, a-z, 0-9, underscore, dot, colon, or hyphen",
+              file=sys.stderr)
+        return 2
 
     if args.record_skip:
+        try:
+            prepare_record_signoff_id(args, workspace)
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
         append_run_record(workspace, {"risk": args.risk}, args, "skip", 0, 0,
-                          "none", "not_applicable", consulted=False,
+                          "none", "not_applicable", "none", displayed=False,
+                          interaction_channel="none",
                           receipt_path=None, exit_code=0)
-        print("skip recorded: eligible sign-off without brief consultation")
+        print("skip recorded: eligible sign-off unit without brief display")
         return 0
 
     if not args.goal:
@@ -811,9 +975,11 @@ def main(argv: list[str]) -> int:
     receipt_path = None
     judgment = "none"
     observable = "not_applicable"
+    observable_source = "none"
     triage_ms = 0
     record_kind = "preview"
-    consulted = True
+    displayed = True
+    interaction_channel = "stdout"
 
     if args.emit_receipt:
         if args.format == "json":
@@ -823,36 +989,54 @@ def main(argv: list[str]) -> int:
             print("ERROR: --emit-receipt requires --owner (the accountable "
                   "human)", file=sys.stderr)
             return 2
+        try:
+            prepare_record_signoff_id(args, workspace)
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
         if model["receipt_blocked"]:
             print("ERROR: no receipt while blocking findings are open "
                   "(resolve or narrow first):", file=sys.stderr)
             for finding in model["blocking_findings"]:
                 print(f"  - {finding}", file=sys.stderr)
             append_run_record(workspace, model, args, "signoff_attempt",
-                              compose_ms, 0, "none", "not_applicable",
-                              consulted=False, receipt_path=None, exit_code=2)
+                              compose_ms, 0, "none", "not_applicable", "none",
+                              displayed=False, interaction_channel="none",
+                              receipt_path=None, exit_code=2)
             return 2
         (override, receipt_path, judgment, triage_ms, observable,
-         consulted) = emit_receipt(model, args, workspace, repo)
+         observable_source, displayed) = emit_receipt(
+             model, args, workspace, repo)
+        interaction_channel = "tty" if displayed else "none"
         # a sign-off exists only where a human judgment was recorded
         record_kind = ("signoff" if judgment in JUDGMENT_STATUS
                        else "signoff_attempt")
         if override != -1:
             append_run_record(workspace, model, args, record_kind, compose_ms,
                               triage_ms, judgment, observable,
-                              consulted=consulted, receipt_path=None,
+                              observable_source, displayed=displayed,
+                              interaction_channel=interaction_channel,
+                              receipt_path=None,
                               exit_code=override)
             return override
-    elif args.format == "json":
-        payload = dict(model)
-        payload.pop("recommendation")
-        payload["recommendation_withheld"] = True
-        print(json.dumps(payload, indent=2, default=str))
     else:
-        print(render_brief(model))
+        try:
+            prepare_record_signoff_id(args, workspace)
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+        if args.format == "json":
+            payload = dict(model)
+            payload.pop("recommendation")
+            payload["recommendation_withheld"] = True
+            print(json.dumps(payload, indent=2, default=str))
+        else:
+            print(render_brief(model))
 
     append_run_record(workspace, model, args, record_kind, compose_ms,
-                      triage_ms, judgment, observable, consulted=consulted,
+                      triage_ms, judgment, observable, observable_source,
+                      displayed=displayed,
+                      interaction_channel=interaction_channel,
                       receipt_path=receipt_path, exit_code=exit_code)
     return exit_code
 
