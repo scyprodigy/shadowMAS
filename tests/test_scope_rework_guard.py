@@ -255,6 +255,25 @@ class ScopeReworkGuardTests(unittest.TestCase):
             ["live condition"],
         )
 
+    def test_thematic_break_after_list_item_is_not_a_setext_heading(self):
+        text = "# Reopen conditions\n\n- first\n---\n- second\n"
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first", "second"],
+        )
+
+    def test_thematic_break_after_wrapped_item_is_not_a_setext_heading(self):
+        text = (
+            "# Reopen conditions\n\n- first\n"
+            "  wrapped text\n---\n- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first wrapped text", "second"],
+        )
+
     def test_common_markdown_list_markers_are_recognized(self):
         for item in ("* asterisk condition", "+ plus condition",
                      "1. ordered condition", "2) ordered-paren condition"):

@@ -170,7 +170,7 @@ def opaque_signoff_id(declared: str, fallback: str, salt: bytes) -> str:
 
 def read_signoff_salt(path: Path) -> bytes:
     """Read one regular owner-private salt without following a symlink."""
-    flags = os.O_RDONLY
+    flags = os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     try:

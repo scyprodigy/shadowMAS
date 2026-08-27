@@ -11,6 +11,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOL = REPO_ROOT / "tools" / "review_brief_metrics.py"
 
+sys.path.insert(0, str(REPO_ROOT / "tools"))
+import review_brief_metrics  # noqa: E402
+
 
 class ReviewBriefMetricsTests(unittest.TestCase):
     def setUp(self):
@@ -151,6 +154,9 @@ class ReviewBriefMetricsTests(unittest.TestCase):
         self.assertEqual(report["verdict"], "NO_PROXY_KILL_SIGNAL")
         self.assertEqual(
             report["integrity"]["distinct_receipt_packet_uids"], 30)
+        self.assertEqual(
+            report["integrity"]["signoffs_with_measured_receipt_identity"],
+            30)
         self.assertIn("not human authentication", report["advisory"])
         self.assertNotIn("SUCCESS", result.stdout)
 
@@ -406,6 +412,51 @@ class ReviewBriefMetricsTests(unittest.TestCase):
             report["criteria"]["consult_rate_proxy"]["reason"],
             "observation_distribution<6_distinct_calendar_months")
 
+    def test_declared_offsets_cannot_counterfeit_utc_month_distribution(self):
+        timestamps = [
+            "2026-01-31T23:30:00-01:00",
+            "2026-02-01T01:00:00+00:00",
+            "2026-03-31T23:30:00-01:00",
+            "2026-04-01T01:00:00+00:00",
+            "2026-07-31T23:30:00-01:00",
+            "2026-08-01T01:00:00+00:00",
+        ]
+        records = [
+            self.record("signoff", f"signoff-{i}", action="added_check",
+                        at=timestamps[i % len(timestamps)])
+            for i in range(30)
+        ]
+        self.write(records)
+        result = self.run_tool()
+        self.assertEqual(result.returncode, 3,
+                         msg=result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["verdict"], "INSUFFICIENT_DATA")
+        self.assertEqual(report["window"]["distinct_observation_months"], 3)
+        self.assertEqual(report["window"]["units_by_utc_month"], {
+            "2026-02": 10,
+            "2026-04": 10,
+            "2026-08": 10,
+        })
+        self.assertEqual(report["window"]["max_units_in_one_utc_day"], 10)
+        self.assertAlmostEqual(
+            report["window"]["max_single_utc_day_share"], 1 / 3)
+        self.assertFalse(report["window"]["observation_gate_ready"])
+
+    def test_receipt_integrity_uses_measured_identities_not_signoff_count(self):
+        signoffs = [{"run_id": "run-a"}, {"run_id": "run-b"}]
+        identities = {
+            "run-a": (Path("/reviews/same.yaml"), "same-packet"),
+            "run-b": (Path("/reviews/same.yaml"), "same-packet"),
+        }
+        integrity = review_brief_metrics.measured_receipt_integrity(
+            signoffs, identities)
+        self.assertEqual(integrity["signoff_denominator"], 2)
+        self.assertEqual(
+            integrity["signoffs_with_measured_receipt_identity"], 2)
+        self.assertEqual(integrity["distinct_receipt_targets"], 1)
+        self.assertEqual(integrity["distinct_receipt_packet_uids"], 1)
+
     def test_action_and_overhead_require_ten_signoffs(self):
         records = [self.record("skip", f"skip-{i}") for i in range(29)]
         records.append(self.record("signoff", "only-signoff"))
@@ -468,6 +519,8 @@ class ReviewBriefMetricsTests(unittest.TestCase):
                          msg=result.stdout + result.stderr)
         self.assertIn("window: since=none", result.stdout)
         self.assertIn("distinct_observation_months=0", result.stdout)
+        self.assertIn("units_by_utc_month=none", result.stdout)
+        self.assertIn("max_units_in_one_utc_day=0", result.stdout)
         self.assertIn("distinct_targets=0/0 signoffs", result.stdout)
         self.assertIn("authentication=none", result.stdout)
         self.assertIn("causality=none", result.stdout)

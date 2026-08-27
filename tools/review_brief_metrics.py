@@ -9,9 +9,10 @@ oversight. A threshold result is a proxy signal for human review, not an
 automatic product decision.
 
 Evaluation requires at least 30 eligible terminal units distributed across at
-least six distinct calendar months and spanning six calendar months end to
-end. Action-rate and overhead proxies additionally require at least ten
-admissible sign-offs. A sign-off is counted only when its workspace-relative
+least six distinct UTC calendar months and spanning six calendar months end to
+end after timestamp normalization to UTC. Action-rate and overhead proxies
+additionally require at least ten admissible sign-offs. A sign-off is counted
+only when its workspace-relative
 receipt is a non-symlink v0 review_packet with a distinct resolved target and
 packet_uid. These integrity checks do not authenticate the operator or the
 timestamps.
@@ -336,12 +337,29 @@ def load_receipt_identity(
     return target, packet_uid, None
 
 
+def measured_receipt_integrity(
+    signoffs: list[dict], identities: dict[str, tuple[Path, str]]
+) -> dict:
+    """Measure receipt cardinality independently of the dedup controls."""
+    measured = [identities[record["run_id"]] for record in signoffs
+                if record["run_id"] in identities]
+    return {
+        "distinct_receipt_targets": len({target for target, _uid in measured}),
+        "distinct_receipt_packet_uids": len({
+            uid for _target, uid in measured}),
+        "signoffs_with_measured_receipt_identity": len(measured),
+        "signoff_denominator": len(signoffs),
+        "receipt_symlinks_allowed": False,
+    }
+
+
 def evaluate(records: list[dict], excluded: Counter, workspace: Path,
              since: dt.datetime | None = None) -> tuple[dict, int]:
     unique: list[dict] = []
     seen_run_ids: set[str] = set()
     seen_receipt_targets: set[Path] = set()
     seen_receipt_packet_uids: set[str] = set()
+    receipt_identities: dict[str, tuple[Path, str]] = {}
     for record in records:
         if record["run_id"] in seen_run_ids:
             excluded["duplicate_run_id"] += 1
@@ -365,6 +383,7 @@ def evaluate(records: list[dict], excluded: Counter, workspace: Path,
                 excluded["duplicate_receipt_packet_uid"] += 1
                 continue
             seen_receipt_packet_uids.add(packet_uid)
+            receipt_identities[record["run_id"]] = (target, packet_uid)
         unique.append(record)
 
     groups: dict[str, list[dict]] = defaultdict(list)
@@ -402,7 +421,25 @@ def evaluate(records: list[dict], excluded: Counter, workspace: Path,
     preview_count = sum(r["record_kind"] == "preview" for r in records)
     attempt_count = sum(r["record_kind"] == "signoff_attempt" for r in records)
 
-    terminal_times = sorted(parse_timestamp(r["at"]) for r in terminals)
+    integrity = measured_receipt_integrity(signoffs, receipt_identities)
+    missing_identities = (
+        len(signoffs) - integrity["signoffs_with_measured_receipt_identity"])
+    measured_identities = integrity["signoffs_with_measured_receipt_identity"]
+    duplicate_targets = (
+        measured_identities - integrity["distinct_receipt_targets"])
+    duplicate_packet_uids = (
+        measured_identities - integrity["distinct_receipt_packet_uids"])
+    if missing_identities:
+        excluded["receipt_identity_measurement_gap"] += missing_identities
+    if duplicate_targets:
+        excluded["receipt_target_cardinality_mismatch"] += duplicate_targets
+    if duplicate_packet_uids:
+        excluded["receipt_packet_uid_cardinality_mismatch"] += \
+            duplicate_packet_uids
+
+    terminal_times = sorted(
+        parse_timestamp(r["at"]).astimezone(dt.timezone.utc)
+        for r in terminals)
     observation_start = terminal_times[0] if terminal_times else None
     observation_end = terminal_times[-1] if terminal_times else None
     observation_span_days = (
@@ -411,7 +448,14 @@ def evaluate(records: list[dict], excluded: Counter, workspace: Path,
         else None
     )
     observation_months = {(item.year, item.month) for item in terminal_times}
+    observation_month_counts = Counter(
+        item.strftime("%Y-%m") for item in terminal_times)
+    observation_day_counts = Counter(
+        item.strftime("%Y-%m-%d") for item in terminal_times)
     distinct_observation_months = len(observation_months)
+    max_units_in_one_utc_day = max(observation_day_counts.values(), default=0)
+    max_single_utc_day_share = (
+        max_units_in_one_utc_day / eligible_count if eligible_count else None)
     end_to_end_span_ready = bool(
         observation_start is not None and observation_end is not None
         and observation_end >= add_calendar_months(
@@ -496,10 +540,17 @@ def evaluate(records: list[dict], excluded: Counter, workspace: Path,
             "valid_records_before_window": window_dropped,
             "first_record_at": first_record["at"] if first_record else None,
             "last_record_at": last_record["at"] if last_record else None,
+            "observation_start_utc": (
+                observation_start.isoformat() if observation_start else None),
+            "observation_end_utc": (
+                observation_end.isoformat() if observation_end else None),
             "observation_span_days": observation_span_days,
             "minimum_observation_span": "6_calendar_months",
             "distinct_observation_months": distinct_observation_months,
             "minimum_distinct_observation_months": MIN_OBSERVATION_MONTHS,
+            "units_by_utc_month": dict(sorted(observation_month_counts.items())),
+            "max_units_in_one_utc_day": max_units_in_one_utc_day,
+            "max_single_utc_day_share": max_single_utc_day_share,
             "observation_span_ready": end_to_end_span_ready,
             "distinct_observation_months_ready": distinct_months_ready,
             "observation_gate_ready": observation_gate_ready,
@@ -513,12 +564,7 @@ def evaluate(records: list[dict], excluded: Counter, workspace: Path,
             "preview": preview_count,
             "signoff_attempt": attempt_count,
         },
-        "integrity": {
-            "distinct_receipt_targets": len(signoffs),
-            "distinct_receipt_packet_uids": len(signoffs),
-            "signoff_denominator": len(signoffs),
-            "receipt_symlinks_allowed": False,
-        },
+        "integrity": integrity,
         "excluded": dict(sorted(excluded.items())),
         "criteria": criteria,
         "limitations": {
@@ -538,6 +584,11 @@ def evaluate(records: list[dict], excluded: Counter, workspace: Path,
 def render_text(report: dict) -> str:
     span = report["window"]["observation_span_days"]
     span_text = str(span) if span is not None else "undefined"
+    day_share = report["window"]["max_single_utc_day_share"]
+    day_share_text = str(day_share) if day_share is not None else "undefined"
+    month_counts = report["window"]["units_by_utc_month"]
+    month_counts_text = ",".join(
+        f"{month}:{count}" for month, count in month_counts.items()) or "none"
     lines = [
         "REVIEW BRIEF METRICS (ADVISORY)",
         report["advisory"],
@@ -556,9 +607,18 @@ def render_text(report: dict) -> str:
         f"first={report['window']['first_record_at'] or 'none'} "
         f"last={report['window']['last_record_at'] or 'none'} "
         f"valid_before_window={report['window']['valid_records_before_window']} "
+        f"observation_start_utc="
+        f"{report['window']['observation_start_utc'] or 'none'} "
+        f"observation_end_utc="
+        f"{report['window']['observation_end_utc'] or 'none'} "
         f"observation_span_days={span_text} "
         f"distinct_observation_months="
         f"{report['window']['distinct_observation_months']} "
+        f"units_by_utc_month={month_counts_text} "
+        f"max_units_in_one_utc_day="
+        f"{report['window']['max_units_in_one_utc_day']} "
+        f"max_single_utc_day_share="
+        f"{day_share_text} "
         f"span_ready={report['window']['observation_span_ready']} "
         f"distinct_months_ready="
         f"{report['window']['distinct_observation_months_ready']} "

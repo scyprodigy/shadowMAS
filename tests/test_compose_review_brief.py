@@ -92,12 +92,14 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self._repo_tmp.cleanup()
         self._ws_tmp.cleanup()
 
-    def run_tool(self, *extra: str, detach: bool = False) -> subprocess.CompletedProcess:
+    def run_tool(self, *extra: str, detach: bool = False,
+                 timeout: float | None = None) -> subprocess.CompletedProcess:
         return subprocess.run(
             [sys.executable, str(TOOL), "--repo", str(self.repo),
              "--workspace", str(self.workspace), *extra],
             capture_output=True, text=True,
             stdin=subprocess.DEVNULL, start_new_session=detach,
+            timeout=timeout,
         )
 
     def run_tool_pty(self, extra, replies: str, timeout: float = 30.0):
@@ -536,6 +538,15 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self.assertEqual(first, repeated)
         self.assertNotEqual(first, second)
         self.assertNotIn(b"ticket-4417", first_salt)
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "FIFO support required")
+    def test_fifo_signoff_salt_is_rejected_without_blocking(self):
+        os.mkfifo(self.workspace / ".signoff_salt", 0o600)
+        result = self.run_tool(
+            *self.base_args("--signoff-id", "ticket-4417"), timeout=3)
+        self.assertEqual(result.returncode, 2,
+                         msg=result.stdout + result.stderr)
+        self.assertIn("not a regular file", result.stderr)
 
     def test_refused_receipt_attempts_never_claim_brief_consultation(self):
         """A refusal is not a sign-off and is not a consultation; recording it
