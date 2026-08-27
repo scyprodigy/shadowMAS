@@ -170,7 +170,7 @@ python3 tools/compose_review_brief.py \
 
 `--emit-receipt` additionally requires an interactive terminal and writes one existing `review_packet` into that external workspace. A terminal interaction is explicitly recorded as `authentication:none`; it is not proof of human identity, attention, competence, or approval quality.
 
-After at least 30 eligible dogfood units distributed across at least six distinct calendar months and spanning six calendar months end to end, inspect the recorded thresholds with:
+After at least 30 eligible dogfood units distributed across at least six distinct UTC calendar months and spanning six calendar months end to end, inspect the recorded thresholds with:
 
 ```bash
 python3 tools/review_brief_metrics.py \
@@ -179,7 +179,7 @@ python3 tools/review_brief_metrics.py \
 
 The evaluator reports unauthenticated workflow proxies only. `PROXY_KILL_SIGNAL` requires human review; `NO_PROXY_KILL_SIGNAL` is not a success or oversight-quality claim. Exit codes are `0` for sufficient data with fewer than two proxy thresholds firing, `1` for a proxy kill signal, `2` for setup or malformed input, and `3` for insufficient or partial data.
 
-Run records live in `runs/review_brief_runs.v1.jsonl`. `--since` windows valid records only: invalid or replayed records anywhere in that file remain reported exclusions and prevent a clean verdict. Sign-offs count only when their receipt is a distinct, non-symlink `review_packet` with a distinct `packet_uid`; action-rate and overhead proxies additionally require at least ten admissible sign-offs. These are integrity and sample-size checks, not human authentication.
+Run records live in `runs/review_brief_runs.v1.jsonl`. `--since` windows valid records only: invalid or replayed records anywhere in that file remain reported exclusions and prevent a clean verdict. Sign-offs count only when their receipt is a distinct, non-symlink `review_packet` with a distinct `packet_uid`; action-rate and overhead proxies additionally require at least ten admissible sign-offs. Receipt cardinalities are measured independently of the dedup controls. The report also exposes per-UTC-month counts and maximum single-UTC-day concentration for human interpretation; those diagnostics are not additional recorded kill thresholds. These are integrity and sample-size checks, not human authentication.
 
 The optional `.signoff_salt` protects declared identifiers only when run records are exported without the rest of the workspace; it is not anonymization against access to the workspace itself. Preserve the salt with a workspace when correlation must remain stable. Copying it exports that correlation scope; deleting it resets the mapping for later runs without rewriting old records.
 

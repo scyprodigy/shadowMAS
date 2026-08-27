@@ -136,7 +136,9 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
         title_text: str | None = None
         if heading:
             title_text = heading.group("title")
-        elif (stripped and index + 1 < len(lines)
+        elif (stripped and not LIST_ITEM_RE.match(raw)
+              and not (active and raw[:1].isspace())
+              and index + 1 < len(lines)
               and SETEXT_UNDERLINE_RE.fullmatch(lines[index + 1])):
             title_text = stripped
             index += 1  # consume the underline with its heading
