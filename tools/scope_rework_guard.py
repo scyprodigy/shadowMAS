@@ -57,6 +57,14 @@ THEMATIC_BREAK_RE = re.compile(
     r"^(?P<indent>[ ]*)(?P<marker>[-*_])"
     r"(?:[ \t]*(?P=marker)){2,}[ \t]*$"
 )
+HTML_BLOCK_INTERRUPT_SEQUENCES = (
+    (re.compile(r"^<(?i:script|pre|style|textarea)(?=[\s>]|$)"),
+     re.compile(r"</(?i:script|pre|style|textarea)>")),
+    (re.compile(r"^<!--"), re.compile(r"-->")),
+    (re.compile(r"^<\?"), re.compile(r"\?>")),
+    (re.compile(r"^<![A-Z]"), re.compile(r">")),
+    (re.compile(r"^<!\[CDATA\["), re.compile(r"\]\]>")),
+)
 LIST_ITEM_RE = re.compile(
     r"^(?P<indent>\s*)(?:(?:[-+*])|(?:\d+[.)]))\s+(?P<text>.+?)\s*$")
 
@@ -125,15 +133,28 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
     previous_blank = True
     item_content_indent: int | None = None
     in_indented_code = False
+    item_paragraph_open = False
+    in_block_quote = False
+    html_block_end: re.Pattern[str] | None = None
     while index < len(lines):
         raw = lines[index]
         stripped = raw.strip()
+        if html_block_end is not None:
+            if html_block_end.search(stripped):
+                html_block_end = None
+            previous_blank = True
+            item_paragraph_open = False
+            index += 1
+            continue
         marker = stripped[:3]
         if marker in {"```", "~~~"}:
             if fence is None:
                 fence = marker
             elif marker == fence:
                 fence = None
+            previous_blank = True
+            item_paragraph_open = False
+            in_block_quote = False
             index += 1
             continue
         if fence is not None:
@@ -141,6 +162,8 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
             continue
         if not stripped:
             previous_blank = True
+            item_paragraph_open = False
+            in_block_quote = False
             index += 1
             continue
         heading = HEADING_RE.match(raw)
@@ -148,7 +171,8 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
         if heading:
             title_text = heading.group("title")
         elif (stripped and not LIST_ITEM_RE.match(raw)
-              and not (active and not previous_blank)
+              and not (active and item_paragraph_open)
+              and not in_block_quote
               and len(raw) - len(raw.lstrip(" ")) <= 3
               and index + 1 < len(lines)
               and SETEXT_UNDERLINE_RE.fullmatch(lines[index + 1])):
@@ -169,10 +193,14 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
             previous_blank = False
             item_content_indent = None
             in_indented_code = False
+            item_paragraph_open = False
+            in_block_quote = False
             index += 1
             continue
         if active is None:
             previous_blank = False
+            item_paragraph_open = False
+            in_block_quote = False
             index += 1
             continue
         indent = len(raw) - len(raw.lstrip(" "))
@@ -188,6 +216,8 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
                 and indent >= code_indent):
             in_indented_code = True
             previous_blank = False
+            item_paragraph_open = False
+            in_block_quote = False
             index += 1
             continue
         thematic_break = THEMATIC_BREAK_RE.fullmatch(raw)
@@ -198,6 +228,8 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
                 <= thematic_indent_limit):
             previous_blank = False
             in_indented_code = False
+            item_paragraph_open = False
+            in_block_quote = False
             index += 1
             continue
         item_match = LIST_ITEM_RE.match(raw)
@@ -211,9 +243,38 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
                 active.append(item)
             item_content_indent = item_match.start("text")
             in_indented_code = False
+            item_paragraph_open = True
+            in_block_quote = False
         elif active:
-            if raw[:1].isspace() or not previous_blank:
+            interrupt_indent_limit = ((item_content_indent + 3)
+                                     if item_content_indent is not None else 3)
+            html_end = next(
+                (end for start, end in HTML_BLOCK_INTERRUPT_SEQUENCES
+                 if start.match(stripped)),
+                None,
+            )
+            if html_end is not None and indent <= interrupt_indent_limit:
+                if not html_end.search(stripped):
+                    html_block_end = html_end
+                previous_blank = True
+                item_paragraph_open = False
+                in_block_quote = False
+                index += 1
+                continue
+            if stripped.startswith(">") and indent <= interrupt_indent_limit:
+                previous_blank = False
+                item_paragraph_open = False
+                in_block_quote = True
+                index += 1
+                continue
+            if in_block_quote:
+                previous_blank = False
+                item_paragraph_open = False
+                index += 1
+                continue
+            if raw[:1].isspace() or item_paragraph_open:
                 active[-1] += " " + stripped
+                item_paragraph_open = True
         previous_blank = False
         index += 1
     if fence is not None:
