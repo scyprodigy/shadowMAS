@@ -53,6 +53,10 @@ SECTION_RE = re.compile(
 TRIGGER_RE = re.compile(r"^- unlock trigger:\s*(?P<trigger>.*)$")
 HEADING_RE = re.compile(r"^#+\s+(?P<title>.+?)\s*$")
 SETEXT_UNDERLINE_RE = re.compile(r"^\s*(?:={3,}|-{3,})\s*$")
+THEMATIC_BREAK_RE = re.compile(
+    r"^(?P<indent>[ ]*)(?P<marker>[-*_])"
+    r"(?:[ \t]*(?P=marker)){2,}[ \t]*$"
+)
 LIST_ITEM_RE = re.compile(
     r"^(?P<indent>\s*)(?:(?:[-+*])|(?:\d+[.)]))\s+(?P<text>.+?)\s*$")
 
@@ -118,6 +122,9 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
     fence: str | None = None
     lines = text.splitlines()
     index = 0
+    previous_blank = True
+    item_content_indent: int | None = None
+    in_indented_code = False
     while index < len(lines):
         raw = lines[index]
         stripped = raw.strip()
@@ -132,12 +139,17 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
         if fence is not None:
             index += 1
             continue
+        if not stripped:
+            previous_blank = True
+            index += 1
+            continue
         heading = HEADING_RE.match(raw)
         title_text: str | None = None
         if heading:
             title_text = heading.group("title")
         elif (stripped and not LIST_ITEM_RE.match(raw)
-              and not (active and raw[:1].isspace())
+              and not (active and not previous_blank)
+              and len(raw) - len(raw.lstrip(" ")) <= 3
               and index + 1 < len(lines)
               and SETEXT_UNDERLINE_RE.fullmatch(lines[index + 1])):
             title_text = stripped
@@ -154,9 +166,38 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
                     or re.fullmatch(r"v-[a-z0-9_.-]+\s+" + re.escape(wanted),
                                     title)):
                 active = []
+            previous_blank = False
+            item_content_indent = None
+            in_indented_code = False
             index += 1
             continue
         if active is None:
+            previous_blank = False
+            index += 1
+            continue
+        indent = len(raw) - len(raw.lstrip(" "))
+        code_indent = ((item_content_indent + 4)
+                       if item_content_indent is not None else None)
+        if active and in_indented_code and code_indent is not None:
+            if indent >= code_indent:
+                previous_blank = False
+                index += 1
+                continue
+            in_indented_code = False
+        if (active and previous_blank and code_indent is not None
+                and indent >= code_indent):
+            in_indented_code = True
+            previous_blank = False
+            index += 1
+            continue
+        thematic_break = THEMATIC_BREAK_RE.fullmatch(raw)
+        thematic_indent_limit = ((item_content_indent + 3)
+                                 if item_content_indent is not None else 3)
+        if (thematic_break is not None
+                and len(thematic_break.group("indent"))
+                <= thematic_indent_limit):
+            previous_blank = False
+            in_indented_code = False
             index += 1
             continue
         item_match = LIST_ITEM_RE.match(raw)
@@ -168,8 +209,12 @@ def markdown_list_section(text: str, heading_suffix: str) -> list[str]:
                 active[-1] += f" — nested: {item}"
             else:
                 active.append(item)
-        elif raw[:1].isspace() and stripped and active:
-            active[-1] += " " + stripped
+            item_content_indent = item_match.start("text")
+            in_indented_code = False
+        elif active:
+            if raw[:1].isspace() or not previous_blank:
+                active[-1] += " " + stripped
+        previous_blank = False
         index += 1
     if fence is not None:
         raise ValueError("unclosed Markdown fence")
