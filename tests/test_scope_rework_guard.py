@@ -346,6 +346,88 @@ class ScopeReworkGuardTests(unittest.TestCase):
             ["first"],
         )
 
+    def test_block_quote_is_not_lazy_condition_text(self):
+        text = (
+            "# Reopen conditions\n\n- first\n"
+            "> quoted note\n"
+            "lazy quote continuation\n"
+            "- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first", "second"],
+        )
+
+    def test_lazy_block_quote_text_is_not_a_setext_heading(self):
+        text = (
+            "# Reopen conditions\n\n- first\n"
+            "> quoted note\n"
+            "heading-like quote continuation\n"
+            "---\n"
+            "- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first", "second"],
+        )
+
+    def test_interrupting_html_block_is_not_lazy_condition_text(self):
+        for html in (
+                "<!-- editorial note -->",
+                "<?review note?>",
+                "<!REVIEW note>",
+                "<![CDATA[note]]>",
+                "<script>note</script>"):
+            with self.subTest(html=html):
+                text = (
+                    "# Reopen conditions\n\n- first\n"
+                    f"{html}\n- second\n"
+                )
+                self.assertEqual(
+                    scope_rework_guard.markdown_list_section(
+                        text, "reopen conditions"),
+                    ["first", "second"],
+                )
+
+    def test_multiline_html_block_is_not_condition_text(self):
+        text = (
+            "# Reopen conditions\n\n- first\n"
+            "<!--\neditorial note\n-->\n"
+            "- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first", "second"],
+        )
+
+    def test_inline_html_remains_lazy_condition_text(self):
+        text = (
+            "# Reopen conditions\n\n- first\n"
+            "<span>inline note</span>\n"
+            "- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first <span>inline note</span>", "second"],
+        )
+
+    def test_paragraph_outside_list_is_not_condition_text(self):
+        text = (
+            "# Reopen conditions\n\n- first\n\n"
+            "outside paragraph one\n"
+            "outside paragraph two\n"
+            "- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first", "second"],
+        )
+
     def test_common_markdown_list_markers_are_recognized(self):
         for item in ("* asterisk condition", "+ plus condition",
                      "1. ordered condition", "2) ordered-paren condition"):
