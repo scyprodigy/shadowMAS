@@ -274,6 +274,78 @@ class ScopeReworkGuardTests(unittest.TestCase):
             ["first wrapped text", "second"],
         )
 
+    def test_thematic_break_after_lazy_continuation_preserves_items(self):
+        text = (
+            "# Reopen conditions\n\n- first\n"
+            "lazy text\n---\n- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first lazy text", "second"],
+        )
+
+    def test_equals_after_lazy_continuation_remains_condition_text(self):
+        text = (
+            "# Reopen conditions\n\n- first\n"
+            "lazy text\n===\n- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first lazy text ===", "second"],
+        )
+
+    def test_spaced_thematic_break_does_not_become_a_condition(self):
+        for rule in ("- - -", "  * * *", "    _ _ _"):
+            with self.subTest(rule=rule):
+                text = (
+                    "# Reopen conditions\n\n- first\n"
+                    f"{rule}\n- second\n"
+                )
+                self.assertEqual(
+                    scope_rework_guard.markdown_list_section(
+                        text, "reopen conditions"),
+                    ["first", "second"],
+                )
+
+    def test_indented_code_block_is_not_condition_text(self):
+        text = (
+            "# Reopen conditions\n\n- first\n\n"
+            "      code sample\n"
+            "      - code-looking line\n"
+            "      more code\n"
+            "- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first", "second"],
+        )
+
+    def test_indented_paragraph_remains_condition_text(self):
+        text = (
+            "# Reopen conditions\n\n- first\n\n"
+            "    wrapped paragraph\n"
+            "- second\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first wrapped paragraph", "second"],
+        )
+
+    def test_setext_heading_after_blank_terminates_live_section(self):
+        text = (
+            "# Reopen conditions\n\n- first\n\n"
+            "Next section\n------------\n- hidden\n"
+        )
+        self.assertEqual(
+            scope_rework_guard.markdown_list_section(
+                text, "reopen conditions"),
+            ["first"],
+        )
+
     def test_common_markdown_list_markers_are_recognized(self):
         for item in ("* asterisk condition", "+ plus condition",
                      "1. ordered condition", "2) ordered-paren condition"):
