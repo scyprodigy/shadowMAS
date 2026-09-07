@@ -67,6 +67,33 @@ class ImportConflictTests(unittest.TestCase):
     def kinds(self, report):
         return {item["kind"] for item in report["findings"]}
 
+    @contextmanager
+    def changed_after_destination_scan(self, path):
+        """Model later metadata drift while preserving all fixture bytes."""
+        info = path.stat()
+        real_scan, real_fstat = checker.scan_tree, os.fstat
+        destination_scanned = False
+
+        def scan(root, tree, findings):
+            nonlocal destination_scanned
+            result = real_scan(root, tree, findings)
+            if tree == "destination":
+                destination_scanned = True
+            return result
+
+        def fstat(fd):
+            value = real_fstat(fd)
+            if not destination_scanned or (value.st_dev, value.st_ino) != (info.st_dev, info.st_ino):
+                return value
+            changed = SimpleNamespace(**{name: getattr(value, name) for name in
+                                      ("st_dev", "st_ino", "st_mode", "st_nlink", "st_size",
+                                       "st_mtime_ns", "st_ctime_ns", "st_uid", "st_gid")})
+            changed.st_ctime_ns += 1
+            return changed
+
+        with mock.patch.object(checker, "scan_tree", scan), mock.patch.object(checker.os, "fstat", fstat):
+            yield
+
     def cli(self, *args, expected=0):
         before = (snapshot(self.source), snapshot(self.destination))
         result = subprocess.run([sys.executable, str(REPO / "tools/check_import_conflicts.py"),
@@ -300,6 +327,60 @@ class ImportConflictTests(unittest.TestCase):
             report = self.inspect()
         self.assertEqual(report["exit_code"], 2)
         self.assertEqual(report["counts"]["hashed_files"], 0)
+
+    def test_source_change_after_destination_scan_invalidates_comparison(self):
+        changed = self.write(self.source, "same")
+        self.write(self.destination, "same")
+        with self.changed_after_destination_scan(changed):
+            report = self.inspect()
+        self.assertEqual(report["coverage"]["inspection"], "incomplete")
+        self.assertEqual(report["exit_code"], 2)
+        self.assertNotIn("identical_content_duplication", self.kinds(report))
+        self.assertEqual([e["tree"] for e in report["entries"] if "sha256" in e], ["destination"])
+
+    def test_directory_change_invalidates_descendants_not_similar_prefixes(self):
+        self.write(self.source, "group/child")
+        self.write(self.source, "group2/child", b"unrelated")
+        self.write(self.destination, "group/child")
+        with self.changed_after_destination_scan(self.source / "group"):
+            report = self.inspect()
+        self.assertEqual(report["exit_code"], 2)
+        self.assertNotIn("identical_content_duplication", self.kinds(report))
+        retained = {(e["tree"], e["path"]) for e in report["entries"] if "sha256" in e}
+        self.assertEqual(retained, {("source", "group2/child"), ("destination", "group/child")})
+
+    def test_changed_root_discards_only_affected_tree_hashes(self):
+        self.write(self.source, "same")
+        self.write(self.destination, "same")
+        for changed in (self.source, self.destination):
+            with self.subTest(tree=changed.name), self.changed_after_destination_scan(changed):
+                report = self.inspect()
+            self.assertEqual(report["exit_code"], 2)
+            self.assertNotIn("identical_content_duplication", self.kinds(report))
+            retained = [e["tree"] for e in report["entries"] if "sha256" in e]
+            self.assertEqual(retained, ["destination" if changed == self.source else "source"])
+
+    def test_unavailable_root_locator_invalidates_hashes_and_checks_other_root(self):
+        self.write(self.source, "same")
+        self.write(self.destination, "same")
+        real_pinned = checker.pinned
+        openings = {str(self.source): 0, str(self.destination): 0}
+
+        @contextmanager
+        def unavailable(path, root=-100):
+            if root == -100 and path in openings:
+                openings[path] += 1
+                if path == str(self.source) and openings[path] == 2:
+                    raise FileNotFoundError(errno.ENOENT, "injected root locator loss")
+            with real_pinned(path, root) as fd:
+                yield fd
+
+        with mock.patch.object(checker, "pinned", unavailable):
+            report = self.inspect()
+        self.assertEqual(report["exit_code"], 2)
+        self.assertEqual(openings[str(self.destination)], 2)
+        self.assertNotIn("identical_content_duplication", self.kinds(report))
+        self.assertEqual([e["tree"] for e in report["entries"] if "sha256" in e], ["destination"])
 
     def test_incomplete_takes_precedence_over_conflicts(self):
         self.write(self.source, "Foo", b"left")
