@@ -23,8 +23,9 @@ whether to read them. Only verified regular files/directories are reopened via
 the tool's own procfs descriptors; input symlink targets are never opened.
 See https://man7.org/linux/man-pages/man2/openat2.2.html .
 
-Use quiescent local trees. Before/after metadata checks detect observed changes;
-this is not an atomic snapshot or a runtime safety guarantee. Byte equality uses
+Use quiescent local trees. Recheck both inventories after both scans; observed
+file, ancestor, or root-locator changes invalidate affected hashes. These checks
+are not an atomic snapshot or a runtime safety guarantee. Byte equality uses
 SHA-256 plus size, not authenticated origin or SWHID. ACLs, xattrs, filesystem-
 specific collation/short-name aliases, historical checkout losses, archive member
 paths, dependency closure, provenance, licensing, and authority are not verified.
@@ -191,7 +192,7 @@ def content_relation(entries: list[dict]) -> str:
     return "identical_by_sha256_and_size" if len(identities) == 1 else "divergent"
 
 
-def scan_tree(root: int, tree: str, findings: list[dict]) -> list[dict]:
+def scan_tree(root: int, tree: str, findings: list[dict]) -> tuple[list[dict], dict[str, tuple]]:
     entries = []
     observed = {}
     pending = ["."]
@@ -228,8 +229,14 @@ def scan_tree(root: int, tree: str, findings: list[dict]) -> list[dict]:
                 entries.append(entry)
             detail = errno.errorcode.get(exc.errno, "io_error") if isinstance(exc, OSError) else str(exc)
             findings.append(finding("incomplete_inspection", [entry], detail))
-    # Recheck all observed objects, including empty directories and the root.
+    return entries, observed
+
+
+def recheck_tree(root: int, tree: str, entries: list[dict], observed: dict[str, tuple],
+                 findings: list[dict]) -> None:
+    """Invalidate evidence after both scans, including changed ancestor bindings."""
     by_path = {e["path"]: e for e in entries}
+    changed = set()
     for path, expected in sorted(observed.items()):
         try:
             with pinned(path, root) as fd:
@@ -237,9 +244,19 @@ def scan_tree(root: int, tree: str, findings: list[dict]) -> list[dict]:
                     raise InspectionError("changed_during_inspection")
         except (OSError, InspectionError):
             entry = by_path.get(path, {"tree": tree, "path": path, "kind": "directory"})
-            entry.pop("sha256", None)
+            changed.add(path)
             findings.append(finding("incomplete_inspection", [entry], "changed_or_unavailable_on_recheck"))
-    return entries
+    if changed:
+        # Check component ancestors, not all changed-prefix/entry pairs.
+        for entry in entries:
+            path = entry["path"]
+            while True:
+                if path in changed:
+                    entry.pop("sha256", None)
+                    break
+                if path == ".":
+                    break
+                path = path.rpartition("/")[0] or "."
 
 
 def compare_entries(entries: list[dict]) -> list[dict]:
@@ -290,13 +307,27 @@ def inspect(source: str, destination: str) -> dict:
                 raise InspectionError("roots_alias_same_directory")
             root_start = {"source": fingerprint(os.fstat(src)),
                           "destination": fingerprint(os.fstat(dst))}
+            inventories = {}
             for tree, fd in (("source", src), ("destination", dst)):
-                entries.extend(scan_tree(fd, tree, findings))
+                inventories[tree] = scan_tree(fd, tree, findings)
+                entries.extend(inventories[tree][0])
+            for tree, fd in (("source", src), ("destination", dst)):
+                recheck_tree(fd, tree, *inventories[tree], findings)
+                inventories[tree][1].clear()  # Release fingerprints before comparison indexes are built.
             for tree in roots:
-                with pinned(roots[tree]) as current:
-                    if fingerprint(os.fstat(current)) != root_start[tree]:
-                        raise InspectionError("root_changed_during_inspection")
+                try:
+                    with pinned(roots[tree]) as current:
+                        if fingerprint(os.fstat(current)) != root_start[tree]:
+                            raise InspectionError("root_changed_during_inspection")
+                except (OSError, InspectionError) as exc:
+                    for entry in inventories[tree][0]:
+                        entry.pop("sha256", None)
+                    detail = errno.errorcode.get(exc.errno, "io_error") if isinstance(exc, OSError) else str(exc)
+                    root_entry = {"tree": tree, "path": ".", "kind": "directory"}
+                    findings.append(finding("incomplete_inspection", [root_entry], detail))
     except (OSError, ValueError, InspectionError) as exc:
+        for entry in entries:
+            entry.pop("sha256", None)
         detail = errno.errorcode.get(exc.errno, "io_error") if isinstance(exc, OSError) else str(exc)
         findings.append(finding("incomplete_inspection", [], detail))
     entries.sort(key=lambda e: (e["tree"], e["path"]))
