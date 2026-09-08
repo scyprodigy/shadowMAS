@@ -50,6 +50,12 @@ Any approval wording must state approved_for_what.
 
 ## Suggested Lifecycle Vocabulary
 
+These distinctions concern review and promotion of future stored records, not a
+mandatory sequence for every conversational adjustment. Correcting an assumption
+or requesting a shorter explanation within the current authorized task does not
+require a profile, registry entry, or extra approval cycle. It does not authorize
+persistence or cross-task reuse. See the readiness contract's task-local proposal.
+
 | State | What it means | What it does not mean | Who or what may assign it | Human review required |
 |---|---|---|---|---|
 | `observed_signal` | A runtime, review, human correction, handoff, or task event was noticed as possible evidence. | Not evidence validation, not a candidate, not memory, not truth, not authority. | Runtime feed, agent report, human note, or audit surface may record it as observation. | Not always for recording; required before reuse or promotion. |
