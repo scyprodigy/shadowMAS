@@ -60,7 +60,18 @@ implementation is considered.
 
 ## Proposed Schema Fields
 
-A future profile record should include at least:
+These are candidate review concerns for a future persisted profile, not a
+required format for ordinary interaction. No packet schema is added here.
+The task-local proposal and research ledger live in
+`PERSONALIZATION-ADAPTATION-READINESS-CONTRACT.v0.en.md`, under
+`Task-Local Interaction Before Persistent Profiles`.
+
+The existing draft field names below remain for comparison. Semantic descriptions
+such as domains, pattern kinds, and candidate types are open-ended, task-derived
+language, not accepted-value enums. Stable identifiers, consent boundaries, and
+lifecycle distinctions must not become a fixed semantic model of human work.
+
+A future record may need these review concerns:
 
 - `profile_id`
 - `profile_version`
@@ -107,9 +118,9 @@ or approval authority.
 | `tool_layer_refs` | References to tools or adapters in scope. | Tool names, runtime hosts, adapter notes, capability summaries. | Credentials; tool capability as authority; workflow graph content. | Human owner or scoped runtime review process. | Yes before adaptation. | none |
 | `workflow_layer_refs` | References to review, approval, handoff, or governance workflow context. | Review cadence, escalation boundary, handoff pattern refs. | Approval bypass; hidden workflow takeover. | Human owner or review lead. | Yes. | none |
 | `runtime_host_refs` | References to host/runtime constraints. | Host name, declared constraint, adapter mismatch evidence. | Runtime authority claims; host-native prompt as truth. | Human owner or runtime review process. | Yes before reuse. | none |
-| `allowed_adaptation_domains` | Domains in which adaptation candidates may be considered. | Values listed in this draft. | Any domain not explicitly allowed. | Human owner or future approved profile process. | Yes. | none |
+| `allowed_adaptation_domains` | Task-local scope in which candidates may be considered. | Open descriptions tied to the actual task and concept; examples below are non-exhaustive. | Global expertise labels; treating an unknown concept as forbidden solely because it is absent from this document. | Human owner or future approved profile process. | Yes for persisted scope. | none |
 | `forbidden_adaptation_domains` | Domains or signal classes excluded from adaptation. | Values listed in this draft; project-specific additions. | Omitting known forbidden signal classes. | Human owner or authority-boundary review. | Yes. | none |
-| `observed_patterns` | Source-linked repeated patterns that may support candidates. | Pattern records defined below. | Raw logs, secrets, private memory, unreviewed runtime output. | Human reviewer or scoped agent as evidence preparation. | Yes before candidate use. | none |
+| `observed_patterns` | Source-linked scoped evidence that may support candidates. | Illustrative records below, including explicit corrections. | Raw logs, secrets, private memory, unreviewed runtime output. | Human reviewer or scoped agent as evidence preparation. | Yes before persisted candidate use. | none |
 | `adaptation_candidates` | Reviewable candidate adaptations derived from observed patterns. | Candidate objects defined below. | Approval, memory promotion, truth promotion, runtime action. | Human reviewer, owner, or scoped candidate process. | Yes. | none |
 | `approved_limited_adaptations` | Human-approved bounded adaptations for a declared scope. | Limited adaptation objects defined below. | Canonical truth claims; runtime authority; write-back permission. | Human owner or authorized reviewer. | Yes. | none |
 | `invalidated_adaptations` | Adaptations that are no longer active or safe to use. | Invalidated IDs, reasons, source refs, dates. | Silent deletion without trace when trace is required. | Human reviewer or future approved invalidation process. | Yes for reactivation. | none |
@@ -146,7 +157,7 @@ Rules:
 
 ## `allowed_adaptation_domains`
 
-Allowed draft values:
+Illustrative domain descriptions, not a closed enum:
 
 - `review_preferences`
 - `recurring_boundary_warnings`
@@ -157,8 +168,11 @@ Allowed draft values:
 - `prompt_layering_notes`
 - `tool_adapter_notes`
 
-These are candidate domains only. They do not create preferences, memory,
-runtime behavior, or truth.
+These are candidate examples only. Unfamiliar work may introduce its own concept
+granularity and description within the authorized task. HTTP and WebSocket replay,
+or migration planning and implementation language, may need separate scopes.
+Adding a description does not authorize new data access, persistence, changed
+runtime behavior, or truth promotion.
 
 ## `forbidden_adaptation_domains`
 
@@ -187,9 +201,11 @@ according to a future approved authority boundary.
 
 ## `observed_patterns`
 
-Observed patterns are repeated signals that may support adaptation candidates.
+Observed patterns are scoped evidence that may support adaptation candidates.
+A single explicit correction or demonstrated result can matter; repetition alone
+does not establish a preference or competence.
 
-Draft pattern kinds:
+Non-exhaustive examples:
 
 - repeated review friction
 - repeated `boundary_hit`
@@ -209,8 +225,13 @@ Rules:
 - Observed pattern must be invalidatable.
 - Observed pattern must not include forbidden adaptation domains.
 - Repetition count is not authority.
+- Preserve observation versus inference, current task and concept scope,
+  uncertainty, time, expiry, and the user's correction in reviewable prose or
+  existing scope/source references; these need not be new fields.
+- Silence, response speed, jargon, verbosity, confidence, and job title are not
+  competence evidence. A detail preference is not an expertise score.
 
-Preferred object shape:
+Illustrative object shape, not a required interaction format:
 
 ```yaml
 pattern_id: pattern_001
@@ -247,7 +268,7 @@ claim_ceiling: adaptation_candidate_only
 current_lifecycle_state: candidate_for_review
 ```
 
-Candidate types:
+Candidate descriptions (examples only; no fixed accepted-value list):
 
 - `review_preference_candidate`
 - `recurring_boundary_warning_candidate`
@@ -333,6 +354,11 @@ Rules:
 
 ## Reset / Export / Delete
 
+- Session-local adaptation is the default design direction. Do not create a
+  persistent profile from ordinary corrections or a local results log.
+- Persist only after explicit consent covering the evidence, purpose, scope,
+  retention/expiry, and a usable deletion/reset route. Refusal keeps interaction
+  local to the current session without reducing the user's correction authority.
 - Profile must be resettable.
 - Profile must be exportable.
 - Profile must be deletable.
@@ -341,6 +367,9 @@ Rules:
 - Export must not include secrets, raw memory, or raw logs unless separately
   approved.
 - Reset must remove active adaptation effect and require re-review before reuse.
+- A correction must also retire dependent assumptions, not merely change the
+  visible label. No global novice/expert classification or lasting cognitive-mode
+  score is justified by this draft.
 - Export should prefer summaries and source refs over raw sensitive content.
 - Delete policy must state whether minimal audit tombstones remain and why.
 
