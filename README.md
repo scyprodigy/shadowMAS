@@ -11,6 +11,7 @@ Seeing a runtime signal is not the same as trusting it, storing it, promoting it
 ## Start here
 
 - [Controlled alpha quickstart](#controlled-alpha-quickstart)
+- [Public download scope](#public-download-scope)
 - [Minimal demo](#minimal-demo)
 - [Expected output](#expected-output)
 - [Inspect an L2 fixture](#inspect-an-l2-fixture)
@@ -76,6 +77,70 @@ Do not commit shadowMAS-generated or copied working artifacts into your product 
 ### Human decision point
 
 shadowMAS does not act on your product repo by itself. After the quickstart, the product-repo owner remains the sole authority for domain truth and for deciding whether any shadowMAS rule, fixture, or task-flow pattern should be adopted into the product repo. shadowMAS provides material to inspect, not a verdict to apply.
+
+## Public download scope
+
+The current public repository is a source distribution, not a proven minimal
+alpha package. For this alpha, the recommended download is the complete tracked
+tree at one pinned public commit, in its own directory beside the product repo.
+Keep the original paths. Select what to read by the existing entry guidance;
+do not mistake the four-file intake reading profile for a dependency-complete
+download. Trial facilitation can remain with the project owner.
+
+| Content downloaded | Purpose and dependency role | When to read or use |
+|---|---|---|
+| `README.md`, `AGENTS.md`, `LICENSE`, `requirements.txt`, `shadowMAS.png` | Entry, contributor instructions, license, Python dependency declaration, linked cover | Entry and setup; the cover is presentation, not executable logic |
+| `00_entry/`, `01_truth/` | Navigation, rework guard, authoritative boundary and change-impact references | Follow the documented reading order |
+| `02_packets/`, `03_memory/`, `04_runtime/` | Packet contracts, registries, and current design references; some directories are placeholders | On demand for the inspected surface; presence does not mean a running memory or runtime service |
+| `05_scripts/`, `tools/` | Validators, inspection tools, and external-workspace helpers | Only the selected command and its dependencies |
+| `examples/`, `tests/` | Positive/negative fixtures and executable checks | Local evaluation and contributor validation |
+| `06_human_docs/` | Human explanation and operator navigation | Relevant language and purpose |
+| `07_working/` | Non-canonical proposals, rationale, and historical provenance, including references used by checks | On demand; downloading does not adopt or promote drafts |
+| `.github/`, `.claude/`, `.gitignore` | CI, contributor integration, and ignore configuration | Contributor context; these dot paths are included when tracked |
+
+The YAML validator imports the shared read-only parsing helper and uses PyYAML
+from `requirements.txt`. CI records Python 3.12. The default
+`tools/first_user_smoke.py` also invokes the unit suite, fixtures, candidate
+registry check, and a temporary workspace flow. Tests and reference checks reach
+working rationale as well as formal documents. Downloading only the entry files
+would not preserve these checks. Dependency installation is separate from source
+download; the repository's license and any required dependency notices remain
+applicable to their respective material.
+
+A contributor should use a clone when history and changes matter. A read-only
+evaluator or alpha user can use the complete source tree for the chosen public
+commit; a source archive omits Git history, while an ordinary clone fetches
+history according to its options. Record the commit separately if using an
+archive, and verify which commands require Git metadata before relying on them.
+There is no separately validated reduced alpha bundle yet.
+
+Publicly tracked dotfiles and working drafts are downloadable too. An ignored
+local file is not part of a fresh checkout, but ignore rules do not remove a
+previously published file or make it private. A local unpushed commit is not in
+the public branch until published. Public visibility and operational necessity
+are different questions; neither proves that every unseen local item is private.
+
+### Future reduction options (proposal only)
+
+| Option | Tradeoff | Current disposition |
+|---|---|---|
+| Complete tracked tree with selective reading | Broad local source coverage; larger download and historical clutter | Recommend for current public alpha |
+| Generated task dependency closure | Smaller inspectable bundle; dynamic imports and prose references can escape static analysis | Defer distribution until closure and missing-coverage tests exist |
+| Partial clone / sparse checkout | Reduces object transfer or worktree material; omitted files still affect commands and search | Optional transport investigation, not a completeness claim |
+| Content-addressed storage with contextual locators | Can deduplicate bytes while preserving multiple original paths | Defer storage implementation; hashes do not grant authority |
+
+A future reduced bundle must derive from a pinned source revision and identify
+selected roots, transitive references, content identities, tool/format versions
+where authorized, licenses/notices, exclusions, unavailable material, and coverage
+status. Missing or unverifiable dependencies must mean **coverage incomplete** or
+refusal. This is a design requirement, not a new manifest schema or packaging tool.
+
+Keep a user's long-term results in a private companion document outside both
+repositories. A future return batch should contain only files explicitly selected
+and authorized by that user, with base revision, sources, exclusions, and conflicts
+preserved for review. Default operation is local-only with no upload. A local
+record is not consent to persistent profiling or publication. This paragraph
+does not implement synchronization or change any write-back authority.
 
 ## Minimal demo
 
