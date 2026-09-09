@@ -102,7 +102,10 @@ new vocabulary.
 
 ## Triage State
 
-10 entries across 5 categories. Their applicability to active
+10 historical entries across 5 categories, followed by a research
+integration note on open-ended collaboration. The note does not
+reclassify these entries or verify their older source claims.
+Their applicability to active
 shadowMAS work varies. Quick filter for "what to read first if
 time is limited":
 
@@ -423,6 +426,146 @@ adopt or refuse with explicit reason, not reinvent.
   declared low risk but landed wide blast. Currently no data.
 
 ---
+
+## Open-ended collaboration: research integration
+
+This section records research hypotheses, not a new direction decision,
+runtime, user model, or semantic schema. Its unit of investigation is the
+changing relationship between a person, a task, evidence, tools, and a
+model. A completed experiment can settle a local question while leaving
+the broader research program open to new concepts and counterexamples.
+
+### Philosophical premise and engineering interpretation
+
+Emptiness, understood here through Nagarjuna's *Mulamadhyamakakarika*,
+chapter XXIV and Garfield's commentary, offers a philosophical premise:
+identities and descriptions depend on conditions and relations rather
+than possessing an independent, fixed essence. Conventional distinctions
+remain usable. This interpretation is neither a claim about all Buddhist
+traditions nor an empirical explanation of neural networks.
+
+The engineering interpretation proposed here is that each person can
+develop their own revisable collaboration support. Task concepts,
+explanations, memory organization, and operating methods may change as
+the work changes. This does not remove consent, source identity, current
+authority boundaries, or the ability to make a concrete commitment. It
+does not establish a metaphysical connection between emptiness and latent
+space, or promote this premise into canonical project identity.
+
+### Evidence ledger and reading coverage
+
+The nine sources below were read in full at the linked versions, including
+their embedded appendices. For FunSearch, coverage includes the article,
+Methods, and Extended Data, but excludes the separate Supplementary
+Information and code execution. The philosophical reading covers the full
+linked chapter and commentary, not the entire book. No Shadow experiments
+or paper replications were performed for this note. Dispositions describe
+research use; they do not authorize implementation.
+
+| Source and evidence type | Precisely supported conclusion | Transfer limitation | Proposed disposition and difference |
+|---|---|---|---|
+| [Nagarjuna, chapter XXIV, Garfield translation and commentary](https://pages.uoregon.edu/munno/OregonCourses/REL4400002/nagarjuna_middleway24.pdf), 29 PDF pages; conceptual / philosophical | The chapter relates dependent origination, emptiness, and dependent designation while preserving conventional discourse; see verses 8–10 and 18–19 and their commentary. | Philosophical argument, not a model of cognition or evidence of AI effectiveness; interpretive traditions differ. | Adapt with attribution: use conditional, revisable descriptions as a design premise, without treating Buddhist philosophy as an engineering proof. |
+| [Hughes et al., Open-Endedness is Essential for Artificial Superhuman Intelligence](https://arxiv.org/abs/2406.04268v1), 20 pages; conceptual / formal definition | Defines open-endedness through novelty and learnability relative to an observer; discusses finite horizons, memory limits, and directing exploration. | Position paper, not proof that its proposed route produces ASI; the formal observer and fixed loss differ from an interacting person whose purpose changes. | Adapt with attribution: study human-relevant discovery within revisable task contexts, without requiring endless novelty or treating an AI judge as the person. |
+| [Packer et al., MemGPT](https://arxiv.org/abs/2310.08560v2), 13 pages; empirical systems | External storage, function execution, and context paging can support tasks beyond the active context window. | Older models and bounded benchmarks; some judging permits extraneous invented details; paging is not unlimited reliable memory or consent enforcement. | Adapt with attribution: investigate source-linked, permission-scoped paging with correction and expiry, rather than adopting automatic indefinite history retention. |
+| [McAllester, Truth Maintenance](https://cdn.aaai.org/AAAI/1990/AAAI90-164.pdf), 8 pages; conceptual / formal algorithm comparison | Explicit premises and justifications support context switching and dependency-directed revision; implementations trade completeness, time, and space. | Discusses symbolic, predominantly monotonic systems; natural-language dependency extraction is not a sound logical proof. Universal ATMS propagation can require exponential resources. | Adapt with attribution: retain provisional reasons and inspect affected suggestions after a correction, without imposing a Boolean ontology on human work or claiming complete invalidation. |
+| [Romera-Paredes et al., FunSearch](https://www.nature.com/articles/s41586-023-06924-6), 14-page article PDF; empirical / externally checked mathematical constructions | A frozen model, executable evaluator, program population, and human interpretation produced new constructions and heuristics in the studied problems. | Requires suitable program skeletons and evaluators; large sampling budgets; general professional decisions lack equally decisive scores. Separate supplement not read. | Adapt with attribution: test generated task-local methods and representations, preserving counterexamples and human-owned criteria instead of making program fitness a universal measure of usefulness. |
+| [Zhang et al., Recursive Language Models](https://arxiv.org/abs/2512.24601v3), 43 pages; empirical systems preprint | A host environment can expose context as data and support programmatic access and recursive model calls on several long-context tasks. | Greater recursion sometimes hurts; costs have long tails; benchmark corpora, prompts, models, and budgets limit transfer. No guarantee of complete inspection. | Adapt with attribution: investigate explicitly scoped context access with provenance and missing-coverage reporting, without copying exhaustive-read prompts or equating subcall agreement with verification. |
+| [Todd et al., Function Vectors in Large Language Models](https://arxiv.org/abs/2310.15213v2), 52 pages; empirical causal intervention | Extracting selected attention-head activations and injecting vectors into residual states can elicit studied task functions; some compositions transfer. | Requires internal access; mostly bounded tasks and older open models; first-token and pattern-match metrics do not establish whole-answer correctness. | Defer implementation: compare real activation interventions against text demonstrations and negative controls before proposing an adapter; a text instruction cannot perform the intervention. |
+| [Hao et al., Training Large Language Models to Reason in a Continuous Latent Space](https://arxiv.org/abs/2412.06769v4), 18 pages; empirical training / mechanism | Coconut feeds hidden states back as embeddings using a trained curriculum, with gains on selected reasoning tasks. | Results vary by task and baseline; CoT is better on the reported GSM8k comparison; latent search interpretations are limited evidence, not universal mechanisms. | Defer implementation: consider hybrid language and latent computation only in a separately authorized model experiment; typing a mode name does not create the trained capability. |
+| [Schaeffer et al., Are Emergent Abilities of Large Language Models a Mirage?](https://papers.neurips.cc/paper_files/paper/2023/file/adc98a266f45005c403b8311ca7e8bd7-Paper-Conference.pdf), 17 pages; empirical / mathematical analysis | Nonlinear metrics and limited resolution can produce apparent jumps from smoother underlying performance in the studied settings. | Does not disprove every form of emergence or settle system-level novelty. | Adopt with attribution as support for the existing emergence metric audit; extend its application to proposed collaboration experiments without creating another mechanism. |
+
+### Architecture options and recommendation
+
+These options describe places to experiment, not exhaustive kinds of work.
+
+| Option | Potential value | Main tradeoff |
+|---|---|---|
+| Prompt library with human selection | Cheap, inspectable baseline; easy to change wording and examples. | A fixed method menu can constrain discovery; prompts cannot implement storage, access control, or hidden-state interventions. |
+| Replaceable context, memory, and method orchestration | Can combine explicit sources, local method generation, tool checks, and user correction across different hosts. | Requires an actual executor and measured overhead; context and evaluation errors remain. This is a future adapter hypothesis, not Shadow's present runtime. |
+| An owned model with latent interventions or specialized training | Directly tests mechanisms unavailable through text alone. | Requires model access, compute, causal controls, and separate implementation authority; portability and interpretability are uncertain. |
+
+Recommend the second as a research direction, retaining the first as a
+baseline and the third as a separate experimental branch. Here, "promptOS"
+means this possible orchestration function; it does not designate a
+selected external product, a giant system prompt, or a new Shadow runtime.
+The existing prompt layering contract still separates maintained sources
+and treats host-native instructions as outside Shadow's writable surface.
+
+### Testable combinations, not novelty claims
+
+The combinations below are our proposed inferences from the sources.
+Prior-art searches and the existing design ledger revealed overlaps;
+absence of an exact search hit would not establish originality. Their
+names are prose handles, not packet fields, enums, or a method taxonomy.
+
+| Research question and mechanism | Difference from its inputs | Disconfirming observation and comparison |
+|---|---|---|
+| Can a person and model generate a better local method together? Propose an operation or representation from the actual obstacle, try it on a reversible example, and test it on an unseen case. | Extends FunSearch's program-generation pattern to inspectable collaboration methods; the person can reject the problem framing and evaluation criteria. | Compare direct assistance, a fixed method, and a generated method at matched budgets. Failure to transfer, omitted obligations, or higher correction cost weighs against the hypothesis. |
+| Can one corrected premise repair the right downstream suggestions? Link a provisional memory to its source, scope, and dependent advice; re-check affected advice after correction. | Combines memory paging with truth-maintenance reasoning while leaving natural-language dependencies uncertain and user knowledge task-local. | Compare with transcript retrieval and summary-only memory. Measure stale advice that survives, valid advice wrongly withdrawn, and correction effort; do not call generated links a complete dependency graph. |
+| Can changing representation expose a shared blind spot? Build materially different accounts, such as a sequence and a constraint model, then test where their predictions differ. | Uses representation diversity and discriminating observations instead of treating multiple role-playing answers as independent votes. | Use held-out failures and independent checks where available. No benefit over equal-cost resampling, or broken task meaning during transformation, weakens the hypothesis. |
+| Can exploration create useful stepping stones without trapping a person in history? Retain a small, user-authorized set of useful alternatives and their failures; allow rejection of the current framing. | Adapts observer-relative open-endedness to limited attention and changing purposes; novelty is optional when a person needs to finish. | Compare against the strongest current method and ordinary revision. Record repeated rediscovery, irrelevant branches, failure to finish, and actual reuse on a new task; no global novelty score. |
+| Can a white-box intervention add behavior unavailable from equal-cost text conditioning? Test an extracted function vector on an open model against demonstrations and control interventions. | Connects causal mechanism experiments to task-local collaboration outcomes rather than assuming a latent vector is a universal cognitive command. | Include no intervention, random matched-norm and wrong-task vectors, shuffled demonstrations, held-out tasks, full-answer checks, and side effects. No portable benefit means no deployment claim. |
+
+The potentially substantial shift is to make operating methods and local
+representations themselves revisable research outputs. It is not a claim
+that more recursive calls, longer reasoning, or greater surprise creates
+new intelligence. Existing knowledge supplies useful starting points;
+counterexamples and external observations help reveal when those starting
+points are constraining the work.
+
+### Evaluation and continuing research
+
+For a concrete comparison, record the actual model and host version,
+visible inputs, source revisions, permissions, prompt or procedure,
+available tools, budget, and omitted material. Keep design examples
+separate from evaluation cases. Compare outcomes on equivalent evidence
+and resources, report retries and failures, and distinguish measured
+latency, cost, human effort, and subjective preference. Changing several
+components at once cannot identify which caused a result.
+
+Assess task correctness, important omissions, repair cost, excessive and
+insufficient clarification, incorrect knowledge transfer, privacy, and
+unfamiliar cases. Include the HTTP/WebSocket and migration/language
+distinctions, learning versus time pressure, repaired expertise assumptions,
+no-history and no-persistence users, irreversible versus reversible work,
+raw-source recovery, and a task that defeats the current representation.
+These are counterexamples to seek, not a closed scenario inventory.
+
+Test an emergence claim against continuous and thresholded measures,
+sampling variation, task families, and matched-compute baselines. A novel
+artifact, a system-composition benefit, a scaling discontinuity, and an
+activation-level mechanism are different claims requiring different
+evidence. Self-reported confidence, fluent explanations, or agreement
+between correlated model outputs do not establish any of them.
+
+Preserve a live question with its strongest current explanation, competing
+explanations, contradictory evidence, and next discriminating observation.
+A new source, failed transfer, changed model, corrected premise, or changed
+human purpose can reopen it. An individual experiment may end; research
+need not converge on one universal workflow. Budgets and stopping choices
+come from the concrete task owner, not thresholds invented by this note.
+Persistence requires specific consent and a reset/deletion path; feedback
+does not authorize public redistribution or model training.
+
+### Existing owners and boundaries
+
+Consult [the active design ledger](active_design_ledger.yaml), particularly
+`strategy_and_exploration_surfaces` and its prompt-related candidates, and
+its [owning archive](../../archive/shadowmas_cross_domain_active_design_log_v_0_1_doc_optimized_v2_2.md).
+The existing `emergence_metric_audit`, `controlled_dissolution_protocol`,
+and prompt-channel investigations already cover parts of this proposal.
+Behavioral probes, rollback, stop conditions, and their recorded unlock
+conditions remain necessary; this note does not unlock them. The existing
+task-scoped pre-sign-off review brief remains the active delivery direction.
+
+Memory validity tools inspect recorded references; they do not establish
+complete semantic dependencies or implement adaptive personal memory.
+Search, cached identity, and retrieval remain evidence rather than
+authority. Preserve source namespaces, original paths, pinned snapshots,
+and incomplete-coverage information when supplying context. A partial
+download, a summary, or a memory hit cannot silently become complete
+evidence. No new distribution format, upload, synchronization, packet
+vocabulary, registry, canonical policy, or runtime mechanism is introduced.
 
 ## How to use this doc
 
