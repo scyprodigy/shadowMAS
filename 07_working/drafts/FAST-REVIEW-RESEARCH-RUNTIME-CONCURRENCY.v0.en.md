@@ -350,28 +350,32 @@ Practical rules from Stripe's retry logic:
 
 ## 5. Recommendation (separated from evidence)
 
-Scoped to a file-first, local-first, v0 multi-agent system.
+Scoped to one file-first, local-first prototype, not to shadowMAS's open-source
+core or every host runtime. Concurrent agent work is a required target capability.
+A single writer may serialize a particular shared-state commit without serializing
+independent research, execution, or candidate production. The R-layer remains
+unfinalized; these are replaceable substrate choices, not packet semantics.
 
 ### 5.1 Strong fits for a local file-first v0
 
-- **Single-writer queue as the default coordination primitive** for any
-  mutable shared state. One process, one actor, one thread owns the write
-  path; everyone else produces jobs. Correctness by construction; debuggable;
-  matches SQLite-WAL philosophy at system level.
-- **Atomic-write-by-rename** (write-temp → fsync → rename → fsync-dir) for every
-  single-file update of consequence. The most common file-system invariant
-  you can rely on.
-- **Append-only operation log** as the source of truth for agent actions;
-  derived files are projections. Gives you replay, ordering, and a natural
-  fencing token (log position) for free.
+- **Single-writer queue as one local commit strategy** for a particular mutable
+  shared state. Other agents may work concurrently and submit candidates. This
+  prevents races only for writes that actually pass through the queue; it does
+  not establish semantic correctness or cover bypassing writers.
+- **Atomic-write-by-rename** (write-temp → fsync → rename → fsync-dir) for
+  consequential single-file updates where local filesystem semantics support
+  it. This does not make a multi-file update atomic.
+- **Append-only operation log** when a concrete workflow needs replay and
+  ordering. A log position can order accepted operations, but does not fence
+  external resources unless those resources enforce it.
 - **Optimistic concurrency with version numbers (CAS-style)** for low-contention
   metadata and registry-style records. Cheap, local, no lock service needed.
 - **Coarse-grained locking on the aggregate** when multiple files must move
   together but a commit-marker is heavier than warranted — e.g. a per-task
   directory lock instead of per-file locks.
-- **Idempotency keys on every mutating agent operation.** In an agent system
-  with retries, tool crashes, and replayed runs, non-idempotent writes are
-  a source of silent duplication. The cost is one extra field on the op record.
+- **Idempotency identifiers for replayable, consequential operations.** Retries
+  can duplicate effects; the identifier belongs to the chosen operation
+  transport, not automatically to every packet or agent action.
 
 ### 5.2 Justified only under evidence of contention or correctness need
 
@@ -394,8 +398,10 @@ Scoped to a file-first, local-first, v0 multi-agent system.
   no fencing tokens means no safety under process pauses.
 - Two-phase commit across files — operational nightmare, no fs supports it
   natively.
-- CRDTs / vector clocks — designed for multi-writer geo-replication; a
-  single-writer queue is a cheaper, stronger answer for this problem shape.
+- CRDTs / vector clocks for this local prototype's protected truth writes —
+  convergence does not resolve task intent or approval. They remain candidates
+  for a future shared drafting medium if its benefits survive comparison with
+  isolated workspaces and proper three-way reconciliation.
 - Heavyweight workflow engines for compensations (Temporal, etc.) — the
   saga pattern is useful; a framework is not required to implement it.
 - LMAX Disruptor itself — the *principle* transfers, the library is aimed
@@ -414,7 +420,8 @@ Scoped to a file-first, local-first, v0 multi-agent system.
 
 ## 6. Explicit out-of-scope for v0
 
-The following are real problems but should not be solved in a v0 local system:
+The following are real problems but are outside this local prototype, not
+permanent exclusions from shadowMAS's open-source target:
 
 - cross-host coordination (single-host assumption simplifies everything),
 - multi-datacenter replication,
@@ -425,8 +432,11 @@ The following are real problems but should not be solved in a v0 local system:
 - automatic schema migration of the operation log,
 - compaction/GC of append-only logs at scale (bounded local size is fine for v0).
 
-Deferring these is not a hack; it is the explicit choice that makes the v0
-tractable. They re-enter scope only if and when the system is shown to need them.
+Each host or use case can justify a different coordination substrate. Future
+parallel trials should measure lost updates, stale-base rework, cross-file
+semantic failures, coordination overhead, and recovery effort before selecting
+one. Packet layers preserve scope, evidence, and authority; they do not by
+themselves make concurrent writes safe.
 
 ---
 
