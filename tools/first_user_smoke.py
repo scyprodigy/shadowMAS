@@ -8,6 +8,7 @@ not a runtime engine and does not make authority or production-safety claims.
 from __future__ import annotations
 
 import argparse
+import importlib
 import os
 import shutil
 import subprocess
@@ -30,6 +31,17 @@ class SmokeFailure(RuntimeError):
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
+
+
+def check_dependencies() -> None:
+    try:
+        importlib.import_module("yaml")
+    except ImportError as exc:
+        raise SmokeFailure(
+            "PyYAML is unavailable in this Python environment. Install "
+            "requirements.txt with the same interpreter "
+            "(python -m pip install -r requirements.txt), then retry."
+        ) from exc
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -169,6 +181,7 @@ def run_temp_workspace_flow(root: Path) -> None:
 def run_smoke(*, skip_unit_tests: bool = False) -> int:
     root = repo_root()
     print(BOUNDARY_TEXT)
+    check_dependencies()
 
     if not skip_unit_tests:
         run_step(

@@ -25,7 +25,19 @@ shadowMAS is in controlled-alpha state. You can evaluate its current public surf
 
 Clone shadowMAS into a directory parallel to your product repo, not inside it, for the first evaluation pass. Do not run the workspace tooling (`05_scripts/workspace/shadowmas_workspace.py`) against your product repo until after you have completed the steps below and decided that shadowMAS belongs in your working practice at all.
 
-For a one-command local smoke path, run:
+Before the smoke check, install the declared dependency into the Python
+environment you will use. With a virtual environment active, run:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+Use that same interpreter for all commands below (`python` may replace
+`python3` in an activated Windows environment). If PyYAML is missing, the
+smoke command stops before running the test suite and prints the repair step.
+Python 3.12 is used in CI; other versions are not yet verified here.
+
+For a one-command local smoke path after setup, run:
 
 ```bash
 python3 tools/first_user_smoke.py
