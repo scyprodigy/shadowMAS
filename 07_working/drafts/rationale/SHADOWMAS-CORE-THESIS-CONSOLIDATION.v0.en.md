@@ -84,6 +84,51 @@ This dynamic adaptation axis is not fully implemented yet. The current repo
 mostly contains packet/gate/boundary scaffolding, validators, workspace
 tooling, and draft contracts.
 
+## Parallel Capability and Open Core
+
+Concurrent work by multiple agents is a required target capability. A small
+reusable core means a small stable boundary, not a one-agent workflow or one
+mandatory scheduling, storage, or merge algorithm. Agents may investigate and
+produce candidates in parallel. A host-specific execution layer must make
+conflicting writes detectable or controlled; candidate handoffs should retain
+their bases, dependencies, competing results, and authority context for review.
+Neither packet level nor a clean text merge establishes shared task intent.
+
+Single-writer commits, isolated workspaces with version checks, and coordinated
+shared drafting are alternative implementation strategies. Their suitability
+depends on the current task and host. None is promoted here as a universal
+shadowMAS runtime contract. Keep the user's project tree separate from Shadow.
+
+For an unfamiliar user, the entry surface should reveal what can be tried now,
+what result to expect, and how to inspect or correct it. Internal candidate
+count and packet vocabulary should not be the user's first conceptual model.
+This is a design hypothesis informed by Norman's account of discoverability,
+feedback, and conceptual models, not evidence that the current onboarding works.
+
+## Candidate Convergence for the Next Trial
+
+The candidate registry currently has ten entries: eight await human review;
+two `P5` entries primarily record already landed, approved patch work, with a
+release-phase history action still deferred. This paragraph does not change
+their statuses or approve a new mechanism.
+
+- `P1-001`: test whether a real review leaves residual information missing
+  before adding review-packet fields; reuse existing fields where possible.
+- `P2-001/003/004/005/006/007`: treat the signal-field proposals as related,
+  unimplemented hypotheses. Evaluate one observed signal path and its collisions
+  before choosing fields; do not adopt the cluster as a global ontology.
+- `P4-001`: inspect a host's actual shared-state guarantees before proposing
+  how its agents coordinate. A capability probe is evidence, not enforcement.
+- `P5-001/002`: distinguish retrospective landed work from active unmet user
+  needs when ordering future work; preserve their registry record.
+
+A useful next trial gives two agents concurrent, bounded work with both an
+independent case and a dependency-conflict case. Record the common base,
+candidate outcomes, detected and missed conflicts, human correction effort,
+and whether the user could find the raw evidence. Compare coordination
+strategies on those observations without inventing a universal score or
+requiring new packet fields first.
+
 ## Packet / Gate / Review Thesis
 
 Packets are bounded, inspectable artifacts.
@@ -152,6 +197,17 @@ This note was drafted against the following internal surfaces:
 - `06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md`
 - `07_working/drafts/rationale/SHADOWMAS-POSITIONING-STATEMENT.v0.draft.en.md`
 - `07_working/drafts/rationale/mdl_compressive_refinement_rationale.md`
+
+The entry-design hypothesis also draws on Donald Norman's [revised-edition
+preface](https://jnd.org/preface-design-of-everyday-things-revised-edition/)
+and [Design as Communication](https://jnd.org/design-as-communication/).
+The parallelism correction draws on [optimistic concurrency](https://db.cs.cmu.edu/papers/1981/kung-tods1981.pdf),
+[software merging](https://researchportal.vub.be/en/publications/a-state-of-the-art-survey-on-software-merging/),
+[CRDT convergence](https://dsf.berkeley.edu/cs286/papers/crdt-tr2011.pdf),
+and the [MAST](https://arxiv.org/pdf/2503.13657v2) and
+[AgentRoom](https://arxiv.org/html/2608.23740v1) multi-agent studies reviewed
+in full in this session. These sources establish tradeoffs and failure modes,
+not a measured shadowMAS outcome.
 
 These filenames are cited as internal evidence only. This note does not update
 or supersede them.
