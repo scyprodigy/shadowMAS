@@ -146,6 +146,11 @@ shadowMAS exists to reduce three recurring failure modes:
 
 
 class ReworkGuardCompiledTests(unittest.TestCase):
+    def test_compiled_rework_guard_uses_portable_repo_paths(self):
+        compiled = build_rework_guard.build()
+        self.assertNotIn("07_working\\", compiled)
+        self.assertIn("07_working/", compiled)
+
     def test_do_not_redo_surface_is_up_to_date(self):
         """00_entry/DO-NOT-REDO.compiled.v0.en.md must match its compiled form at HEAD."""
         result = subprocess.run(

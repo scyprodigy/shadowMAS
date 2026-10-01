@@ -112,8 +112,8 @@ def main(argv: list[str]) -> int:
         print("FINDING rationale_index.md is stale; run tools/build_rationale_index.py (advisory)")
         return 1
 
-    index_path.write_text(expected, encoding="utf-8")
-    print(f"wrote {index_path.relative_to(REPO)}")
+    index_path.write_text(expected, encoding="utf-8", newline="\n")
+    print(f"wrote {index_path.relative_to(REPO).as_posix()}")
     return 0
 
 

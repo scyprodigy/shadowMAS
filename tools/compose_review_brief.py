@@ -100,13 +100,13 @@ import subprocess
 import sys
 import time
 import uuid
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import yaml
 
 import check_memory_validity as memory_validity
 import scope_rework_guard as rework_guard
-from _shadowmas_readonly import resolve_repo_reference
+from _shadowmas_readonly import normalize_repo_relative_path, resolve_repo_reference
 
 REPO = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO / "05_scripts" / "validate" / "shadowmas_validate.py"
@@ -168,8 +168,29 @@ def opaque_signoff_id(declared: str, fallback: str, salt: bytes) -> str:
     return str(uuid.UUID(bytes=digest, version=5))
 
 
+def private_salt_permissions_supported(os_name: str | None = None) -> bool:
+    """Whether this implementation can verify an owner-only salt file.
+
+    POSIX mode checks do not establish an NTFS ACL.  Native Windows therefore
+    fails closed for persistent sign-off correlation until a Windows ACL
+    implementation is available.
+    """
+
+    return (os.name if os_name is None else os_name) != "nt"
+
+
+def require_private_salt_permissions() -> None:
+    if not private_salt_permissions_supported():
+        raise ValueError(
+            "persistent --signoff-id is unavailable on native Windows: "
+            "owner-only ACL creation and verification are not implemented; "
+            "no sign-off salt was read or created"
+        )
+
+
 def read_signoff_salt(path: Path) -> bytes:
     """Read one regular owner-private salt without following a symlink."""
+    require_private_salt_permissions()
     flags = os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
@@ -196,6 +217,7 @@ def read_signoff_salt(path: Path) -> bytes:
 
 def load_or_create_signoff_salt(workspace: Path) -> bytes:
     """Load or atomically create the workspace-local sign-off salt."""
+    require_private_salt_permissions()
     path = workspace / ".signoff_salt"
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     if hasattr(os, "O_NOFOLLOW"):
@@ -329,16 +351,18 @@ def collect_context(repo: Path, paths: list[str], sources: list[str]
     seen: set[str] = set()
 
     def add(rel: str):
+        rel = normalize_repo_relative_path(rel)
         if rel not in seen:
             seen.add(rel)
             candidates.append(rel)
 
     for path in paths:
-        parent = Path(path).parent
+        parent = PurePosixPath(path).parent
         chain = [parent] + list(parent.parents)
         for directory in reversed(chain):
             for name in ("AGENTS.md", "CLAUDE.md"):
-                rel = str(directory / name) if str(directory) != "." else name
+                rel = ((directory / name).as_posix()
+                       if directory.as_posix() != "." else name)
                 if (repo / rel).is_file():
                     add(rel)
     for source in sources:
@@ -370,7 +394,8 @@ def collect_context(repo: Path, paths: list[str], sources: list[str]
             if collect_links:
                 for link in MD_LINK_RE.findall(text):
                     if not link.startswith(("http://", "https://", "mailto:")):
-                        rel_link = str(Path(rel).parent / link)
+                        rel_link = normalize_repo_relative_path(
+                            (PurePosixPath(rel).parent / link).as_posix())
                         if rel_link not in seen:
                             seen.add(rel_link)
                             hop_candidates.append(rel_link)

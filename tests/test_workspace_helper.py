@@ -44,9 +44,8 @@ class WorkspaceListDestroyTests(unittest.TestCase):
         self._tmp_project = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp_root.cleanup)
         self.addCleanup(self._tmp_project.cleanup)
-        # Redirect local_data_root() to the temp dir via XDG_DATA_HOME.
-        # On Linux/WSL CI, local_data_root() respects XDG_DATA_HOME.
-        self.env = {"XDG_DATA_HOME": self._tmp_root.name}
+        # One project-specific override isolates tests on every host OS.
+        self.env = {"SHADOWMAS_DATA_HOME": self._tmp_root.name}
         self.project_path = self._tmp_project.name
 
     def test_list_empty_root_returns_zero(self):
@@ -117,7 +116,7 @@ class WorkspaceListDestroyTests(unittest.TestCase):
             tmp_path = Path(tmp)
             project_path = tmp_path / "product-repo"
             project_path.mkdir()
-            env = {"XDG_DATA_HOME": str(tmp_path / "xdg")}
+            env = {"SHADOWMAS_DATA_HOME": str(tmp_path / "shadowmas-data")}
 
             init = run_tool("init", "--project", str(project_path), env_overrides=env)
             self.assertEqual(init.returncode, 0, msg=init.stderr)
@@ -126,10 +125,9 @@ class WorkspaceListDestroyTests(unittest.TestCase):
             self.assertEqual(where.returncode, 0, msg=where.stderr)
             workspace = Path(where.stdout.strip())
             self.assertTrue(
-                workspace.is_relative_to(Path(env["XDG_DATA_HOME"])),
-                msg=f"workspace {workspace} is not under temp XDG data root",
+                workspace.is_relative_to(Path(env["SHADOWMAS_DATA_HOME"])),
+                msg=f"workspace {workspace} is not under temp shadowMAS data root",
             )
-
             inspect = run_tool("inspect", "--project", str(project_path), env_overrides=env)
             self.assertEqual(
                 inspect.returncode,
@@ -163,6 +161,26 @@ class WorkspaceListDestroyTests(unittest.TestCase):
 
             self.assertTrue(project_path.is_dir())
             self.assertEqual(list(project_path.iterdir()), [])
+
+    def test_shadowmas_data_home_overrides_host_specific_roots(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            override = Path(tmp) / "portable-root"
+            env = {
+                "SHADOWMAS_DATA_HOME": str(override),
+                "XDG_DATA_HOME": str(Path(tmp) / "wrong-xdg"),
+                "LOCALAPPDATA": str(Path(tmp) / "wrong-local-app-data"),
+            }
+            result = run_tool("list", env_overrides=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn(str(override / "workspaces"), result.stdout)
+
+    def test_shadowmas_data_home_refuses_relative_path(self):
+        result = run_tool(
+            "list",
+            env_overrides={"SHADOWMAS_DATA_HOME": "relative-data-root"},
+        )
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("must be an absolute path", result.stderr)
 
 
 if __name__ == "__main__":

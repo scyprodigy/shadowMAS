@@ -294,9 +294,12 @@ Current recorded baseline:
 - `mxbai-embed-large` for embeddings
 
 Preferred current deployment direction:
-- Linux / WSL side primary
+- native Windows and Linux / WSL are first-class supported hosts
 - data-locality first
-- Windows not treated as the main long-term path for shadowMAS runtime
+- keep repository and runtime work on the selected data-local host instead of
+  requiring cross-host path translation
+- host-specific capability gaps must be detected and reported explicitly;
+  they must not silently weaken a stated invariant
 
 ## Technology Bias v0
 Prefer:

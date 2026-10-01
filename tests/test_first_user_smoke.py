@@ -59,6 +59,19 @@ class FirstUserSmokeTests(unittest.TestCase):
         self.assertIn("requirements.txt", str(raised.exception))
         run_step.assert_not_called()
 
+    def test_missing_git_stops_before_running_checks(self):
+        module = load_smoke_module()
+        with (
+            patch.object(module.shutil, "which", return_value=None),
+            patch.object(module, "run_step") as run_step,
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            with self.assertRaises(module.SmokeFailure) as raised:
+                module.run_smoke(skip_unit_tests=True)
+        self.assertIn("Git", str(raised.exception))
+        self.assertIn("PATH", str(raised.exception))
+        run_step.assert_not_called()
+
     def test_l1_negative_step_requires_nonzero_fail_signal(self):
         module = load_smoke_module()
 

@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 import tempfile
@@ -33,8 +34,13 @@ source_refs:
 """
 
 
-def run(args):
-    return subprocess.run([sys.executable, str(CHECKER), *args], capture_output=True, text=True)
+def run(args, *, env=None):
+    return subprocess.run(
+        [sys.executable, str(CHECKER), *args],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
 
 
 class TestTruthChangeGate(unittest.TestCase):
@@ -70,8 +76,15 @@ class TestTruthChangeGate(unittest.TestCase):
         result = run(["--base", "refs/heads/__shadowmas_missing_base__"])
 
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-        self.assertIn("git diff failed", result.stderr)
+        self.assertIn("git", result.stderr.lower())
         self.assertNotIn("OK no 01_truth/ changes", result.stdout)
+
+    def test_missing_git_is_a_clear_setup_error(self):
+        env = dict(os.environ)
+        env["PATH"] = ""
+        result = run(["--base", "HEAD"], env=env)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("git executable not found on PATH", result.stderr)
 
     def test_source_id_substring_does_not_cover_a_truth_path(self):
         source_id_only = REVIEW_PACKET.replace(

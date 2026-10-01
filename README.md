@@ -25,6 +25,15 @@ shadowMAS is in controlled-alpha state. You can evaluate its current public surf
 
 Clone shadowMAS into a directory parallel to your product repo, not inside it, for the first evaluation pass. Do not run the workspace tooling (`05_scripts/workspace/shadowmas_workspace.py`) against your product repo until after you have completed the steps below and decided that shadowMAS belongs in your working practice at all.
 
+Native Windows and Linux / WSL are supported hosts. For dual-platform work,
+prefer a separate clone per host. A linked worktree normally records host-shaped
+paths, so a worktree created by WSL Git can be unreadable to Windows Git and vice
+versa. Git's `--relative-paths` / `worktree.useRelativePaths` option can make
+links movable, but it enables `extensions.relativeWorktrees`, which older Git
+versions refuse to open. Use it only after every Git implementation that will
+open the repository supports the extension; otherwise use separate clones. See
+the upstream [git-worktree documentation](https://git-scm.com/docs/git-worktree).
+
 Before the smoke check, install the declared dependency into the Python
 environment you will use. With a virtual environment active, run:
 
@@ -35,7 +44,9 @@ python3 -m pip install -r requirements.txt
 Use that same interpreter for all commands below (`python` may replace
 `python3` in an activated Windows environment). If PyYAML is missing, the
 smoke command stops before running the test suite and prints the repair step.
-Python 3.12 is used in CI; other versions are not yet verified here.
+Python 3.12 is used in Linux and native Windows CI; other versions are not yet
+verified here. Git must also be available on `PATH`; the smoke command reports a
+setup error before running checks when it is absent.
 
 For a one-command local smoke path after setup, run:
 
@@ -261,6 +272,12 @@ Run records live in `runs/review_brief_runs.v1.jsonl`. `--since` windows valid r
 
 The optional `.signoff_salt` protects declared identifiers only when run records are exported without the rest of the workspace; it is not anonymization against access to the workspace itself. Preserve the salt with a workspace when correlation must remain stable. Copying it exports that correlation scope; deleting it resets the mapping for later runs without rewriting old records.
 
+On POSIX hosts, the tool creates the salt with owner-only mode and verifies that
+mode before reading. Native Windows ACL creation and verification are not yet
+implemented, so `--signoff-id` fails closed there without creating or reading a
+salt. Ordinary preview, validation, receipt-integrity, and workspace flows do
+not require this optional correlation identifier.
+
 None of these run agents, write back to product repos, or promote artifacts into truth. Their outputs remain representation-level or advisory; they do not establish content correctness or human approval. The YAML packet validator imports `PyYAML`; see `requirements.txt`.
 
 Execution agents such as Codex, Claude Code, Cursor, or local models may do the work; shadowMAS defines the shadow packet surfaces around that work: task packets, memory candidates, review packets, handoffs, lessons, workspace boundaries, invalidation, and promotion paths. Current shipped surfaces are controlled-alpha — fixtures, validators, inspectors, packet schemas, and the workspace registration tool — while the full dynamic coordination layer is not yet implemented (see [Current status](#current-status)).
@@ -358,6 +375,12 @@ Run commands from the repository root. `<project-path>` must be an existing prod
 - Linux / WSL: `${XDG_DATA_HOME:-~/.local/share}/shadowmas/workspaces/<project-id>/`
 - macOS: `~/Library/Application Support/shadowmas/workspaces/<project-id>/`
 - Windows: `%LOCALAPPDATA%\shadowmas\workspaces\<project-id>\`
+
+`SHADOWMAS_DATA_HOME` is a cross-platform override for controlled environments
+and tests. When set, every host uses
+`<SHADOWMAS_DATA_HOME>/workspaces/<project-id>/`; it takes precedence over XDG,
+macOS, and Windows defaults. Point it only to a directory dedicated to
+shadowMAS data. The value must be an absolute path.
 
 `<project-id>` is `<slugified-project-name>-<8-char-sha256-of-absolute-path>`.
 

@@ -33,6 +33,7 @@ REQUIRED_METADATA_FIELDS = [
     "boundary",
 ]
 REQUIRED_BOUNDARY_FIELDS = ["writes_product_repo", "governance_artifacts_external"]
+DATA_HOME_ENV = "SHADOWMAS_DATA_HOME"
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -88,6 +89,13 @@ def validate_project(path: Path) -> bool:
 
 
 def local_data_root() -> Path:
+    shadowmas_data_home = os.environ.get(DATA_HOME_ENV)
+    if shadowmas_data_home:
+        data_home = Path(shadowmas_data_home).expanduser()
+        if not data_home.is_absolute():
+            raise ValueError(f"{DATA_HOME_ENV} must be an absolute path")
+        return data_home / "workspaces"
+
     system = platform.system()
     if system == "Darwin":
         return Path.home() / "Library" / "Application Support" / "shadowmas" / "workspaces"

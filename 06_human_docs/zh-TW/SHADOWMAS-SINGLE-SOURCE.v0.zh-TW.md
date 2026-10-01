@@ -289,6 +289,10 @@ packet 的價值在於：
 - machine-first packet / registry 是必要方向
 - human final authority 不可消失
 - shadowMAS 的穩定單位是 packet，不是某個固定 runtime、memory backend 或 workflow engine
+- 原生 Windows 與 Linux／WSL 都是第一級支援主機；依 repo、資料與 runtime
+  的實際位置選擇執行端，不把跨主機路徑轉換變成使用前提
+- 平台能力不同時必須明確偵測、拒絕或說明，不能用另一個平台的檢查結果
+  冒充相同保證
 
 ### 還沒最終定死
 - R-layer 最終 runtime substrate

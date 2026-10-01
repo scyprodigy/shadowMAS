@@ -150,6 +150,12 @@ class ScopeReworkGuardTests(unittest.TestCase):
             ["03_memory/session_log", "03_memory/session_log"],
         )
 
+    def test_normalize_paths_accepts_host_separator_at_input_boundary(self):
+        self.assertEqual(
+            scope_rework_guard.normalize_paths([r"src\nested\widget.py"]),
+            ["src/nested/widget.py"],
+        )
+
     def test_absolute_and_parent_paths_are_refused(self):
         for query in ("/", "/tmp/outside.py", "../outside.py", "."):
             with self.subTest(query=query):

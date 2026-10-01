@@ -6,7 +6,7 @@ This file records the current local model baseline for shadowMAS v0.
 Its goal is to define:
 - which local models are currently selected
 - what each model is used for
-- where the preferred deployment side is
+- how the deployment host is selected
 - what this baseline is not trying to do yet
 
 ## Current Model Baseline
@@ -33,36 +33,37 @@ Current intended use:
 - code/document structure retrieval support
 
 ## Preferred Deployment Direction
-Current preferred deployment side:
-- Linux / WSL primary
+Current supported host direction:
+- native Windows and Linux / WSL are first-class hosts
+- select the host where the relevant repository, data, and runtime already live
+- do not require a Windows-to-WSL or WSL-to-Windows transfer for ordinary use
 
-## Why Linux / WSL primary
-Current data gravity is on the Linux side:
-- repo lives there
-- Docker workloads live there
-- database direction lives there
-- future cloud/deployment direction is Linux-oriented
+## Why data locality chooses the host
+Different users have different data gravity. A repository, local model service,
+container workload, or database may live on native Windows, Linux, or WSL.
 
 Therefore:
-- prompt/rules/scripts/model service should stay as close to the data as possible
-- avoid unnecessary cross-side path handling and file transport
+- prompt, rules, scripts, and model service should stay as close to the selected
+  data and execution environment as possible
+- avoid unnecessary cross-host path handling and file transport
 - reduce complexity in codebase indexing and retrieval flows
 
 ## Windows Position
-Windows is not currently the preferred long-term primary runtime side for shadowMAS local model service.
+Native Windows is a first-class host for shadowMAS tooling and local operation.
+Platform-specific filesystem, process, permission, and link capabilities must be
+tested or refused explicitly rather than inferred from POSIX behavior. First-class
+support does not claim identical performance or identical optional capabilities
+on every host.
 
-Windows may still be used for:
-- human UI
-- IDE hosts
-- comparison/testing
-- temporary convenience
-
-But shadowMAS v0 baseline treats Linux / WSL as the primary side.
+Linux and WSL remain first-class hosts for Linux-oriented repositories,
+containers, databases, and deployment flows. A dual-platform user should keep
+host-specific checkouts or confirm that every tool involved understands any
+shared Git metadata before crossing the host boundary.
 
 ## Current Work Pattern
 Preferred current flow:
 
-1. read relevant repo/doc/runtime artifacts from Linux-side context
+1. read relevant repo/doc/runtime artifacts from the selected data-local host
 2. chunk/select relevant material
 3. generate embeddings where needed
 4. recall targeted chunks
@@ -172,7 +173,7 @@ This file does not yet finalize:
 For v0-min-landing-skeleton, the local model baseline only needs to do three things clearly:
 1. record which models are selected
 2. record what they are for
-3. record which side is primary
+3. record how a host is selected and which capability limits remain explicit
 <!-- SHADOWMAS_PRINCIPLES_PATCH:BEGIN -->
 ## Additional Routing and Normalization Rules
 

@@ -75,7 +75,7 @@ def check_count_claims() -> list[str]:
             actual = bullets_after(lines, i)
             if actual and actual != claimed:
                 findings.append(
-                    f"{path.relative_to(REPO)}:{i + 1}: claims {claimed} failure modes "
+                    f"{path.relative_to(REPO).as_posix()}:{i + 1}: claims {claimed} failure modes "
                     f"but lists {actual} bullets"
                 )
     return findings
@@ -112,7 +112,7 @@ def check_intake_duplication(pack: list[str], window: int = 8) -> list[str]:
             chunk = "\n".join(lines[start:start + window])
             if all(p in chunk for p in pack):
                 findings.append(
-                    f"{path.relative_to(REPO)}:{start + 1}: repeats the full v0 intake "
+                    f"{path.relative_to(REPO).as_posix()}:{start + 1}: repeats the full v0 intake "
                     f"pack list; reference CURRENT-TRUTH `Current v0 Intake Pack` instead"
                 )
                 break
@@ -126,7 +126,7 @@ def check_deprecated_terms() -> list[str]:
         for term, replacement in DEPRECATED_TERMS.items():
             if term in text and path.name != Path(__file__).name:
                 findings.append(
-                    f"{path.relative_to(REPO)}: deprecated term '{term}' "
+                    f"{path.relative_to(REPO).as_posix()}: deprecated term '{term}' "
                     f"(use '{replacement}')"
                 )
     return findings

@@ -22,6 +22,7 @@ Exit: 0 = no finding (no 01_truth change, or all changes covered);
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
 from datetime import datetime
@@ -35,11 +36,17 @@ DEFAULT_REVIEW_ROOTS = ["07_working", "examples/packets"]
 
 
 def changed_via_git(base: str | None) -> tuple[list[str], str | None]:
+    git = shutil.which("git")
+    if git is None:
+        return [], "git executable not found on PATH"
     if base:
-        cmd = ["git", "-C", str(REPO), "diff", "--name-only", f"{base}...HEAD"]
+        cmd = [git, "-C", str(REPO), "diff", "--name-only", f"{base}...HEAD"]
     else:
-        cmd = ["git", "-C", str(REPO), "diff", "--name-only", "--cached"]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+        cmd = [git, "-C", str(REPO), "diff", "--name-only", "--cached"]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+    except OSError as exc:
+        return [], f"unable to execute git: {exc}"
     if proc.returncode != 0:
         detail = proc.stderr.strip() or f"git exited {proc.returncode}"
         return [], f"git diff failed: {detail}"

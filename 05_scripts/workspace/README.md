@@ -47,6 +47,18 @@ The helper does not inspect product repo contents, run git, generate packets, ca
 Product-repo write-back remains manual and review-only. Do not commit workspace artifacts into a product repo unless they were intentionally reviewed and promoted by that repo's owner.
 
 ## Workspace location
+Cross-platform explicit override:
+
+```text
+$SHADOWMAS_DATA_HOME/workspaces/
+```
+
+`SHADOWMAS_DATA_HOME` has precedence on every platform. It exists so tests,
+portable installations, and controlled runners can select one isolated data
+root without relying on host-specific variables. Use a directory dedicated to
+shadowMAS; the value must be an absolute path and the helper manages its
+`workspaces/` child.
+
 Linux / WSL:
 
 ```text

@@ -34,11 +34,16 @@ import argparse
 import json
 import re
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import yaml
 
-from _shadowmas_readonly import UniqueKeyLoader, resolve_repo_reference
+from _shadowmas_readonly import (
+    UniqueKeyLoader,
+    normalize_repo_relative_path,
+    repo_relative_posix,
+    resolve_repo_reference,
+)
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -304,7 +309,7 @@ def declared_path_match(path_scope: str, query_path: str
         if re.search(boundary.format(re.escape(candidate)), path_scope):
             return TIER_EXACT_PATH, candidate
 
-    parts = Path(normalized).parts
+    parts = PurePosixPath(normalized).parts
     for end in range(len(parts) - 1, 1, -1):
         ancestor = "/".join(parts[:end]) + "/"
         if re.search(boundary.format(re.escape(ancestor)), path_scope):
@@ -351,7 +356,7 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
             "path_scope": scope_text,
             "conditions": flatten_strings(data.get("reopen_conditions")),
             "condition_label": "reopen",
-            "source_path": str(path.relative_to(repo)),
+            "source_path": repo_relative_posix(path, repo),
             "raw": path.read_text(encoding="utf-8"),
         })
 
@@ -378,7 +383,7 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
             "path_scope": purpose,
             "conditions": conditions,
             "condition_label": "reopen",
-            "source_path": str(path.relative_to(repo)),
+            "source_path": repo_relative_posix(path, repo),
             "raw": text,
         })
 
@@ -410,7 +415,7 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
                 "path_scope": title,
                 "conditions": [" ".join(parts)],
                 "condition_label": "unlock",
-                "source_path": str(DEFERRED_FILE),
+                "source_path": DEFERRED_FILE.as_posix(),
                 "raw": title + " " + " ".join(parts),
             })
             title = None
@@ -435,7 +440,7 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
                 "path_scope": str(entry.get("short_summary", "")),
                 "conditions": [],
                 "condition_label": "reopen",
-                "source_path": str(LESSONS_FILE),
+                "source_path": LESSONS_FILE.as_posix(),
                 "raw": str(entry.get("short_summary", "")) + " " + note,
             })
 
@@ -445,10 +450,7 @@ def gather_records(repo: Path) -> tuple[list[dict], list[str]]:
 def normalize_paths(paths: list[str]) -> list[str]:
     normalized = []
     for raw in paths:
-        cleaned = raw.strip()
-        while cleaned.startswith("./"):
-            cleaned = cleaned[2:]
-        cleaned = str(Path(cleaned)) if cleaned else ""
+        cleaned = normalize_repo_relative_path(raw)
         if cleaned not in {"/", "//"}:
             cleaned = cleaned.rstrip("/")
         if cleaned:

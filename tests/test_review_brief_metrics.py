@@ -300,9 +300,12 @@ class ReviewBriefMetricsTests(unittest.TestCase):
                         receipt=f"reviews/copy-{i}.v0.yaml")
             for i in range(30)
         ])
-        for i in range(30):
-            (self.workspace / "reviews" / f"copy-{i}.v0.yaml").symlink_to(
-                "real.v0.yaml")
+        try:
+            for i in range(30):
+                (self.workspace / "reviews" / f"copy-{i}.v0.yaml").symlink_to(
+                    "real.v0.yaml")
+        except OSError as exc:
+            self.skipTest(f"file symlinks unavailable on this host: {exc}")
         self.write_jsonl(records)
         result = self.run_tool()
         self.assertEqual(result.returncode, 3, msg=result.stdout + result.stderr)
@@ -310,6 +313,33 @@ class ReviewBriefMetricsTests(unittest.TestCase):
         self.assertEqual(report["verdict"], "PARTIAL_DATA")
         self.assertEqual(report["excluded"]["receipt_is_symlink"], 30)
         self.assertEqual(report["admissible"]["eligible_signoff_units"], 0)
+
+    def test_hardlinked_receipts_cannot_inflate_gate(self):
+        real = self.workspace / "reviews" / "real.v0.yaml"
+        real.write_text(self.receipt_text("hardlinked-packet"), encoding="utf-8")
+        records = self.spanning([
+            self.record(
+                "signoff",
+                f"signoff-{i}",
+                action="added_check",
+                receipt=f"reviews/hardlink-{i}.v0.yaml",
+            )
+            for i in range(30)
+        ])
+        try:
+            for i in range(30):
+                (self.workspace / "reviews" / f"hardlink-{i}.v0.yaml").hardlink_to(
+                    real)
+        except OSError as exc:
+            self.skipTest(f"file hard links unavailable on this host: {exc}")
+        self.write_jsonl(records)
+        result = self.run_tool()
+        self.assertEqual(result.returncode, 3, msg=result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["verdict"], "PARTIAL_DATA")
+        self.assertEqual(
+            report["excluded"]["duplicate_receipt_packet_uid"], 29)
+        self.assertEqual(report["admissible"]["eligible_signoff_units"], 1)
 
     def test_copied_packet_uid_cannot_satisfy_gate(self):
         records = self.spanning([

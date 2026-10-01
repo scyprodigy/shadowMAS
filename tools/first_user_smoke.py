@@ -42,6 +42,11 @@ def check_dependencies() -> None:
             "requirements.txt with the same interpreter "
             "(python -m pip install -r requirements.txt), then retry."
         ) from exc
+    if shutil.which("git") is None:
+        raise SmokeFailure(
+            "Git is unavailable on PATH. Install Git for this host, open a "
+            "new terminal so PATH is refreshed, then retry."
+        )
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -123,9 +128,9 @@ def run_temp_workspace_flow(root: Path) -> None:
         tmp_path = Path(tmp)
         project_path = tmp_path / "product-repo"
         project_path.mkdir()
-        xdg_root = tmp_path / "xdg"
+        data_home = tmp_path / "shadowmas-data"
         env = os.environ.copy()
-        env["XDG_DATA_HOME"] = str(xdg_root)
+        env["SHADOWMAS_DATA_HOME"] = str(data_home)
 
         workspace_tool = root / "05_scripts" / "workspace" / "shadowmas_workspace.py"
         validator = root / "05_scripts" / "validate" / "shadowmas_validate.py"
@@ -143,7 +148,10 @@ def run_temp_workspace_flow(root: Path) -> None:
             env=env,
         )
         workspace = Path(where.stdout.strip())
-        require(is_under(workspace, xdg_root), f"workspace is outside temp XDG root: {workspace}")
+        require(
+            is_under(workspace, data_home),
+            f"workspace is outside temp shadowMAS data root: {workspace}",
+        )
 
         run_step(
             "workspace inspect",

@@ -7,7 +7,7 @@ the selected repository root.
 
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 import yaml
@@ -48,6 +48,27 @@ UniqueKeyLoader.add_constructor(
     yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
     _construct_unique_mapping,
 )
+
+
+def normalize_repo_relative_path(value: str) -> str:
+    """Return one repository-relative path in stable POSIX spelling.
+
+    Repository references are logical identifiers, not host filesystem
+    displays.  Accept either separator at an input boundary, collapse dot
+    segments and duplicate separators, and keep ``..`` for the resolver to
+    reject explicitly.
+    """
+
+    stripped = value.strip()
+    if not stripped:
+        return ""
+    return PurePosixPath(stripped.replace("\\", "/")).as_posix()
+
+
+def repo_relative_posix(path: Path, repo: Path) -> str:
+    """Spell an already-resolved repository-relative path with ``/``."""
+
+    return path.relative_to(repo).as_posix()
 
 
 def load_yaml_documents(
@@ -98,11 +119,16 @@ def resolve_repo_reference(repo: Path, value: object) -> tuple[Path | None, str 
     if not isinstance(value, str) or not value.strip():
         return None, "path must be a non-empty string"
 
-    raw = Path(value)
-    if raw.is_absolute():
+    original = value.strip()
+    normalized = normalize_repo_relative_path(original)
+    logical = PurePosixPath(normalized)
+    windows = PureWindowsPath(original)
+    if logical.is_absolute() or windows.is_absolute() or windows.drive:
         return None, "absolute paths are not repository-relative"
-    if ".." in raw.parts:
+    if ".." in logical.parts:
         return None, "parent traversal is not allowed in repository references"
+
+    raw = Path(*logical.parts)
 
     repo_root = repo.resolve()
     try:

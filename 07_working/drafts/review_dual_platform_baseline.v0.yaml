@@ -1,0 +1,62 @@
+# review_dual_platform_baseline | review packet for native Windows and Linux / WSL first-class host support
+# related: [SHADOWMAS-CURRENT-TRUTH, LOCAL-MODEL-BASELINE, checks]
+# phase: approved
+
+packet_uid: review-dual-platform-baseline-v0-001
+packet_type: review_packet
+schema_version: v0
+created_at: "2026-10-01T09:47:19Z"
+created_by: codex_session
+owner: repo_owner
+supervision_mode: human_live_pair
+risk: r2_guarded
+status: approved
+decision_note: >-
+  Owner direction in session on 2026-10-01: treat the first native-Windows
+  failures as evidence of a public generalization defect, continue the repair,
+  and keep the design at cross-platform invariants rather than copying an
+  external report's suggested implementation mechanically.
+
+decision_needed: >-
+  Confirm native Windows and Linux / WSL as first-class supported hosts while
+  preserving explicit fail-closed behavior for host capabilities that are not
+  yet implemented equivalently.
+why_you_are_seeing_this: >-
+  The change replaces a Linux-primary statement in canonical current truth and
+  therefore requires a referencing review packet with a promotion snapshot.
+change_summary: >-
+  Repository-relative paths now have a host-independent POSIX representation;
+  generated surfaces write deterministic LF; workspace storage accepts one
+  absolute cross-platform override; missing Git is a setup error; native
+  Windows link and permission capabilities are detected rather than assumed;
+  Windows CI and dual-platform operator guidance preserve those invariants.
+risk_summary: >-
+  Risk is r2_guarded because canonical platform direction and several shared
+  inspection paths change. The change does not alter packet schemas, authority
+  levels, promotion semantics, registries, product-repo write-back, or runtime
+  safety claims. Native Windows sign-off salt persistence remains unavailable
+  and fails closed until owner-only ACL creation and verification exist.
+recommendation: approve
+
+source_refs:
+  - source_type: file
+    source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+    relation: reviews
+  - source_type: file
+    source_path: 04_runtime/LOCAL-MODEL-BASELINE.v0.en.md
+    relation: reviews
+
+promotion_snapshot:
+  snapshot_at: "2026-10-01T09:47:19Z"
+  source_hashes:
+    - source_path: 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+      sha256: 7aaa171885ecda257339a65258be7cb3c561aa3cded7f9130579e6704111008a
+    - source_path: 04_runtime/LOCAL-MODEL-BASELINE.v0.en.md
+      sha256: a8f0c7d2d777d0f04f2f6e8e2650a244cb06745589115f7648ef1b4dc6b28e12
+
+minimal_checks:
+  must_read:
+    - 01_truth/SHADOWMAS-CURRENT-TRUTH.v0.en.md
+    - 01_truth/SHADOWMAS-CHANGE-IMPACT-MAP.v0.en.md
+    - 04_runtime/LOCAL-MODEL-BASELINE.v0.en.md
+    - 06_human_docs/zh-TW/SHADOWMAS-SINGLE-SOURCE.v0.zh-TW.md

@@ -78,7 +78,7 @@ def decided_lines() -> list[str]:
         first = path.read_text(encoding="utf-8").splitlines()[0]
         match = MD_HEADER_RE.match(first)
         purpose = match.group("purpose") if match else "(unparseable header)"
-        lines.append(f"- {purpose} — `{path.relative_to(REPO)}`")
+        lines.append(f"- {purpose} — `{path.relative_to(REPO).as_posix()}`")
     for path in sorted(RATIONALE_DIR.glob("rejection_*.v0.yaml")):
         if ".PROPOSAL." in path.name:
             continue
@@ -87,12 +87,12 @@ def decided_lines() -> list[str]:
         except yaml.YAMLError:
             data = None
         if not isinstance(data, dict):
-            lines.append(f"- (unparseable rejection_record) — `{path.relative_to(REPO)}`")
+            lines.append(f"- (unparseable rejection_record) — `{path.relative_to(REPO).as_posix()}`")
             continue
         purpose = data.get("purpose", "(no purpose field)")
         reopen = data.get("reopen_conditions") or []
         reopen_note = f"; reopen via {len(reopen)} recorded condition(s)" if reopen else ""
-        lines.append(f"- {purpose}{reopen_note} — `{path.relative_to(REPO)}`")
+        lines.append(f"- {purpose}{reopen_note} — `{path.relative_to(REPO).as_posix()}`")
     return lines
 
 
@@ -161,8 +161,8 @@ def main(argv: list[str]) -> int:
         print("FINDING DO-NOT-REDO surface is stale; run tools/build_rework_guard.py (advisory)")
         return 1
 
-    OUTPUT.write_text(expected, encoding="utf-8")
-    print(f"wrote {OUTPUT.relative_to(REPO)}")
+    OUTPUT.write_text(expected, encoding="utf-8", newline="\n")
+    print(f"wrote {OUTPUT.relative_to(REPO).as_posix()}")
     return 0
 
 

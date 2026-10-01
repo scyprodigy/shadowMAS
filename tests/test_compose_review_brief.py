@@ -10,6 +10,7 @@ import time
 import unittest
 from argparse import Namespace
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOL = REPO_ROOT / "tools" / "compose_review_brief.py"
@@ -495,6 +496,10 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2, msg=result.stdout + result.stderr)
         self.assertIn("outside the repository", result.stderr)
 
+    @unittest.skipIf(
+        os.name == "nt",
+        "native Windows owner-only ACL verification is not implemented",
+    )
     def test_run_record_carries_all_kill_condition_fields(self):
         self.run_tool(*self.base_args("--signoff-id", "signoff-42"))
         record = self.last_run_record()
@@ -522,6 +527,10 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self.assertEqual(record["interaction_channel"], "stdout")
         self.assertEqual(record["authentication"], "none")
 
+    @unittest.skipIf(
+        os.name == "nt",
+        "native Windows owner-only ACL verification is not implemented",
+    )
     def test_declared_signoff_id_is_stable_only_within_one_workspace(self):
         first_salt = compose_review_brief.load_or_create_signoff_salt(
             self.workspace)
@@ -538,6 +547,16 @@ class ComposeReviewBriefTests(unittest.TestCase):
         self.assertEqual(first, repeated)
         self.assertNotEqual(first, second)
         self.assertNotIn(b"ticket-4417", first_salt)
+
+    def test_signoff_salt_fails_closed_without_private_permissions(self):
+        with patch.object(
+            compose_review_brief,
+            "private_salt_permissions_supported",
+            return_value=False,
+        ):
+            with self.assertRaisesRegex(ValueError, "owner-only ACL"):
+                compose_review_brief.load_or_create_signoff_salt(self.workspace)
+        self.assertFalse((self.workspace / ".signoff_salt").exists())
 
     @unittest.skipUnless(hasattr(os, "mkfifo"), "FIFO support required")
     def test_fifo_signoff_salt_is_rejected_without_blocking(self):
