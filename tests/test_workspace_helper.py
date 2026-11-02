@@ -1,5 +1,4 @@
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -10,6 +9,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOL = REPO_ROOT / "05_scripts" / "workspace" / "shadowmas_workspace.py"
 VALIDATOR = REPO_ROOT / "05_scripts" / "validate" / "shadowmas_validate.py"
+PACKET_TOOL = REPO_ROOT / "05_scripts" / "workspace" / "shadowmas_packet.py"
 TASK_PACKET_EXAMPLE = REPO_ROOT / "examples" / "packets" / "task_packet.valid.v0.yaml"
 REVIEW_PACKET_EXAMPLE = REPO_ROOT / "examples" / "packets" / "review_packet.valid.v0.yaml"
 
@@ -33,6 +33,16 @@ def run_validator(packet_path):
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
+    )
+
+
+def run_packet_writer(project_path, input_path, env_overrides):
+    env = os.environ.copy()
+    env.update(env_overrides)
+    return subprocess.run(
+        [sys.executable, str(PACKET_TOOL), "write", "--project", str(project_path),
+         "--input", str(input_path)],
+        capture_output=True, text=True, cwd=REPO_ROOT, env=env,
     )
 
 
@@ -138,10 +148,14 @@ class WorkspaceListDestroyTests(unittest.TestCase):
             for name in ("packets", "reviews", "handoffs", "runs"):
                 self.assertTrue((workspace / name).is_dir(), msg=f"missing {name}/")
 
-            task_packet = workspace / "packets" / "first_attach_packet.v0.yaml"
-            review_packet = workspace / "reviews" / "first_review_packet.v0.yaml"
-            shutil.copyfile(TASK_PACKET_EXAMPLE, task_packet)
-            shutil.copyfile(REVIEW_PACKET_EXAMPLE, review_packet)
+            task_write = run_packet_writer(project_path, TASK_PACKET_EXAMPLE, env)
+            review_write = run_packet_writer(project_path, REVIEW_PACKET_EXAMPLE, env)
+            self.assertEqual(task_write.returncode, 0, task_write.stderr)
+            self.assertEqual(review_write.returncode, 0, review_write.stderr)
+            task_packet = Path(task_write.stdout.strip())
+            review_packet = Path(review_write.stdout.strip())
+            self.assertEqual(task_packet.parent, workspace / "packets")
+            self.assertEqual(review_packet.parent, workspace / "reviews")
 
             task_result = run_validator(task_packet)
             self.assertEqual(

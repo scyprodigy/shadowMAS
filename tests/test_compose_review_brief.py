@@ -652,10 +652,16 @@ class ComposeReviewBriefTests(unittest.TestCase):
         path1, error1 = compose_review_brief.finalize_receipt(
             receipt, self.workspace)
         self.assertIsNone(error1, msg=error1)
+        self.assertEqual(Path(path1).name,
+                         f"review_packet.{receipt['packet_uid']}.v0.yaml")
         path2, error2 = compose_review_brief.finalize_receipt(
             receipt, self.workspace)
         self.assertIsNone(path2)
         self.assertIn("collision refused", error2)
+        bad_path, bad_error = compose_review_brief.finalize_receipt(
+            {**receipt, "packet_uid": "unsafe/uid"}, self.workspace)
+        self.assertIsNone(bad_path)
+        self.assertIn("valid workspace filename", bad_error)
         self.assertEqual(len(list((self.workspace / "reviews").iterdir())), 1)
 
     @unittest.skipUnless(shutil.which("git"), "git not available")

@@ -107,6 +107,7 @@ import yaml
 import check_memory_validity as memory_validity
 import scope_rework_guard as rework_guard
 from _shadowmas_readonly import normalize_repo_relative_path, resolve_repo_reference
+from _shadowmas_packet_naming import workspace_packet_name
 
 REPO = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO / "05_scripts" / "validate" / "shadowmas_validate.py"
@@ -736,9 +737,10 @@ def build_receipt(model: dict, args, judgment: str,
         raise ValueError(
             f"selected finding ids not present in this brief: "
             f"{', '.join(unknown)}")
-    uid = (f"review-brief-{slugify(args.goal)}-"
-           f"{created_at.replace(':', '').replace('-', '')}-"
-           f"{uuid.uuid4().hex[:8]}")
+    goal_slug = slugify(args.goal)
+    uid = (f"review-brief-{goal_slug}-"
+           f"{created_at.replace(':', '').replace('-', '').lower()}-"
+           f"{uuid.uuid4().hex}")
     must_read = sorted({e["source_path"] for e in model["guard_findings"]})
     source_refs = [
         {"source_type": "repo_doc", "source_path": e["source_path"],
@@ -788,7 +790,12 @@ def build_receipt(model: dict, args, judgment: str,
 def finalize_receipt(receipt: dict, workspace: Path) -> tuple[str | None, str | None]:
     """Validate in a temp file, refuse collision, then move into reviews/.
     Returns (final_path, error)."""
-    final_path = workspace / "reviews" / f"{receipt['packet_uid']}.v0.yaml"
+    try:
+        name = workspace_packet_name(
+            receipt["packet_type"], receipt["packet_uid"], receipt["schema_version"])
+    except (KeyError, ValueError) as exc:
+        return None, f"receipt has no valid workspace filename: {exc}"
+    final_path = workspace / "reviews" / name
     temp_path = workspace / "runs" / f".pending-{receipt['packet_uid']}.v0.yaml"
     temp_path.write_text(
         yaml.safe_dump(receipt, sort_keys=False, allow_unicode=False),
@@ -802,10 +809,15 @@ def finalize_receipt(receipt: dict, workspace: Path) -> tuple[str | None, str | 
         temp_path.unlink(missing_ok=True)
         return None, ("receipt failed packet validation; nothing was kept\n"
                       + result.stdout + result.stderr)
-    if final_path.exists():
+    try:
+        os.link(temp_path, final_path)
+    except FileExistsError:
         temp_path.unlink(missing_ok=True)
         return None, f"receipt already exists (collision refused): {final_path}"
-    temp_path.replace(final_path)
+    except OSError as exc:
+        temp_path.unlink(missing_ok=True)
+        return None, f"receipt could not be placed: {exc}"
+    temp_path.unlink(missing_ok=True)
     return str(final_path), None
 
 

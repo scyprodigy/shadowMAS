@@ -133,6 +133,7 @@ def run_temp_workspace_flow(root: Path) -> None:
         env["SHADOWMAS_DATA_HOME"] = str(data_home)
 
         workspace_tool = root / "05_scripts" / "workspace" / "shadowmas_workspace.py"
+        packet_tool = root / "05_scripts" / "workspace" / "shadowmas_packet.py"
         validator = root / "05_scripts" / "validate" / "shadowmas_validate.py"
 
         run_step(
@@ -163,17 +164,26 @@ def run_temp_workspace_flow(root: Path) -> None:
         for name in ("packets", "reviews", "handoffs", "runs"):
             require((workspace / name).is_dir(), f"missing workspace directory: {name}/")
 
-        task_packet = workspace / "packets" / "first_attach_packet.v0.yaml"
-        review_packet = workspace / "reviews" / "first_review_packet.v0.yaml"
-        shutil.copyfile(root / "examples" / "packets" / "task_packet.valid.v0.yaml", task_packet)
-        shutil.copyfile(
-            root / "examples" / "packets" / "review_packet.valid.v0.yaml",
-            review_packet,
+        task_write = run_step(
+            "workspace task packet write",
+            [sys.executable, str(packet_tool), "write", "--project", str(project_path),
+             "--input", str(root / "examples" / "packets" / "task_packet.valid.v0.yaml")],
+            cwd=root, env=env,
         )
+        review_write = run_step(
+            "workspace review packet write",
+            [sys.executable, str(packet_tool), "write", "--project", str(project_path),
+             "--input", str(root / "examples" / "packets" / "review_packet.valid.v0.yaml")],
+            cwd=root, env=env,
+        )
+        task_packet = Path(task_write.stdout.strip())
+        review_packet = Path(review_write.stdout.strip())
+        require(task_packet.parent == workspace / "packets", "task packet placed outside packets/")
+        require(review_packet.parent == workspace / "reviews", "review packet placed outside reviews/")
 
-        run_step("copied task packet validator", [sys.executable, str(validator), str(task_packet)], cwd=root)
+        run_step("placed task packet validator", [sys.executable, str(validator), str(task_packet)], cwd=root)
         run_step(
-            "copied review packet validator",
+            "placed review packet validator",
             [sys.executable, str(validator), str(review_packet)],
             cwd=root,
         )

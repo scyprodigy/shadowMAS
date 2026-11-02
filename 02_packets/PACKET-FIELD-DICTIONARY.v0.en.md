@@ -120,6 +120,21 @@ Rules:
 - deprecation must precede removal for visible contract identifiers
 - retired identifiers must not be reused
 
+### New external-workspace packet filenames
+
+For new packets placed by `05_scripts/workspace/shadowmas_packet.py`, use
+`<packet_type>.<packet_uid>.<schema_version>.yaml`. The helper writes task and
+memory packets under `packets/` and review packets under `reviews/`. It assigns
+a UUID when the draft omits `packet_uid`; a supplied UID must be safe as one
+filename segment. The helper checks the current packet contract and rejects
+UID or filename collisions before placing a file.
+
+This naming rule applies to new external-workspace writes, not to existing
+packets or source-tree fixture filenames. Packet readers continue to use the
+in-artifact `packet_uid`, `packet_type`, and `schema_version` fields; a filename
+does not grant identity, type, version, or approval authority. Older filenames
+remain readable without a mass rename.
+
 ### `task_id`
 Meaning:
 The higher-level task identifier associated with the packet.

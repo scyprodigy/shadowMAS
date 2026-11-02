@@ -81,6 +81,12 @@ truth. Use them instead of re-deriving the same facts by hand:
 
 - Follow the path-sensitive filename policy at `07_working/drafts/rationale/policy_filename_memo.md` when it is present.
 - Keep machine-facing surfaces (tools, tests, examples, packets, registries) predictable.
+- For a new agent-authored packet in a shadowMAS external workspace, use
+  `05_scripts/workspace/shadowmas_packet.py write` so the filename is derived
+  from validated fields. Prefer leaving `packet_uid` absent from the draft so
+  the writer assigns it. Do not choose the filename by hand or mass-rename
+  existing differently named packets. In-repo producers of external-workspace
+  packets must use the shared naming helper and validate before writing.
 - Keep human-facing drafts under `07_working/drafts/` readable: prefer lowercase snake_case multi-word names with semantic version suffixes such as `v2_1`. Avoid compressed tokens like `v21` representing `v2.1`.
 - Do not track generated `exports/`, `.pdf`, `.docx`, or `.pptx` files.
 - Do not create large binary artifacts in the repo.

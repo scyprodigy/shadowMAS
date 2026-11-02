@@ -247,6 +247,10 @@ shadowMAS 不可能長期只靠自然語言聊天。
 目前預設 codec：
 - YAML
 
+新寫入外部工作區的 packet，由寫入工具用
+`<packet_type>.<packet_uid>.<schema_version>.yaml` 命名；既有檔案不批次改名。
+讀取時仍以檔內的類型、UID 和版本欄位為準，檔名不構成核准或真相權限。
+
 packet 的價值在於：
 - 任務邊界清楚
 - memory promotion / invalidation 可明寫

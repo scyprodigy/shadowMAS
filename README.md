@@ -401,7 +401,7 @@ Do not run `init` against a production product repository before reviewing the o
 
 ### First attach loop
 
-This walkthrough shows the smallest end-to-end path from workspace registration to a manually validated first packet. Use a throwaway directory for the first attempt, not your real product repo.
+This walkthrough shows the smallest end-to-end path from workspace registration to an explicitly validated first packet. Use a throwaway directory for the first attempt, not your real product repo.
 
 1. Create a throwaway product-repo-like directory.
 
@@ -433,15 +433,15 @@ This walkthrough shows the smallest end-to-end path from workspace registration 
 
    A passing run prints `OK workspace metadata valid` and confirms that `boundary.writes_product_repo` is `false` and `boundary.governance_artifacts_external` is `true`. The field name is historical; it means authority-boundary artifacts live outside the product-repo-like directory, and the workspace will not write into that directory.
 
-5. Copy the existing example packet into the workspace's `packets/` subdirectory.
+5. Copy the existing example packet to a draft outside the workspace.
 
    ```bash
-   cp examples/packets/task_packet.valid.v0.yaml <workspace-path>/packets/first_attach_packet.v0.yaml
+   cp examples/packets/task_packet.valid.v0.yaml /tmp/shadowmas_task_draft.yaml
    ```
 
-   `<workspace-path>` is the path from Step 3.
+   The draft is not yet a workspace packet.
 
-6. Edit the copied packet before validating. At minimum, change these fields to values that reflect a small task you would actually author:
+6. Edit the draft before placing it. At minimum, change these fields to values that reflect a small task you would actually author:
 
    - `packet_uid`
    - `task_id`
@@ -453,22 +453,22 @@ This walkthrough shows the smallest end-to-end path from workspace registration 
 
    Leave `packet_type`, `schema_version`, and the structural fields alone for this first pass.
 
-7. Validate the copied packet.
+7. Validate and place the packet in the workspace.
 
    ```bash
-   python3 05_scripts/validate/shadowmas_validate.py <workspace-path>/packets/first_attach_packet.v0.yaml
+   python3 05_scripts/workspace/shadowmas_packet.py write --project /tmp/shadowmas_attach_demo --input /tmp/shadowmas_task_draft.yaml
    ```
 
-   - Exit `0` means the packet shape satisfies the v0 packet contract (`OK <path>` and `checks: passed` are printed).
-   - Exit `1` means validation errors were found. The validator prints each error's code, file, field, JSON path, severity, and message.
-   - Exit `2` means usage or parse failure (input file missing, unreadable, or not valid YAML).
+   - Exit `0` prints the new path under `<workspace-path>/packets/`, named from the packet's type, UID, and version.
+   - Exit `1` means validation or collision refusal; exit `2` means setup or input failure.
+   - The write validates packet representation. It does not approve the task or its authority claims.
 
 What this loop does and does not assert:
 
 - In this attach loop, shadowMAS does not read inside your product repo: the workspace tool only checks that the directory exists and hashes its absolute path. It writes no files inside the product repo.
 - The current repo ships no daemon, file watcher, continuous monitor, or automatic repo scanner (for either your product repo or the workspace). Bounded repo reading or indexing belongs to explicit packet-scoped task flow only when authored or approved by the human; it is not blind full-repo traversal and not continuous watching.
 - shadowMAS does not write back to your product repo in this loop. Future automated write-back, if enabled by a later contract, is limited to controlled candidate branches or worktrees; promotion to canonical product branches remains a human git review and merge decision.
-- In this attach loop, every workspace artifact is one you placed by hand. In future packetized task flows, an external runtime or agent may emit draft packets, captured memory candidates, and review drafts; those remain draft or candidate material until human review passes them through the packet review / promotion path. Passing packet validation does not approve work or prove project correctness.
+- In this attach loop, every workspace artifact is one you explicitly placed. In future packetized task flows, an external runtime or agent may emit draft packets, captured memory candidates, and review drafts; those remain draft or candidate material until human review passes them through the packet review / promotion path. Passing packet validation does not approve work or prove project correctness.
 - The product-repo owner decides whether any packet, artifact, or task flow should affect the product repo.
 
 After this loop you can also inspect the existing L2 fixtures (see Step 4 of the [Controlled alpha quickstart](#controlled-alpha-quickstart)) to compare authority-boundary traces, but those fixtures do not validate your product repo.
@@ -483,15 +483,15 @@ If `<workspace-path>` is not in view, recover it with:
 python3 05_scripts/workspace/shadowmas_workspace.py where --project <product-repo-path>
 ```
 
-1. Copy the valid review packet example into the workspace reviews directory.
+1. Copy the valid review packet example to a draft outside the workspace.
 
    ```bash
-   cp examples/packets/review_packet.valid.v0.yaml <workspace-path>/reviews/first_review_packet.v0.yaml
+   cp examples/packets/review_packet.valid.v0.yaml /tmp/shadowmas_review_draft.yaml
    ```
 
-   `<workspace-path>/reviews/` is inside the external shadowMAS workspace. It is not inside the shadowMAS repo and not inside the product repo. The copied file is a manual review artifact for this attached workspace.
+   The completed review packet will be placed under `<workspace-path>/reviews/`.
 
-2. Edit the copied review packet before validating. At minimum, change:
+2. Edit the review draft before placing it. At minimum, change:
 
    - `packet_uid`
    - `created_at`
@@ -515,15 +515,14 @@ python3 05_scripts/workspace/shadowmas_workspace.py where --project <product-rep
 
    `<task packet_uid>` comes from the task packet under `<workspace-path>/packets/`.
 
-4. Validate the review packet.
+4. Validate and place the review packet.
 
    ```bash
-   python3 05_scripts/validate/shadowmas_validate.py <workspace-path>/reviews/first_review_packet.v0.yaml
+   python3 05_scripts/workspace/shadowmas_packet.py write --project /tmp/shadowmas_attach_demo --input /tmp/shadowmas_review_draft.yaml
    ```
 
-   - Exit `0` means the review packet shape satisfies the v0 packet contract.
-   - Exit `1` means validation errors were found.
-   - Exit `2` means usage or parse failure.
+   - Exit `0` prints the new path under `<workspace-path>/reviews/`.
+   - Exit `1` means validation or collision refusal; exit `2` means setup or input failure.
 
 `review_packet` is a human approval-compression surface. It can be manually authored today, and in future packetized task flows, a runtime or agent may emit review packet drafts after delegated execution; this manual loop shows the shape those drafts must preserve.
 
@@ -581,6 +580,7 @@ python3 05_scripts/validate/shadowmas_validate.py <packet-file>
 python3 05_scripts/workspace/shadowmas_workspace.py init --project <project-path>
 python3 05_scripts/workspace/shadowmas_workspace.py where --project <project-path>
 python3 05_scripts/workspace/shadowmas_workspace.py inspect --project <project-path>
+python3 05_scripts/workspace/shadowmas_packet.py write --project <project-path> --input <draft.yaml>
 ```
 
 See `05_scripts/workspace/README.md` for `list` and `destroy` usage.
@@ -593,6 +593,7 @@ Logical future command shapes:
 shadowmas validate <packet-file>
 shadowmas workspace init --project <project-path>
 shadowmas workspace where --project <project-path>
+shadowmas packet write --project <project-path> --input <draft.yaml>
 shadowmas workspace inspect --project <project-path>
 ```
 
