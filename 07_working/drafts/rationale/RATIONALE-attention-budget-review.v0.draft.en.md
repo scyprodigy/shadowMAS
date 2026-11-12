@@ -30,9 +30,10 @@ an assumed constant.
   extend; it already encodes human availability, just not attention
 
 ## Evidence plan, not evidence
-The review-card experiment (review-cost compression vs risk coverage,
-`retired_review_experiment`) is the natural data source. Until it
-produces numbers, this direction makes no empirical claim. Cognitive
+The evaluation plan in `authority_review_evaluation.v0.en.md` separates
+review-cost compression from independently measured risk coverage. Exploratory
+keyword filtering supplies questions, not validated results. This direction
+makes no empirical claim. Cognitive
 load and vigilance-decrement literature motivate the design; they are
 motivation, not proof that this implementation works.
 
