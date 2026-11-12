@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -62,6 +63,22 @@ class InspectL2FixtureCLITests(unittest.TestCase):
     def test_cli_output_is_valid_json(self):
         result = run_cli(VALID_FIXTURE)
         json.loads(result.stdout)
+
+    def test_reports_support_legacy_output_encoding(self):
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "cp1252"
+        for args, expected in [([str(VALID_FIXTURE)], "pass"), ([], "fail")]:
+            with self.subTest(expected=expected):
+                result = subprocess.run(
+                    [sys.executable, str(CLI), *args],
+                    capture_output=True, text=True, env=env,
+                )
+                self.assertEqual(result.returncode, 0 if expected == "pass" else 1,
+                                 msg=result.stderr)
+                self.assertTrue(result.stdout.isascii())
+                payload = json.loads(result.stdout)
+                self.assertEqual(payload["status"], expected)
+                self.assertTrue(any(ord(c) > 127 for c in payload["human_summary_zh"]))
 
     def test_malformed_fixture_missing_key_returns_fail_and_exit_one(self):
         fixture = self._load_valid_fixture_copy()

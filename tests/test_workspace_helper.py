@@ -56,7 +56,7 @@ class WorkspaceListDestroyTests(unittest.TestCase):
         self.addCleanup(self._tmp_project.cleanup)
         # One project-specific override isolates tests on every host OS.
         self.env = {"SHADOWMAS_DATA_HOME": self._tmp_root.name}
-        self.project_path = self._tmp_project.name
+        self.project_path = str(Path(self._tmp_project.name).resolve())
 
     def test_list_empty_root_returns_zero(self):
         result = run_tool("list", env_overrides=self.env)

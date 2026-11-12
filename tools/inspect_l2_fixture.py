@@ -22,7 +22,7 @@ HUMAN_SUMMARY_EN_PASS = "fixture inspection passed"
 HUMAN_SUMMARY_EN_FAIL = "fixture inspection failed"
 # zh-TW summaries are assembled from explicit codepoints so this machine-facing
 # source file stays ASCII-only per repository language policy. They render as
-# readable zh-TW characters at runtime through json.dumps(..., ensure_ascii=False).
+# readable zh-TW after JSON decoding; ASCII escaping also supports legacy pipes.
 HUMAN_SUMMARY_ZH_PASS = "fixture " + "".join(
     chr(c) for c in (0x6AA2, 0x8996, 0x901A, 0x904E)
 )
@@ -168,11 +168,11 @@ def main(argv):
             ["usage: inspect_l2_fixture.py <path_to_l2_fixture.json>"],
             checked_rules=["usage"],
         )
-        print(json.dumps(report, indent=2, ensure_ascii=False))
+        print(json.dumps(report, indent=2, ensure_ascii=True))
         return 1
 
     report = inspect_l2_fixture(argv[1])
-    print(json.dumps(report, indent=2, ensure_ascii=False))
+    print(json.dumps(report, indent=2, ensure_ascii=True))
     return 0 if report["status"] == "pass" else 1
 
 
