@@ -16,6 +16,8 @@ class PublicPrivacyTests(unittest.TestCase):
         self.assertEqual(privacy.categories("author <person@example.com>"), [])
         self.assertEqual(privacy.categories("author <123+account@users.noreply.github.com>"), [])
         self.assertEqual(privacy.categories("/home/" + "operator/project"), [])
+        self.assertEqual(privacy.categories("/home/" + "vendor/product"), [])
+        self.assertEqual(privacy.categories("private/pre-submit handling"), [])
 
     def test_private_contact_and_regex_literal(self):
         contact = "person" + "@" + "mail-provider.com"
@@ -25,7 +27,9 @@ class PublicPrivacyTests(unittest.TestCase):
     def test_local_path_and_private_branch(self):
         self.assertIn("local_user_path", privacy.categories("/home/" + "person_x/project"))
         self.assertIn("local_user_path", privacy.categories("C:/Users/" + "person_x/project"))
-        self.assertIn("private_branch_reference", privacy.categories("private/" + "contact_package"))
+        branch = "private/" + "contact_package"
+        self.assertIn("private_branch_reference", privacy.categories("`" + branch + "`"))
+        self.assertIn("private_branch_reference", privacy.categories("refs/heads/" + branch))
 
     def test_encoded_identifier_and_real_key_shape(self):
         encoded = "b64decode(" + repr("cHJpdmF0ZV9pZGVudGlmaWVy") + ")"
@@ -71,3 +75,30 @@ class PublicPrivacyTests(unittest.TestCase):
             subprocess.run(["git", "init", "-q", directory], check=True)
             with self.assertRaises(subprocess.SubprocessError):
                 privacy.scan(Path(directory), "missing", True)
+
+    def test_shallow_history_is_incomplete(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            def git(*args):
+                return subprocess.check_output(["git", "-C", directory, *args], stderr=subprocess.PIPE)
+            git("init", "-q")
+            git("-c", "user.name=Synthetic", "-c", "user.email=author@example.com",
+                "commit", "--allow-empty", "-qm", "Synthetic boundary")
+            (repo / ".git" / "shallow").write_bytes(git("rev-parse", "HEAD"))
+            with self.assertRaises(ValueError):
+                privacy.scan(repo, "HEAD", True)
+
+    def test_binary_payload_does_not_masquerade_as_text(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            def git(*args):
+                return subprocess.check_output(["git", "-C", directory, *args], stderr=subprocess.PIPE)
+            git("init", "-q")
+            (repo / "cover.png").write_bytes(b"\0" + b"compressed" + b"@" + b"image-data.com")
+            (repo / "document.docx").write_bytes(b"\0opaque export")
+            git("add", "cover.png", "document.docx")
+            git("-c", "user.name=Synthetic", "-c", "user.email=author@example.com",
+                "commit", "-qm", "Synthetic binary examples")
+            findings, coverage = privacy.scan(repo, "HEAD", True)
+            self.assertEqual(coverage["binary_skipped"], 2)
+            self.assertEqual([f["category"] for f in findings], ["generated_export"])

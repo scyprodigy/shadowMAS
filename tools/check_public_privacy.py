@@ -14,7 +14,9 @@ from pathlib import Path
 
 EMAIL = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 HOME = re.compile(r"(?:/home/|/Users/|[A-Za-z]:[\\/]Users[\\/])([A-Za-z0-9_.-]+)")
-PRIVATE_BRANCH = re.compile(r"\bprivate/[A-Za-z0-9][A-Za-z0-9._/-]*")
+PRIVATE_BRANCH = re.compile(
+    r'''(?:refs/heads/private/[A-Za-z0-9][A-Za-z0-9._/-]*|["'`]private/[A-Za-z0-9][A-Za-z0-9._/-]*["'`])'''
+)
 ENCODED_LITERAL = re.compile(r'''\bb64decode\(\s*b?["'][A-Za-z0-9+/=]{8,}["']''')
 SECRET = re.compile(
     r"-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----|"
@@ -22,7 +24,7 @@ SECRET = re.compile(
     r"\b(?:AKIA|ASIA)[A-Z0-9]{16}\b|"
     r"\bsk-(?:proj-|ant-)?[A-Za-z0-9_\-]{30,}\b"
 )
-PLACEHOLDER_USERS = {"user", "username", "developer", "operator", "example"}
+PLACEHOLDER_USERS = {"user", "username", "developer", "operator", "example", "vendor"}
 EXAMPLE_DOMAINS = {"example.com", "example.org", "example.net"}
 EXPORT_SUFFIXES = {".pdf", ".docx", ".pptx"}
 
@@ -87,13 +89,18 @@ def scan(repo: Path, revision: str, history: bool) -> tuple[list[dict], dict]:
             findings.append({"object": oid, "line": 0, "category": "filename_" + category})
         if Path(name).suffix.lower() in EXPORT_SUFFIXES:
             findings.append({"object": oid, "line": 0, "category": "generated_export"})
+    binary_skipped = 0
     for oid in sorted(blobs):
         data = git(repo, "cat-file", "blob", oid)
-        # Scan raw bytes as text too, including strings in binary metadata.
+        # Compressed binary bytes can accidentally resemble contact addresses.
+        # Binary review is separate; exported documents are refused above.
+        if b"\0" in data:
+            binary_skipped += 1
+            continue
         for number, line in enumerate(data.decode("utf-8", "replace").splitlines(), 1):
             for category in categories(line):
                 findings.append({"object": oid, "line": number, "category": category})
-    return findings, {"commits": len(commits), "blobs": len(blobs)}
+    return findings, {"commits": len(commits), "blobs": len(blobs), "binary_skipped": binary_skipped}
 
 
 def main() -> int:
@@ -109,7 +116,8 @@ def main() -> int:
     for finding in findings:
         print(f"{finding['object']}:{finding['line']} {finding['category']}")
     print(f"{'FINDINGS' if findings else 'PASS'} public privacy: "
-          f"{len(findings)} findings; {coverage['commits']} commits, {coverage['blobs']} blobs")
+          f"{len(findings)} findings; {coverage['commits']} commits, {coverage['blobs']} blobs; "
+          f"{coverage['binary_skipped']} binary blobs require separate review")
     return 1 if findings else 0
 
 
