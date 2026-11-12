@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -44,8 +46,10 @@ jobs:
       - name: Validator-schema drift check
         run: python3 tools/check_validator_drift.py
 
-      # The pollution scanner is operator-local and intentionally gitignored.
-      # CI must not require tools/check_no_pollution.py to exist in checkout.
+      - name: Public history privacy
+        run: python3 tools/check_public_privacy.py --history
+
+      # Identifying operator-specific patterns stay outside public source.
       - name: Anchor drift check
         run: python3 tools/check_anchor_drift.py
 

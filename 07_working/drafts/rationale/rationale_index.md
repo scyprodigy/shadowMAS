@@ -25,10 +25,11 @@
 | `active_design_ledger.yaml` | YAML artifact `active_design_log_extraction_coverage_ledger` (no top-level purpose line). |
 | `active_log_archive_plan.yaml` | YAML artifact `active_design_log_archive_plan` (no top-level purpose line). |
 | `active_log_move_plan.yaml` | YAML artifact `active_design_log_move_plan` (no top-level purpose line). |
+| `authority_review_evaluation.v0.en.md` | working evaluation plan for authority boundaries and evidence-preserving review. |
 | `calibration_framework_note.md` | working rationale draft for treating calibration as a distribution, not a single number. |
 | `deferred_state_inventory.md` | working rationale listing intentionally-deferred shadowMAS surfaces with their unlock triggers. |
 | `external_paradigm_references.md` | working rationale capturing external frameworks, papers, and prior art that shadowMAS's existing distillation may have missed. |
-| `history_pollution_residual_risk.md` | record of deferred history rewrite with explicit residual-risk acceptance. |
+| `history_pollution_residual_risk.md` | public-history privacy controls and limits. |
 | `l1_mutation_coverage_report.md` | fixture-level mutation coverage for authority-boundary invariants. |
 | `mdl_compressive_refinement_rationale.md` | draft rationale for minimum-description and net-effect refinement principles. |
 | `negative_audit_cycle_routine.md` | working rationale capturing the negative-audit + cleanup methodology proven in session 2026-05. |
